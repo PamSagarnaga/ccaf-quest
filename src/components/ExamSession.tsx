@@ -1,7 +1,7 @@
 "use client";
 import { useState } from "react";
-import type { QuizQuestion } from "@/lib/queries";
-import { EXAM_DOMAIN_TARGETS } from "@/lib/queries";
+import type { QuizQuestion } from "@/lib/quiz-types";
+import { EXAM_DOMAIN_TARGETS } from "@/lib/quiz-types";
 import { pickUnseen } from "@/lib/seen";
 import { ExamRunner } from "@/components/ExamRunner";
 

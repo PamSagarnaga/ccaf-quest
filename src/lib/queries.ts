@@ -1,23 +1,10 @@
 import { createClient } from "@/lib/supabase/server";
+import type { QuizOption, QuizQuestion } from "@/lib/quiz-types";
+import { EXAM_DOMAIN_TARGETS } from "@/lib/quiz-types";
 
-export interface QuizOption {
-  label: string;
-  body: string;
-  is_correct: boolean;
-  rationale: string | null;
-  sort: number;
-}
-
-export interface QuizQuestion {
-  id: string;
-  domain: number;
-  task_code: string | null;
-  scenario: string | null;
-  stem: string;
-  type: "single" | "multi";
-  difficulty: number | null;
-  options: QuizOption[];
-}
+// Re-exported so existing importers can keep pulling these from queries.
+export type { QuizOption, QuizQuestion } from "@/lib/quiz-types";
+export { EXAM_DOMAIN_TARGETS } from "@/lib/quiz-types";
 
 const QUESTION_SELECT =
   "id,domain,task_code,scenario,stem,type,difficulty,options:question_options(label,body,is_correct,rationale,sort)";
@@ -99,15 +86,6 @@ export async function getQuizPool(
   const questions = (data ?? []) as unknown as QuizQuestion[];
   return shuffle(questions).map(shuffleOpts);
 }
-
-// Blueprint-weighted item counts for a 60-item exam (sums to 60).
-export const EXAM_DOMAIN_TARGETS: Record<number, number> = {
-  1: 16,
-  2: 11,
-  3: 12,
-  4: 12,
-  5: 9,
-};
 
 /**
  * Full shuffled question pool for an exam. The weighted 60-item draw
