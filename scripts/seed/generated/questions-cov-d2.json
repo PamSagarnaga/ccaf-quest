@@ -1,0 +1,155 @@
+[
+  {
+    "id": "bc200000-0000-4000-8000-000000000201",
+    "task_code": "2.2",
+    "domain": 2,
+    "scenario": "customer-support",
+    "stem": "A `search_orders` tool executes successfully and returns zero matching orders. How should the agent treat this?",
+    "type": "single",
+    "source": "generated",
+    "difficulty": 2,
+    "explanation": null,
+    "options": [
+      { "label": "A", "body": "Accept it as a valid empty result — the absence of data is the answer.", "is_correct": true, "rationale": "Correct. The tool ran successfully; zero results is a legitimate outcome, not an error. 'Not found' is deliberately not an error category." },
+      { "label": "B", "body": "Treat it as an error and retry the call.", "is_correct": false, "rationale": "Retrying a successful empty search just repeats a valid result — nothing failed." },
+      { "label": "C", "body": "Return isError=true so the model knows something went wrong.", "is_correct": false, "rationale": "Marking a valid empty result as an error misleads the model into thinking the tool failed." },
+      { "label": "D", "body": "Escalate to a human because no data was found.", "is_correct": false, "rationale": "An empty result doesn't warrant escalation; it's simply the answer." }
+    ]
+  },
+  {
+    "id": "bc200000-0000-4000-8000-000000000202",
+    "task_code": "2.2",
+    "domain": 2,
+    "scenario": "customer-support",
+    "stem": "Which of these is an access failure that warrants retry/escalation rather than a valid empty result?",
+    "type": "single",
+    "source": "generated",
+    "difficulty": 2,
+    "explanation": null,
+    "options": [
+      { "label": "A", "body": "The API returns 401 Unauthorized.", "is_correct": true, "rationale": "Correct. A 401 (or a network timeout, or a 429 rate limit) means the tool failed to execute — retry with correct credentials or escalate." },
+      { "label": "B", "body": "A database query returns an empty set.", "is_correct": false, "rationale": "That's a valid empty result — the record simply doesn't exist." },
+      { "label": "C", "body": "A filter matches no items.", "is_correct": false, "rationale": "Valid empty — refine the filter or report no matches; nothing failed." },
+      { "label": "D", "body": "A search returns 0 results.", "is_correct": false, "rationale": "Valid empty — the absence of data is the answer." }
+    ]
+  },
+  {
+    "id": "bc200000-0000-4000-8000-000000000203",
+    "task_code": "2.4",
+    "domain": 2,
+    "scenario": "developer-productivity",
+    "stem": "In MCP's architecture, how do two MCP servers exchange information?",
+    "type": "single",
+    "source": "generated",
+    "difficulty": 2,
+    "explanation": null,
+    "options": [
+      { "label": "A", "body": "They don't connect directly — all communication routes through the client/host.", "is_correct": true, "rationale": "Correct. MCP is a three-layer model (Host ⊃ Client ↔ Server). Servers expose tools/resources; the client connects to servers and routes calls. Servers don't talk to each other." },
+      { "label": "B", "body": "Servers open direct peer-to-peer connections to each other.", "is_correct": false, "rationale": "MCP servers don't connect directly — that's a classic distractor." },
+      { "label": "C", "body": "Through a shared database both servers write to.", "is_correct": false, "rationale": "Not part of the MCP model; communication goes through the client/host." },
+      { "label": "D", "body": "Via an event bus the servers publish to.", "is_correct": false, "rationale": "No event bus between servers; the client/host mediates." }
+    ]
+  },
+  {
+    "id": "bc200000-0000-4000-8000-000000000204",
+    "task_code": "2.4",
+    "domain": 2,
+    "scenario": "developer-productivity",
+    "stem": "Your team needs a Postgres integration for Claude. What does the guide recommend before building a custom MCP server?",
+    "type": "single",
+    "source": "generated",
+    "difficulty": 1,
+    "explanation": null,
+    "options": [
+      { "label": "A", "body": "Check for an existing community MCP server first; only build custom when none meets your needs.", "is_correct": true, "rationale": "Correct. Use community servers first — building custom is the fallback for genuinely unmet requirements." },
+      { "label": "B", "body": "Always build a custom server for full control.", "is_correct": false, "rationale": "Building custom for a common integration wastes effort when a community server exists." },
+      { "label": "C", "body": "Skip MCP and call the database directly from the prompt.", "is_correct": false, "rationale": "That bypasses the tool interface entirely and isn't the recommended integration path." },
+      { "label": "D", "body": "Wait for Anthropic to ship an official one.", "is_correct": false, "rationale": "The guidance is to reuse community servers now, not wait." }
+    ]
+  },
+  {
+    "id": "bc200000-0000-4000-8000-000000000205",
+    "task_code": "2.1",
+    "domain": 2,
+    "scenario": "customer-support",
+    "stem": "Claude keeps mis-selecting between similar tools. What is the correct FIRST optimization step?",
+    "type": "single",
+    "source": "generated",
+    "difficulty": 2,
+    "explanation": null,
+    "options": [
+      { "label": "A", "body": "Improve the tool descriptions; then add few-shot examples; consolidate tools only as a last resort.", "is_correct": true, "rationale": "Correct. The optimization sequence is descriptions → few-shot → consolidate. Descriptions are the primary selection signal, so start there." },
+      { "label": "B", "body": "Immediately reduce the number of tools.", "is_correct": false, "rationale": "Reducing tools is the last step, not the first — fix descriptions before cutting tools." },
+      { "label": "C", "body": "Rename the tools to be shorter.", "is_correct": false, "rationale": "Names aren't the primary selection signal; descriptions are." },
+      { "label": "D", "body": "Force a specific tool with tool_choice on every call.", "is_correct": false, "rationale": "Forcing one tool removes the model's judgment and isn't a general selection fix." }
+    ]
+  },
+  {
+    "id": "bc200000-0000-4000-8000-000000000206",
+    "task_code": "2.3",
+    "domain": 2,
+    "scenario": "structured-extraction",
+    "stem": "You must always get structured output, but the incoming document could match one of several extraction schemas and you don't know which upfront. Which tool_choice setting?",
+    "type": "single",
+    "source": "generated",
+    "difficulty": 3,
+    "explanation": null,
+    "options": [
+      { "label": "A", "body": "tool_choice: \"any\" — guarantees a tool call while letting the model pick the right schema.", "is_correct": true, "rationale": "Correct. `any` forces some tool call (so you always get structured output) but lets the model choose which extraction tool fits the document." },
+      { "label": "B", "body": "Forced tool_choice for one specific named tool.", "is_correct": false, "rationale": "Forcing one tool assumes you know the single structure — you don't, since the document type is unknown." },
+      { "label": "C", "body": "tool_choice: \"auto\".", "is_correct": false, "rationale": "`auto` lets the model reply with text and skip tools — no guarantee of structured output." },
+      { "label": "D", "body": "Prompt-based JSON instructions.", "is_correct": false, "rationale": "No schema enforcement — risks malformed or incomplete JSON." }
+    ]
+  },
+  {
+    "id": "bc200000-0000-4000-8000-000000000207",
+    "task_code": "2.3",
+    "domain": 2,
+    "scenario": "customer-support",
+    "stem": "In a normal agentic loop where the model should decide when to call tools versus respond with text, what's the correct tool_choice default?",
+    "type": "single",
+    "source": "generated",
+    "difficulty": 1,
+    "explanation": null,
+    "options": [
+      { "label": "A", "body": "auto — the model decides whether to call a tool.", "is_correct": true, "rationale": "Correct. `auto` is the default for agentic loops; the model needs freedom to call tools or answer in text." },
+      { "label": "B", "body": "any — force a tool call every turn.", "is_correct": false, "rationale": "Forcing a tool every turn prevents the model from ever finishing with text — can cause loops." },
+      { "label": "C", "body": "Forced to a specific tool.", "is_correct": false, "rationale": "Forcing one tool removes the model's judgment about when to act." },
+      { "label": "D", "body": "None — disable tools during the loop.", "is_correct": false, "rationale": "Disabling tools defeats the point of an agentic loop." }
+    ]
+  },
+  {
+    "id": "bc200000-0000-4000-8000-000000000208",
+    "task_code": "2.5",
+    "domain": 2,
+    "scenario": "developer-productivity",
+    "stem": "You need to find every file whose name ends in `.config.ts` across a large repo. Which built-in tool is the most specific fit?",
+    "type": "single",
+    "source": "generated",
+    "difficulty": 1,
+    "explanation": null,
+    "options": [
+      { "label": "A", "body": "Glob — find files by name/path pattern.", "is_correct": true, "rationale": "Correct. Glob is for file discovery by name/extension patterns. Use the most specific tool for the job." },
+      { "label": "B", "body": "Grep — search file contents by pattern.", "is_correct": false, "rationale": "Grep searches inside files for content; here you're matching filenames, which is Glob's job." },
+      { "label": "C", "body": "Bash with a find command.", "is_correct": false, "rationale": "Avoid Bash for tasks a specialized tool handles better; Glob is the specific fit." },
+      { "label": "D", "body": "Read each file to check its name.", "is_correct": false, "rationale": "Read is for known file paths, not for discovering files by pattern." }
+    ]
+  },
+  {
+    "id": "bc200000-0000-4000-8000-000000000209",
+    "task_code": "2.2",
+    "domain": 2,
+    "scenario": "customer-support",
+    "stem": "An MCP tool hits a downstream timeout. What should it return so the agent can respond intelligently?",
+    "type": "single",
+    "source": "generated",
+    "difficulty": 2,
+    "explanation": null,
+    "options": [
+      { "label": "A", "body": "Structured metadata: errorCategory \"transient\", isRetryable true, and a human-readable description.", "is_correct": true, "rationale": "Correct. A timeout is transient/retryable; structured metadata (category + retryable + description) lets the agent decide to retry rather than guess." },
+      { "label": "B", "body": "A generic \"Operation failed\" string.", "is_correct": false, "rationale": "A generic string gives the agent nothing to reason with — return structured metadata." },
+      { "label": "C", "body": "An empty successful result so the loop continues.", "is_correct": false, "rationale": "Empty-success hides a real failure and makes the agent think no data exists." },
+      { "label": "D", "body": "Throw an uncaught exception from the handler.", "is_correct": false, "rationale": "Uncaught exceptions break the tool protocol and give the model nothing to reason about." }
+    ]
+  }
+]

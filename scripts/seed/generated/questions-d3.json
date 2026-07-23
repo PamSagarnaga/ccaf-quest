@@ -1,0 +1,138 @@
+[
+  {
+    "id": "b3000000-0000-4000-8000-000000000301",
+    "task_code": "3.1",
+    "domain": 3,
+    "scenario": "code-generation",
+    "stem": "Developer A's Claude Code follows the team's API naming conventions perfectly. Developer B, who joined last week, gets inconsistent naming — both work on the same repo and branch. What is the most likely root cause?",
+    "type": "single",
+    "source": "generated",
+    "difficulty": 3,
+    "explanation": null,
+    "options": [
+      { "label": "A", "body": "The naming conventions live in Developer A's user-level CLAUDE.md (~/.claude/CLAUDE.md) rather than in project-level config.", "is_correct": true, "rationale": "Correct. User-level CLAUDE.md isn't version-controlled or shared via git. A has it locally; B, who just cloned, doesn't. Moving the rules to project config (.claude/CLAUDE.md or root CLAUDE.md) fixes it." },
+      { "label": "B", "body": "Developer B hasn't run /memory to load the configuration files.", "is_correct": false, "rationale": "/memory is a diagnostic that shows which files are loaded — it doesn't trigger loading. Config loads automatically from file location." },
+      { "label": "C", "body": "Developer B needs to install an MCP server to access the naming-convention rules.", "is_correct": false, "rationale": "MCP servers provide tool integrations, not CLAUDE.md configuration. Conventions are config, not tools." },
+      { "label": "D", "body": "The conventions are in a .claude/rules/ file that B's system doesn't support.", "is_correct": false, "rationale": ".claude/rules/ files are inside the repo and version-controlled — B would receive them on clone." }
+    ]
+  },
+  {
+    "id": "b3000000-0000-4000-8000-000000000302",
+    "task_code": "3.1",
+    "domain": 3,
+    "scenario": "code-generation",
+    "stem": "A monorepo has packages/api/ with API conventions and packages/frontend/ with component conventions. Each package should follow its own standards without duplicating shared conventions. What's the correct configuration?",
+    "type": "single",
+    "source": "generated",
+    "difficulty": 3,
+    "explanation": null,
+    "options": [
+      { "label": "A", "body": "Project-level CLAUDE.md with @import for shared standards, plus a directory-level CLAUDE.md in each package importing only package-specific standards.", "is_correct": true, "rationale": "Correct. @import enables modular organization — shared standards live once and are imported where needed; package-specific rules live in directory-level CLAUDE.md. No duplication." },
+      { "label": "B", "body": "A directory-level CLAUDE.md in each package containing all conventions, including the shared ones.", "is_correct": false, "rationale": "Duplicates the shared conventions in every package, creating maintenance burden and drift." },
+      { "label": "C", "body": "Put all conventions in user-level config and have each developer copy the right sections.", "is_correct": false, "rationale": "User-level config is personal and not shared via git — this fails for new team members." },
+      { "label": "D", "body": "One skill per package that developers invoke before working in that directory.", "is_correct": false, "rationale": "Skills load on-demand; conventions should apply to every edit as always-in-context guidance, which CLAUDE.md provides." }
+    ]
+  },
+  {
+    "id": "b3000000-0000-4000-8000-000000000303",
+    "task_code": "3.2",
+    "domain": 3,
+    "scenario": "code-generation",
+    "stem": "A skill performs codebase analysis and floods the main conversation with file listings, dependency graphs, and code excerpts. Which SKILL.md frontmatter fixes this?",
+    "type": "single",
+    "source": "generated",
+    "difficulty": 2,
+    "explanation": null,
+    "options": [
+      { "label": "A", "body": "context: fork — run the skill in an isolated sub-agent so its verbose output stays contained and the main conversation gets only the summary.", "is_correct": true, "rationale": "Correct. context: fork isolates the skill's context; the main window stays clean for subsequent work." },
+      { "label": "B", "body": "allowed-tools: [Read, Grep, Glob] to limit the volume of data accessed.", "is_correct": false, "rationale": "allowed-tools governs tool access, not output volume — the skill would still produce verbose output with the permitted tools." },
+      { "label": "C", "body": "argument-hint: \"Specify a narrow scope\" to reduce the analysis.", "is_correct": false, "rationale": "argument-hint documents expected input parameters; it doesn't control output volume." },
+      { "label": "D", "body": "output-limit: 1000 to cap tokens produced.", "is_correct": false, "rationale": "output-limit is not a valid SKILL.md frontmatter option — it doesn't exist." }
+    ]
+  },
+  {
+    "id": "b3000000-0000-4000-8000-000000000304",
+    "task_code": "3.3",
+    "domain": 3,
+    "scenario": "code-generation",
+    "stem": "Test files are co-located with source across 50+ directories (Button.test.tsx next to Button.tsx). The team wants all tests to follow the same conventions regardless of location. Most maintainable approach?",
+    "type": "single",
+    "source": "generated",
+    "difficulty": 3,
+    "explanation": null,
+    "options": [
+      { "label": "A", "body": "A rule file in .claude/rules/ with YAML frontmatter paths: [\"**/*.test.tsx\", \"**/*.test.ts\"] containing the test conventions.", "is_correct": true, "rationale": "Correct. Glob patterns match test files across the whole codebase and load automatically when editing any of them — one file covers all 50+ directories with zero maintenance." },
+      { "label": "B", "body": "A CLAUDE.md in every directory containing test files.", "is_correct": false, "rationale": "50+ directories means massive duplication; every change touches 50+ files and new directories need new copies. Drift is inevitable." },
+      { "label": "C", "body": "Add all test conventions to the root CLAUDE.md.", "is_correct": false, "rationale": "Root CLAUDE.md loads every session — test rules would burn tokens even when editing non-test files." },
+      { "label": "D", "body": "A skill in .claude/skills/ that developers invoke before writing tests.", "is_correct": false, "rationale": "Relies on developers remembering to invoke it. Path-specific rules load automatically when Claude reads a matching file — no human step." }
+    ]
+  },
+  {
+    "id": "b3000000-0000-4000-8000-000000000305",
+    "task_code": "3.3",
+    "domain": 3,
+    "scenario": "code-generation",
+    "stem": "A developer edits src/api/auth.ts. The project has three rule files: testing.md (paths: [\"**/*.test.ts\"]), api-conventions.md (paths: [\"src/api/**/*\"]), and terraform.md (paths: [\"terraform/**/*\"]). Which rules load?",
+    "type": "single",
+    "source": "generated",
+    "difficulty": 2,
+    "explanation": null,
+    "options": [
+      { "label": "A", "body": "Only api-conventions.md, because the file matches src/api/**/*.", "is_correct": true, "rationale": "Correct. auth.ts matches src/api/**/*. It isn't a *.test.ts file and isn't under terraform/, so those rules don't load." },
+      { "label": "B", "body": "All three, because they're all in .claude/rules/.", "is_correct": false, "rationale": "Being in .claude/rules/ doesn't mean automatic loading — rules load only when the edited file matches their glob." },
+      { "label": "C", "body": "api-conventions.md and testing.md, because the file is in src/.", "is_correct": false, "rationale": "testing.md needs a *.test.ts file; auth.ts isn't a test file, so testing rules don't load." },
+      { "label": "D", "body": "None, because path-specific rules require explicit invocation.", "is_correct": false, "rationale": "Path-specific rules load automatically when Claude reads a matching file; no invocation needed (that's skills)." }
+    ]
+  },
+  {
+    "id": "b3000000-0000-4000-8000-000000000306",
+    "task_code": "3.4",
+    "domain": 3,
+    "scenario": "code-generation",
+    "stem": "Three tasks: (1) restructure a monolith into microservices, (2) fix a null-pointer in one function with a clear stack trace, (3) migrate a logging library across 30 files. Which mode for each?",
+    "type": "single",
+    "source": "generated",
+    "difficulty": 3,
+    "explanation": null,
+    "options": [
+      { "label": "A", "body": "Plan mode for (1) and (3); direct execution for (2).", "is_correct": true, "rationale": "Correct. (1) has architectural decisions with multiple valid boundaries — plan mode. (3) touches 30 files and needs a consistent migration strategy first — plan mode. (2) is a clear single-function fix — direct execution." },
+      { "label": "B", "body": "Plan mode for all three, since they all involve code changes.", "is_correct": false, "rationale": "Task 2 is a well-scoped fix with a clear stack trace — plan mode adds no value." },
+      { "label": "C", "body": "Plan mode for (1); direct execution for (2) and (3).", "is_correct": false, "rationale": "Task 3 spans 30 files with API differences; without a planned pattern you risk inconsistency and missed edge cases." },
+      { "label": "D", "body": "Direct execution for all three with comprehensive upfront instructions.", "is_correct": false, "rationale": "Task 1 needs exploration of dependencies before restructuring; upfront instructions assume a structure you haven't verified." }
+    ]
+  },
+  {
+    "id": "b3000000-0000-4000-8000-000000000307",
+    "task_code": "3.6",
+    "domain": 3,
+    "scenario": "cicd",
+    "stem": "A CI script runs `claude \"Analyse this PR\"` but the job hangs indefinitely — logs show Claude Code waiting for interactive input. Correct fix?",
+    "type": "single",
+    "source": "generated",
+    "difficulty": 1,
+    "explanation": null,
+    "options": [
+      { "label": "A", "body": "Add the -p (--print) flag: `claude -p \"Analyse this PR\"`.", "is_correct": true, "rationale": "Correct. -p/--print runs headless — it processes the prompt, prints to stdout, and exits without waiting for input. The documented CI approach." },
+      { "label": "B", "body": "Set CLAUDE_HEADLESS=true before running.", "is_correct": false, "rationale": "CLAUDE_HEADLESS isn't a real Claude Code environment variable." },
+      { "label": "C", "body": "Redirect stdin from /dev/null.", "is_correct": false, "rationale": "A generic workaround that doesn't properly address interactive mode; -p is the correct documented flag." },
+      { "label": "D", "body": "Add a --batch flag.", "is_correct": false, "rationale": "--batch isn't a real Claude Code CLI flag." }
+    ]
+  },
+  {
+    "id": "b3000000-0000-4000-8000-000000000308",
+    "task_code": "3.6",
+    "domain": 3,
+    "scenario": "cicd",
+    "stem": "A CI pipeline must post review findings as inline PR comments at specific file/line numbers. Which flags should be used?",
+    "type": "single",
+    "source": "generated",
+    "difficulty": 2,
+    "explanation": null,
+    "options": [
+      { "label": "A", "body": "--output-format json plus --json-schema defining file, line, severity, and message fields.", "is_correct": true, "rationale": "Correct. --output-format json gives machine-readable output and --json-schema enforces the structure, so automation can post findings at exact locations." },
+      { "label": "B", "body": "--output-format json alone, without a schema.", "is_correct": false, "rationale": "JSON without a schema isn't guaranteed to carry the specific fields (file/line/severity/message) needed for inline commenting." },
+      { "label": "C", "body": "--verbose and --line-numbers.", "is_correct": false, "rationale": "Not valid Claude Code flags for structured output." },
+      { "label": "D", "body": "--format markdown and --annotate.", "is_correct": false, "rationale": "Not valid Claude Code flags." }
+    ]
+  }
+]

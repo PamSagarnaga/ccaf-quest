@@ -1,0 +1,155 @@
+[
+  {
+    "id": "bc500000-0000-4000-8000-000000000501",
+    "task_code": "5.1",
+    "domain": 5,
+    "scenario": "customer-support",
+    "stem": "Over a long conversation the agent keeps losing specific details — the customer's ID, exact order number, and a precise postcode. What's the most reliable fix?",
+    "type": "single",
+    "source": "generated",
+    "difficulty": 3,
+    "explanation": null,
+    "options": [
+      { "label": "A", "body": "Maintain a persistent structured facts block that's carried forward verbatim (not summarized).", "is_correct": true, "rationale": "Correct. Progressive summarization loses names, numbers, and exact values on each pass. A persistent facts block is copied forward exactly, so the model can't lose those details." },
+      { "label": "B", "body": "Ask the model to 'summarize what we've discussed so far' periodically.", "is_correct": false, "rationale": "Each summarization pass drops specific details — the exact failure here." },
+      { "label": "C", "body": "Rely on a bigger context window to hold everything.", "is_correct": false, "rationale": "A bigger window delays the problem but details still degrade in long, noisy contexts." },
+      { "label": "D", "body": "Re-fetch the details from tools every turn.", "is_correct": false, "rationale": "Re-fetching helps freshness but is wasteful and doesn't preserve the conversational record; a facts block is the direct fix." }
+    ]
+  },
+  {
+    "id": "bc500000-0000-4000-8000-000000000502",
+    "task_code": "5.4",
+    "domain": 5,
+    "scenario": "developer-productivity",
+    "stem": "A long exploration task will exceed the context window, and findings must survive a context reset. What's the right mechanism, and why?",
+    "type": "single",
+    "source": "generated",
+    "difficulty": 2,
+    "explanation": null,
+    "options": [
+      { "label": "A", "body": "Scratchpad files — external persistence on disk that survives any context reset, re-read at boundaries.", "is_correct": true, "rationale": "Correct. Conversation history is internal persistence (lost when the window fills); scratchpad files are external persistence that survives resets." },
+      { "label": "B", "body": "Keep everything in conversation history so nothing is lost.", "is_correct": false, "rationale": "History is internal persistence — it's exactly what's lost when the window fills up." },
+      { "label": "C", "body": "Summarize findings into the system prompt.", "is_correct": false, "rationale": "Summaries lose detail and still live in-context, not on disk." },
+      { "label": "D", "body": "Increase max_tokens so the context can't overflow.", "is_correct": false, "rationale": "max_tokens is output length; it doesn't extend the input/context budget or survive a reset." }
+    ]
+  },
+  {
+    "id": "bc500000-0000-4000-8000-000000000503",
+    "task_code": "5.2",
+    "domain": 5,
+    "scenario": "customer-support",
+    "stem": "Which is a reliable trigger for escalating to a human — as opposed to an unreliable exam distractor?",
+    "type": "single",
+    "source": "generated",
+    "difficulty": 2,
+    "explanation": null,
+    "options": [
+      { "label": "A", "body": "A policy gap or exception — the policy is silent or ambiguous on the request.", "is_correct": true, "rationale": "Correct. The three valid triggers: the customer explicitly asks for a human, a policy gap/exception, or the agent can't make meaningful progress." },
+      { "label": "B", "body": "A sentiment score crossing a frustration threshold.", "is_correct": false, "rationale": "Sentiment doesn't track case complexity — a frustrated customer with a resolvable issue shouldn't be auto-escalated." },
+      { "label": "C", "body": "The model's self-reported confidence dropping below 0.7.", "is_correct": false, "rationale": "Self-reported confidence scores are unreliable triggers — they don't track actual complexity." },
+      { "label": "D", "body": "The conversation exceeding 20 turns.", "is_correct": false, "rationale": "Turn count is arbitrary and unrelated to whether a human is genuinely needed." }
+    ]
+  },
+  {
+    "id": "bc500000-0000-4000-8000-000000000504",
+    "task_code": "5.2",
+    "domain": 5,
+    "scenario": "customer-support",
+    "stem": "A customer's very first message is: 'Just connect me to a human, please.' The agent has no context yet. Best action?",
+    "type": "single",
+    "source": "generated",
+    "difficulty": 2,
+    "explanation": null,
+    "options": [
+      { "label": "A", "body": "Honor the explicit request and escalate — an explicit ask for a human is a valid trigger, without forcing an investigation first.", "is_correct": true, "rationale": "Correct. An explicit request for a human is one of the three valid escalation triggers; honor it immediately rather than insisting on investigating first." },
+      { "label": "B", "body": "Refuse until you've run get_customer and lookup_order.", "is_correct": false, "rationale": "Forcing investigation before honoring an explicit human request adds friction and ignores a valid trigger." },
+      { "label": "C", "body": "List everything the agent can do to talk them out of it.", "is_correct": false, "rationale": "Capability-listing at someone asking for a human reads as dismissive." },
+      { "label": "D", "body": "Run a sentiment check first to gauge urgency.", "is_correct": false, "rationale": "Sentiment is an unreliable trigger; the explicit request already settles it." }
+    ]
+  },
+  {
+    "id": "bc500000-0000-4000-8000-000000000505",
+    "task_code": "5.2",
+    "domain": 5,
+    "scenario": "customer-support",
+    "stem": "A customer asks for competitor price-matching. Company policy only addresses adjustments on its own site and is silent on competitors. Is this a policy gap or a violation, and what should the agent do?",
+    "type": "single",
+    "source": "generated",
+    "difficulty": 3,
+    "explanation": null,
+    "options": [
+      { "label": "A", "body": "It's a policy gap (policy is silent) — escalate for a human decision.", "is_correct": true, "rationale": "Correct. A gap means the policy doesn't cover the case → escalate. (A violation, where policy forbids it, means refuse with the policy explanation.)" },
+      { "label": "B", "body": "It's a violation — refuse and cite the policy.", "is_correct": false, "rationale": "The policy doesn't forbid it; it's silent. That's a gap, not a violation." },
+      { "label": "C", "body": "Approve the match, since nothing forbids it.", "is_correct": false, "rationale": "A silent policy isn't blanket permission — escalate for a decision rather than inventing policy." },
+      { "label": "D", "body": "Ask the customer to interpret the policy.", "is_correct": false, "rationale": "Resolving a policy gap is a human/business decision, not the customer's." }
+    ]
+  },
+  {
+    "id": "bc500000-0000-4000-8000-000000000506",
+    "task_code": "5.5",
+    "domain": 5,
+    "scenario": "structured-extraction",
+    "stem": "Monitoring shows a stable 95% overall extraction accuracy, yet users keep reporting errors in a specific field type. What's the right diagnostic approach?",
+    "type": "single",
+    "source": "generated",
+    "difficulty": 3,
+    "explanation": null,
+    "options": [
+      { "label": "A", "body": "Stratified validation — break accuracy down per type/category to find the underperforming one.", "is_correct": true, "rationale": "Correct. Aggregate metrics mask per-type issues: 95% overall can hide a category at 60%. Group by type, compute per-type accuracy, then target the weak category." },
+      { "label": "B", "body": "Trust the 95% — the system is reliable overall.", "is_correct": false, "rationale": "Aggregate accuracy hides category-specific degradation; the complaints are real." },
+      { "label": "C", "body": "Randomly sample 5% more outputs across everything.", "is_correct": false, "rationale": "Undirected random sampling can miss a concentrated category problem; stratify instead." },
+      { "label": "D", "body": "Raise the overall accuracy target to 98%.", "is_correct": false, "rationale": "Chasing a higher aggregate still masks the weak category." }
+    ]
+  },
+  {
+    "id": "bc500000-0000-4000-8000-000000000507",
+    "task_code": "5.6",
+    "domain": 5,
+    "scenario": "multi-agent-research",
+    "stem": "Two sources disagree: Source A (2024 docs) says the context window is 200K tokens; Source B (2023 blog) says 100K. How should synthesis handle this?",
+    "type": "single",
+    "source": "generated",
+    "difficulty": 3,
+    "explanation": null,
+    "options": [
+      { "label": "A", "body": "Keep both, annotated with provenance and dates, and let the consumer interpret (here it's a temporal change, not a true conflict).", "is_correct": true, "rationale": "Correct. Never average or silently pick one. Annotate both with source and date; often the 'conflict' is a change over time the dates reveal." },
+      { "label": "B", "body": "Pick the more recent source and drop the other.", "is_correct": false, "rationale": "Silently choosing recency discards provenance the consumer may need — a classic distractor." },
+      { "label": "C", "body": "Average the two numbers to 150K.", "is_correct": false, "rationale": "Averaging conflicting claims destroys the real information and invents a wrong value." },
+      { "label": "D", "body": "Only report a claim if two sources corroborate it.", "is_correct": false, "rationale": "That drops legitimate single-source facts and still doesn't resolve dated differences." }
+    ]
+  },
+  {
+    "id": "bc500000-0000-4000-8000-000000000508",
+    "task_code": "5.3",
+    "domain": 5,
+    "scenario": "multi-agent-research",
+    "stem": "A subagent partially fails while fetching data. What should its error context include so the next agent (or human) can recover intelligently?",
+    "type": "single",
+    "source": "generated",
+    "difficulty": 2,
+    "explanation": null,
+    "options": [
+      { "label": "A", "body": "Failure type, any partial results retrieved, what recovery was already tried, and a suggested next action.", "is_correct": true, "rationale": "Correct. Structured error context (type + partial results + alternatives tried + suggested action) enables intelligent recovery." },
+      { "label": "B", "body": "A generic 'Something went wrong' message.", "is_correct": false, "rationale": "Generic messages give the next agent nothing to work with." },
+      { "label": "C", "body": "Only the raw stack trace.", "is_correct": false, "rationale": "A stack trace lacks partial results, recovery attempts, and a recommended action." },
+      { "label": "D", "body": "Nothing — just return empty so the pipeline proceeds.", "is_correct": false, "rationale": "Silent empties look like 'no data' and corrupt downstream reasoning." }
+    ]
+  },
+  {
+    "id": "bc500000-0000-4000-8000-000000000509",
+    "task_code": "5.6",
+    "domain": 5,
+    "scenario": "multi-agent-research",
+    "stem": "In production, final reports lose citations because the synthesis step used inline links in prose. What's the durable fix?",
+    "type": "single",
+    "source": "generated",
+    "difficulty": 2,
+    "explanation": null,
+    "options": [
+      { "label": "A", "body": "Use structured claim-source mappings ({claim, source, url, date}) that survive synthesis, kept separate from prose.", "is_correct": true, "rationale": "Correct. Inline links get dropped during summarization; structured mappings survive transformations and preserve attribution end-to-end." },
+      { "label": "B", "body": "Add more inline links and hope they survive.", "is_correct": false, "rationale": "Inline citations in prose are exactly what gets lost during synthesis." },
+      { "label": "C", "body": "Re-locate sources after the report is written.", "is_correct": false, "rationale": "Post-hoc matching is fragile and invites misattribution." },
+      { "label": "D", "body": "Have the report generator use semantic similarity to guess sources.", "is_correct": false, "rationale": "Similarity can attribute the wrong source; keep the model's original structured mapping." }
+    ]
+  }
+]

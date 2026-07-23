@@ -1,0 +1,138 @@
+[
+  {
+    "id": "bc100000-0000-4000-8000-000000000101",
+    "task_code": "1.2",
+    "domain": 1,
+    "scenario": "multi-agent-research",
+    "stem": "You need to gather data from three independent sources whose results don't depend on each other, and latency matters. Which orchestration pattern fits?",
+    "type": "single",
+    "source": "generated",
+    "difficulty": 1,
+    "explanation": null,
+    "options": [
+      { "label": "A", "body": "Parallel — fan out the independent subtasks, then fan in the results.", "is_correct": true, "rationale": "Correct. Parallel orchestration is for independent subtasks where latency matters; they share no state." },
+      { "label": "B", "body": "Sequential — A → B → C, each passing its result forward.", "is_correct": false, "rationale": "Sequential is for when each step needs the previous step's output — not the case here, and it's slower." },
+      { "label": "C", "body": "Pipeline — an assembly line of specialized stages.", "is_correct": false, "rationale": "Pipeline chains stages where each output feeds the next; these tasks are independent, not staged." },
+      { "label": "D", "body": "Dynamic adaptive — let the model decide the decomposition at runtime.", "is_correct": false, "rationale": "Dynamic adaptive is for tasks whose structure is unknown upfront; here the decomposition is already known." }
+    ]
+  },
+  {
+    "id": "bc100000-0000-4000-8000-000000000102",
+    "task_code": "1.2",
+    "domain": 1,
+    "scenario": "multi-agent-research",
+    "stem": "A task's structure can't be predicted at design time — its complexity and the right decomposition only become clear as work proceeds. Which orchestration approach?",
+    "type": "single",
+    "source": "generated",
+    "difficulty": 2,
+    "explanation": null,
+    "options": [
+      { "label": "A", "body": "Dynamic adaptive — the model decides the decomposition at runtime.", "is_correct": true, "rationale": "Correct. When you can't predict the structure upfront, let the coordinator reason about decomposition at runtime." },
+      { "label": "B", "body": "A fixed sequential pipeline defined upfront.", "is_correct": false, "rationale": "A fixed pipeline assumes you know the stages — you don't, so it locks you into the wrong structure." },
+      { "label": "C", "body": "Parallel fan-out across a preset list of subtasks.", "is_correct": false, "rationale": "Preset parallel subtasks require knowing the decomposition in advance." },
+      { "label": "D", "body": "A hardcoded decision tree mapping inputs to steps.", "is_correct": false, "rationale": "Decision trees are the opposite of adaptive — they break on cases they weren't designed for." }
+    ]
+  },
+  {
+    "id": "bc100000-0000-4000-8000-000000000103",
+    "task_code": "1.3",
+    "domain": 1,
+    "scenario": "developer-productivity",
+    "stem": "How many tools should a single specialized subagent be scoped to, per the guide's design guidance?",
+    "type": "single",
+    "source": "generated",
+    "difficulty": 1,
+    "explanation": null,
+    "options": [
+      { "label": "A", "body": "About 4–5 tools maximum — focused sets reduce selection errors.", "is_correct": true, "rationale": "Correct. Scope each agent to ~4–5 tools; the guide's over-tooling example is 18 instead of 4–5." },
+      { "label": "B", "body": "As many as possible, so one agent can handle anything.", "is_correct": false, "rationale": "One agent with many tools increases selection errors — the anti-pattern." },
+      { "label": "C", "body": "Exactly one tool per agent, always.", "is_correct": false, "rationale": "Too rigid; ~4–5 related tools per role is the guidance, not exactly one." },
+      { "label": "D", "body": "10–12, to balance breadth and focus.", "is_correct": false, "rationale": "Still too many; the guidance is ~4–5 per agent." }
+    ]
+  },
+  {
+    "id": "bc100000-0000-4000-8000-000000000104",
+    "task_code": "1.4",
+    "domain": 1,
+    "scenario": "customer-support",
+    "stem": "When an agent escalates to a human who can't see the conversation, which structured handoff format does the exam expect?",
+    "type": "single",
+    "source": "generated",
+    "difficulty": 2,
+    "explanation": null,
+    "options": [
+      { "label": "A", "body": "Customer ID, a factual summary of what happened, the root cause, and the recommended action.", "is_correct": true, "rationale": "Correct. The four-field structured handoff (who, what, why, suggested next step) lets the human pick up instantly without re-investigating." },
+      { "label": "B", "body": "The full raw conversation transcript.", "is_correct": false, "rationale": "Dumping the transcript forces the human to re-do the investigation." },
+      { "label": "C", "body": "Just the customer's original message and a reference ID.", "is_correct": false, "rationale": "Drops the tool-derived context and diagnosis the agent already produced." },
+      { "label": "D", "body": "A generic error message so the human knows to take over.", "is_correct": false, "rationale": "Never silently fail with a generic error — produce a structured handoff." }
+    ]
+  },
+  {
+    "id": "bc100000-0000-4000-8000-000000000105",
+    "task_code": "1.7",
+    "domain": 1,
+    "scenario": "developer-productivity",
+    "stem": "Mid-task, the model starts repeating itself, contradicting earlier statements, and ignoring recent tool results. What's the right fix?",
+    "type": "single",
+    "source": "generated",
+    "difficulty": 2,
+    "explanation": null,
+    "options": [
+      { "label": "A", "body": "Fresh start with an injected curated summary of the important facts.", "is_correct": true, "rationale": "Correct. Those are stale-context signals. The fix isn't 'more context' — it's a fresh conversation seeded with extracted facts." },
+      { "label": "B", "body": "Add more context to remind the model of what it said.", "is_correct": false, "rationale": "Piling on more context into an already-stale window makes it worse, not better." },
+      { "label": "C", "body": "Increase the iteration cap so it has more turns.", "is_correct": false, "rationale": "Iteration caps don't address stale/polluted context." },
+      { "label": "D", "body": "Lower the temperature to make it more consistent.", "is_correct": false, "rationale": "Temperature doesn't fix a context window that's full or stale." }
+    ]
+  },
+  {
+    "id": "bc100000-0000-4000-8000-000000000106",
+    "task_code": "1.7",
+    "domain": 1,
+    "scenario": "developer-productivity",
+    "stem": "You want to explore two divergent implementation approaches from the same analyzed baseline without either polluting the other's context. Which mechanism?",
+    "type": "single",
+    "source": "generated",
+    "difficulty": 2,
+    "explanation": null,
+    "options": [
+      { "label": "A", "body": "fork_session — branch from the shared baseline so each approach has independent context.", "is_correct": true, "rationale": "Correct. Forking gives each branch the exact baseline with no cross-contamination — ideal for divergent exploration." },
+      { "label": "B", "body": "--resume the same session and do both in sequence.", "is_correct": false, "rationale": "One thread lets the first approach's reasoning bias the second." },
+      { "label": "C", "body": "Two fresh sessions that each re-read all the files.", "is_correct": false, "rationale": "Burns tokens redoing analysis and risks divergent conclusions from the same code." },
+      { "label": "D", "body": "Export a summary and start over from it.", "is_correct": false, "rationale": "A summary is lossier than the live baseline state; forking preserves it exactly." }
+    ]
+  },
+  {
+    "id": "bc100000-0000-4000-8000-000000000107",
+    "task_code": "1.1",
+    "domain": 1,
+    "scenario": "customer-support",
+    "stem": "After a tool executes in an agentic loop, what must happen before the next model call so the agent can reason about the result?",
+    "type": "single",
+    "source": "generated",
+    "difficulty": 1,
+    "explanation": null,
+    "options": [
+      { "label": "A", "body": "The tool result is appended to the conversation history, then the updated conversation is sent back.", "is_correct": true, "rationale": "Correct. Tool results must be appended to history so the model can incorporate them on the next iteration." },
+      { "label": "B", "body": "The tool result replaces the conversation history to save context.", "is_correct": false, "rationale": "Replacing history discards what the model needs to reason across turns." },
+      { "label": "C", "body": "The result is stored server-side and the model fetches it automatically.", "is_correct": false, "rationale": "The API is stateless; you must include the result in the messages you send." },
+      { "label": "D", "body": "Nothing — the model remembers tool outputs between calls.", "is_correct": false, "rationale": "It doesn't; without appending the result, the model can't reason about it." }
+    ]
+  },
+  {
+    "id": "bc100000-0000-4000-8000-000000000108",
+    "task_code": "1.1",
+    "domain": 1,
+    "scenario": "customer-support",
+    "stem": "An agent's loop terminates prematurely, cutting off useful work. A teammate proposes 'raise the iteration cap from 10 to 25' to fix it. Is that right?",
+    "type": "single",
+    "source": "generated",
+    "difficulty": 2,
+    "explanation": null,
+    "options": [
+      { "label": "A", "body": "No — premature termination is a stop_reason handling bug; iteration caps are only a safety net, not the loop's primary control.", "is_correct": true, "rationale": "Correct. Fix the stop_reason check (continue on tool_use, stop on end_turn). Caps just bound runaway agents; they don't cause or cure premature stops." },
+      { "label": "B", "body": "Yes — a higher cap always prevents premature termination.", "is_correct": false, "rationale": "The cap isn't why it stopped early; the termination logic is. A higher cap masks nothing here." },
+      { "label": "C", "body": "Yes, and you should also parse the text for 'done'.", "is_correct": false, "rationale": "Natural-language parsing is ambiguous — the whole reason stop_reason exists." },
+      { "label": "D", "body": "No — remove the cap entirely and rely on text length.", "is_correct": false, "rationale": "Removing the safety net invites runaway loops; text length isn't a termination signal." }
+    ]
+  }
+]
