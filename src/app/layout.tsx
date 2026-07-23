@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { fraunces, spaceGrotesk, jetbrainsMono } from "@/lib/fonts";
 import { SiteBar } from "@/components/SiteBar";
+import { CloudSync } from "@/components/CloudSync";
 import "./globals.css";
 
 export const metadata: Metadata = {
@@ -26,7 +27,7 @@ export default function RootLayout({
       <body>
         <script dangerouslySetInnerHTML={{ __html: themeScript }} />
         <SiteBar />
-        {children}
+        <CloudSync>{children}</CloudSync>
       </body>
     </html>
   );

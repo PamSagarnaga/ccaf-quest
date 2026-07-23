@@ -5,7 +5,7 @@ import Link from "next/link";
 import { motion } from "motion/react";
 import type { QuizQuestion } from "@/lib/queries";
 import { domains, domainByNumber } from "@/lib/blueprint";
-import { markActivity, type DomainScore } from "@/lib/progress";
+import { markActivity, saveAttempt, type DomainScore } from "@/lib/progress";
 import { awardXp } from "@/lib/gamification";
 import {
   logCalibration,
@@ -378,9 +378,7 @@ function ExamResults({
         }
       });
       // Progress attempt (scaled marks it as an exam).
-      const key = "ccaf_attempts";
-      const prev = JSON.parse(localStorage.getItem(key) || "[]");
-      prev.push({
+      saveAttempt({
         date: new Date().toISOString(),
         mode: "quiz",
         domain: null,
@@ -391,7 +389,6 @@ function ExamResults({
         perDomain,
         scaled,
       });
-      localStorage.setItem(key, JSON.stringify(prev));
       markActivity();
       const calibBonus = questions.reduce(
         (s, q, i) =>

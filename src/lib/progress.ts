@@ -5,6 +5,7 @@
  * auth in a later phase.)
  */
 import { domains } from "@/lib/blueprint";
+import { pushToCloud } from "@/lib/sync";
 
 export interface DomainScore {
   correct: number;
@@ -52,16 +53,26 @@ function read<T>(key: string, fallback: T): T {
 export const loadAttempts = () => read<QuizAttempt[]>(ATTEMPTS_KEY, []);
 export const loadLogs = () => read<ExamLog[]>(LOGS_KEY, []);
 
+/** Append a quiz/exam attempt and persist it (local + cloud mirror). */
+export function saveAttempt(attempt: QuizAttempt) {
+  const attempts = loadAttempts();
+  attempts.push(attempt);
+  localStorage.setItem(ATTEMPTS_KEY, JSON.stringify(attempts));
+  pushToCloud(ATTEMPTS_KEY);
+}
+
 export function saveLog(log: ExamLog) {
   const logs = loadLogs();
   logs.push(log);
   localStorage.setItem(LOGS_KEY, JSON.stringify(logs));
+  pushToCloud(LOGS_KEY);
   markActivity();
 }
 
 export function deleteLog(id: string) {
   const logs = loadLogs().filter((l) => l.id !== id);
   localStorage.setItem(LOGS_KEY, JSON.stringify(logs));
+  pushToCloud(LOGS_KEY);
 }
 
 /** Record that the learner did something today (for streaks). */
@@ -71,6 +82,7 @@ export function markActivity(date = new Date()) {
   const set = new Set(read<string[]>(ACTIVITY_KEY, []));
   set.add(day);
   localStorage.setItem(ACTIVITY_KEY, JSON.stringify([...set]));
+  pushToCloud(ACTIVITY_KEY);
 }
 
 // ── Aggregations ──────────────────────────────────────────

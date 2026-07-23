@@ -5,6 +5,7 @@
  */
 import type { QuizAttempt, ExamLog, Mastery } from "@/lib/progress";
 import type { CardState } from "@/lib/srs";
+import { pushToCloud } from "@/lib/sync";
 
 // ── XP ────────────────────────────────────────────────────
 export interface XpEvent {
@@ -40,6 +41,7 @@ export function awardXp(
   state.events.unshift({ date: new Date().toISOString(), amount, reason });
   state.events = state.events.slice(0, 50);
   localStorage.setItem(XP_KEY, JSON.stringify(state));
+  pushToCloud(XP_KEY);
   const after = levelFor(state.total);
   return {
     total: state.total,

@@ -23,6 +23,7 @@ export interface Database {
         };
         Insert: Database["public"]["Tables"]["domains"]["Row"];
         Update: Partial<Database["public"]["Tables"]["domains"]["Row"]>;
+        Relationships: [];
       };
       tasks: {
         Row: {
@@ -34,6 +35,7 @@ export interface Database {
         };
         Insert: Database["public"]["Tables"]["tasks"]["Row"];
         Update: Partial<Database["public"]["Tables"]["tasks"]["Row"]>;
+        Relationships: [];
       };
       scenarios: {
         Row: {
@@ -44,6 +46,7 @@ export interface Database {
         };
         Insert: Database["public"]["Tables"]["scenarios"]["Row"];
         Update: Partial<Database["public"]["Tables"]["scenarios"]["Row"]>;
+        Relationships: [];
       };
       questions: {
         Row: {
@@ -63,6 +66,7 @@ export interface Database {
           "id" | "created_at"
         > & { id?: string; created_at?: string };
         Update: Partial<Database["public"]["Tables"]["questions"]["Row"]>;
+        Relationships: [];
       };
       question_options: {
         Row: {
@@ -81,6 +85,7 @@ export interface Database {
         Update: Partial<
           Database["public"]["Tables"]["question_options"]["Row"]
         >;
+        Relationships: [];
       };
       flashcards: {
         Row: {
@@ -97,6 +102,18 @@ export interface Database {
           "id" | "created_at"
         > & { id?: string; created_at?: string };
         Update: Partial<Database["public"]["Tables"]["flashcards"]["Row"]>;
+        Relationships: [];
+      };
+      user_state: {
+        Row: {
+          user_id: string;
+          key: string;
+          value: unknown;
+          updated_at: string;
+        };
+        Insert: Database["public"]["Tables"]["user_state"]["Row"];
+        Update: Partial<Database["public"]["Tables"]["user_state"]["Row"]>;
+        Relationships: [];
       };
     };
     Views: Record<string, never>;

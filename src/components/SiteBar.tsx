@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { ThemeToggle } from "./ThemeToggle";
+import { SignOutButton } from "./SignOutButton";
 
 export function SiteBar() {
   return (
@@ -29,7 +30,10 @@ export function SiteBar() {
             The Codex
           </span>
         </Link>
-        <ThemeToggle />
+        <div className="flex items-center gap-2.5">
+          <SignOutButton />
+          <ThemeToggle />
+        </div>
       </div>
     </header>
   );

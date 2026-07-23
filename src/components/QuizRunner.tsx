@@ -5,7 +5,7 @@ import Link from "next/link";
 import { AnimatePresence, motion } from "motion/react";
 import type { QuizQuestion } from "@/lib/queries";
 import { domainByNumber } from "@/lib/blueprint";
-import { markActivity } from "@/lib/progress";
+import { markActivity, saveAttempt } from "@/lib/progress";
 import { awardXp, type LevelProgress } from "@/lib/gamification";
 import {
   logCalibration,
@@ -319,12 +319,10 @@ function Results({
     return map;
   }, [answers]);
 
-  // Persist attempt to localStorage (single-user MVP)
+  // Persist attempt (local + cloud mirror)
   useEffect(() => {
     try {
-      const key = "ccaf_attempts";
-      const prev = JSON.parse(localStorage.getItem(key) || "[]");
-      prev.push({
+      saveAttempt({
         date: new Date().toISOString(),
         mode: "quiz",
         domain,
@@ -334,7 +332,6 @@ function Results({
         durationSec,
         perDomain,
       });
-      localStorage.setItem(key, JSON.stringify(prev));
       markActivity();
       const { leveledTo } = awardXp(xpEarned, "quiz");
       setLeveledTo(leveledTo);

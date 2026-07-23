@@ -90,6 +90,8 @@ export function intervalLabel(
 }
 
 // ── localStorage persistence ──────────────────────────────
+import { pushToCloud } from "@/lib/sync";
+
 const KEY = "ccaf_srs";
 
 export function loadSrs(): Record<string, CardState> {
@@ -106,6 +108,7 @@ export function saveCardState(id: string, state: CardState) {
     const all = loadSrs();
     all[id] = state;
     localStorage.setItem(KEY, JSON.stringify(all));
+    pushToCloud(KEY);
   } catch {
     // ignore
   }

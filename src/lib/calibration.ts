@@ -11,6 +11,7 @@
  * task-statement granularity (the bank comprehensively covers every quick-ref fact).
  */
 import { domainByNumber } from "@/lib/blueprint";
+import { pushToCloud } from "@/lib/sync";
 
 export type Confidence = "certain" | "fairly" | "guessing";
 
@@ -52,6 +53,7 @@ export function logCalibration(e: CalibrationEvent) {
   const all = loadCalibration();
   all.push(e);
   localStorage.setItem(KEY, JSON.stringify(all.slice(-2000)));
+  pushToCloud(KEY);
 }
 
 /** High confidence = "certain"; everything else counts as unsure. */

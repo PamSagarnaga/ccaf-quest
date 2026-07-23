@@ -1,4 +1,6 @@
 /** Flag/unflag questions to revisit. Stored as an id list in localStorage. */
+import { pushToCloud } from "@/lib/sync";
+
 const KEY = "ccaf_flags";
 
 export function loadFlags(): Set<string> {
@@ -22,6 +24,7 @@ export function toggleFlag(id: string): boolean {
   else flags.delete(id);
   try {
     localStorage.setItem(KEY, JSON.stringify([...flags]));
+    pushToCloud(KEY);
   } catch {
     // ignore
   }
