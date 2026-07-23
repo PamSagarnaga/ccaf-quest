@@ -9,6 +9,7 @@ const PROGRESS_STORAGE_KEYS = [
   "ccaf_xp",
   "ccaf_calibration",
   "ccaf_flags",
+  "ccaf_seen",
 ] as const;
 
 /** Fire-and-forget: mirror one localStorage key to the cloud for the current user. */

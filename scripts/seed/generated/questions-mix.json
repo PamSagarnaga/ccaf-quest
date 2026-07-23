@@ -28,8 +28,8 @@
     "explanation": null,
     "options": [
       { "label": "A", "body": "Move personal servers to user scope (`~/.claude.json`); keep only shared servers in `.mcp.json`.", "is_correct": true, "rationale": "Correct. User-scope config is per-developer and lives outside the repo, so personal servers can't be committed to the shared project file." },
-      { "label": "B", "body": "Add the personal server to `.mcp.json` and `.gitignore` that file.", "is_correct": false, "rationale": "Gitignoring the shared file breaks it for everyone — the team servers need to be committed." },
-      { "label": "C", "body": "Put the personal server in a root CLAUDE.md so it's documented.", "is_correct": false, "rationale": "CLAUDE.md is for conventions/instructions, not MCP server configuration." },
+      { "label": "B", "body": "Add each developer's personal analytics server into the shared `.mcp.json` and then add that file to `.gitignore` so the personal entries never get committed to the repo.", "is_correct": false, "rationale": "Gitignoring the shared file breaks it for everyone — the team servers need to be committed." },
+      { "label": "C", "body": "Document each developer's personal analytics server in the repo's root CLAUDE.md so the whole team knows it exists and is reminded not to commit it into the shared config.", "is_correct": false, "rationale": "CLAUDE.md is for conventions/instructions, not MCP server configuration." },
       { "label": "D", "body": "Have each developer comment out their personal server before committing.", "is_correct": false, "rationale": "Relies on human discipline every commit — exactly the failure happening now. Scope separation fixes it structurally." }
     ]
   },
@@ -62,9 +62,9 @@
     "explanation": null,
     "options": [
       { "label": "A", "body": "Distribute the tools across specialized agents so each has a focused set (roughly 4–5), rather than 18 on one.", "is_correct": true, "rationale": "Correct. Too many tools dilutes selection; the guide's example is 18 instead of 4–5. Splitting tools across agents by role restores reliable selection." },
-      { "label": "B", "body": "Set tool_choice to \"any\" so the model always calls some tool.", "is_correct": false, "rationale": "\"any\" forces a tool call but doesn't help it pick the right one — and can cause loops." },
-      { "label": "C", "body": "Force a specific tool with tool_choice {\"type\":\"tool\",\"name\":...} for every request.", "is_correct": false, "rationale": "Forcing one tool removes the model's judgment entirely; it's not a general fix for tool overload." },
-      { "label": "D", "body": "Add few-shot examples of each of the 18 tools.", "is_correct": false, "rationale": "Doesn't address the core problem — 18 tools on one agent still dilutes attention regardless of examples." }
+      { "label": "B", "body": "Set tool_choice to \"any\" so the model is always forced to call some tool from the full set of eighteen on every single request it handles.", "is_correct": false, "rationale": "\"any\" forces a tool call but doesn't help it pick the right one — and can cause loops." },
+      { "label": "C", "body": "Force a specific tool with tool_choice {\"type\":\"tool\",\"name\":...} on every request so the model never has to choose among the eighteen tools for itself.", "is_correct": false, "rationale": "Forcing one tool removes the model's judgment entirely; it's not a general fix for tool overload." },
+      { "label": "D", "body": "Add few-shot examples demonstrating the correct use of each of the eighteen tools so the model learns when to reach for each one during a request.", "is_correct": false, "rationale": "Doesn't address the core problem — 18 tools on one agent still dilutes attention regardless of examples." }
     ]
   },
   {
@@ -79,9 +79,9 @@
     "explanation": null,
     "options": [
       { "label": "A", "body": "Rewrite the descriptions to state each tool's distinct purpose, inputs, and boundaries (when to use it and when not to).", "is_correct": true, "rationale": "Correct. The model selects tools from their descriptions; clear, non-overlapping descriptions with explicit boundaries are what make selection reliable." },
-      { "label": "B", "body": "Merge them into one tool that does both.", "is_correct": false, "rationale": "Sometimes reasonable, but if the two serve genuinely different needs, merging loses that; the immediate defect is ambiguous descriptions." },
-      { "label": "C", "body": "Rename them to tool_a and tool_b.", "is_correct": false, "rationale": "Opaque names make selection worse — the description is what guides the model." },
-      { "label": "D", "body": "Lower the temperature so tool choice is deterministic.", "is_correct": false, "rationale": "Determinism just makes the wrong-tool choice consistent; it doesn't clarify which tool to use." }
+      { "label": "B", "body": "Merge `search_orders` and `find_order` into a single combined tool that handles both lookup styles so there is no longer an ambiguous choice for the agent to get wrong.", "is_correct": false, "rationale": "Sometimes reasonable, but if the two serve genuinely different needs, merging loses that; the immediate defect is ambiguous descriptions." },
+      { "label": "C", "body": "Rename the two tools to tool_a and tool_b so the model isn't swayed by their nearly identical, suggestive names when it decides which of them to call.", "is_correct": false, "rationale": "Opaque names make selection worse — the description is what guides the model." },
+      { "label": "D", "body": "Lower the model's temperature so that its tool choice becomes deterministic and it stops varying between the two similar tools from one request to the next.", "is_correct": false, "rationale": "Determinism just makes the wrong-tool choice consistent; it doesn't clarify which tool to use." }
     ]
   },
   {
@@ -96,9 +96,9 @@
     "explanation": null,
     "options": [
       { "label": "A", "body": "Give the prompt explicit criteria for what counts as a reportable issue (and what to ignore).", "is_correct": true, "rationale": "Correct. Explicit, precise criteria raise precision and cut false positives directly — the standard first move before heavier machinery." },
-      { "label": "B", "body": "Switch to a more capable model tier.", "is_correct": false, "rationale": "Costly and doesn't tell the model your bar for what's worth flagging." },
-      { "label": "C", "body": "Post every finding but sort by a confidence score.", "is_correct": false, "rationale": "Still floods reviewers with noise; the goal is to not raise the false positives in the first place." },
-      { "label": "D", "body": "Run the review only on changed lines.", "is_correct": false, "rationale": "Narrows scope but doesn't fix the criteria producing false positives within that scope." }
+      { "label": "B", "body": "Switch the review agent to a more capable and more expensive model tier in the hope that a stronger model naturally produces fewer false positives on its own.", "is_correct": false, "rationale": "Costly and doesn't tell the model your bar for what's worth flagging." },
+      { "label": "C", "body": "Post every finding the agent produces but sort them by a confidence score so reviewers at least see the most likely real issues at the top of the list first.", "is_correct": false, "rationale": "Still floods reviewers with noise; the goal is to not raise the false positives in the first place." },
+      { "label": "D", "body": "Run the review only on the lines changed in the pull request, narrowing the scope of code the agent examines for potential issues to just the diff.", "is_correct": false, "rationale": "Narrows scope but doesn't fix the criteria producing false positives within that scope." }
     ]
   },
   {
@@ -113,9 +113,9 @@
     "explanation": null,
     "options": [
       { "label": "A", "body": "Add few-shot examples demonstrating compound-phrase splitting, explicit-mention criteria, and appropriate granularity.", "is_correct": true, "rationale": "Correct. All three issues are about how the model interprets \"a skill.\" Concrete examples teach the pattern — split vs. not, mentioned vs. inferred, right granularity." },
-      { "label": "B", "body": "Constrain it: \"Extract 10–20 skills max, one per entry, only explicitly named.\"", "is_correct": false, "rationale": "Hard count caps are arbitrary and force the model to drop real skills or invent filler to hit the range." },
-      { "label": "C", "body": "Add post-extraction normalization to a canonical taxonomy and dedupe.", "is_correct": false, "rationale": "Post-processing can't fix inferred-but-unstated skills or decide how to split \"Python and SQL\" — that's an extraction-time decision." },
-      { "label": "D", "body": "Enrich the schema to {skill, confidence, source_quote}[].", "is_correct": false, "rationale": "Useful metadata, but it doesn't resolve the underlying inconsistency in how skills are parsed." }
+      { "label": "B", "body": "Constrain the prompt with a hard rule: extract between 10 and 20 skills maximum, exactly one skill per array entry, and only ones that are explicitly named in the text.", "is_correct": false, "rationale": "Hard count caps are arbitrary and force the model to drop real skills or invent filler to hit the range." },
+      { "label": "C", "body": "Add a post-extraction normalization step that maps the returned skills onto a canonical taxonomy and dedupes overlapping entries before the results are stored.", "is_correct": false, "rationale": "Post-processing can't fix inferred-but-unstated skills or decide how to split \"Python and SQL\" — that's an extraction-time decision." },
+      { "label": "D", "body": "Enrich the schema so each entry becomes {skill, confidence, source_quote}, capturing where in the source text each extracted skill was found.", "is_correct": false, "rationale": "Useful metadata, but it doesn't resolve the underlying inconsistency in how skills are parsed." }
     ]
   },
   {
@@ -130,9 +130,9 @@
     "explanation": null,
     "options": [
       { "label": "A", "body": "The model outputs \"et al.\" for co-authors when the full list exists only in an external document not in the input.", "is_correct": true, "rationale": "Correct. Retry-with-feedback only fixes mistakes the model could have gotten right from the source. If the information isn't in the input, no amount of retrying supplies it." },
-      { "label": "B", "body": "Keywords come back as a nested object when the schema requires a flat string array.", "is_correct": false, "rationale": "A structural mismatch the model can correct once told the expected shape." },
-      { "label": "C", "body": "Citation counts arrive as locale strings (\"1,234\") when integers are required.", "is_correct": false, "rationale": "The value is present; the model just needs to stop formatting it — easy for feedback-retry." },
-      { "label": "D", "body": "Dates come back as full ISO datetimes when only YYYY-MM-DD is required.", "is_correct": false, "rationale": "Pure formatting fix — the underlying value is correct and can be trimmed on retry." }
+      { "label": "B", "body": "The keywords field comes back as a nested object when the schema requires a flat array of strings, so validation rejects the returned shape.", "is_correct": false, "rationale": "A structural mismatch the model can correct once told the expected shape." },
+      { "label": "C", "body": "Citation counts arrive as locale-formatted strings like \"1,234\" when the schema requires plain integers, so the value simply needs reformatting.", "is_correct": false, "rationale": "The value is present; the model just needs to stop formatting it — easy for feedback-retry." },
+      { "label": "D", "body": "Dates come back as full ISO datetimes with a time component when the schema requires only a YYYY-MM-DD calendar date, so they must be trimmed on retry.", "is_correct": false, "rationale": "Pure formatting fix — the underlying value is correct and can be trimmed on retry." }
     ]
   },
   {
@@ -147,9 +147,9 @@
     "explanation": null,
     "options": [
       { "label": "A", "body": "It offers ~50% cost savings with an up-to-24-hour processing window and uses custom_id to correlate results.", "is_correct": true, "rationale": "Correct. 50% savings, up to a 24-hour window, custom_id for correlation — and no multi-turn tool calling." },
-      { "label": "B", "body": "It guarantees results within 5 minutes.", "is_correct": false, "rationale": "There's no fast-latency SLA; the window is up to 24 hours." },
-      { "label": "C", "body": "It supports multi-turn tool calling like the real-time API.", "is_correct": false, "rationale": "Batch does not support multi-turn tool calling." },
-      { "label": "D", "body": "It costs the same as the Messages API but runs asynchronously.", "is_correct": false, "rationale": "It's ~50% cheaper — that's the point of using it for latency-tolerant work." }
+      { "label": "B", "body": "It guarantees that every submitted batch of requests will be processed and returned within a fixed five-minute latency window.", "is_correct": false, "rationale": "There's no fast-latency SLA; the window is up to 24 hours." },
+      { "label": "C", "body": "It supports full multi-turn tool calling within a batch, just like the synchronous real-time Messages API does during a live conversation.", "is_correct": false, "rationale": "Batch does not support multi-turn tool calling." },
+      { "label": "D", "body": "It costs the same per token as the synchronous Messages API but simply runs the submitted requests asynchronously in the background instead.", "is_correct": false, "rationale": "It's ~50% cheaper — that's the point of using it for latency-tolerant work." }
     ]
   },
   {
@@ -164,9 +164,9 @@
     "explanation": null,
     "options": [
       { "label": "A", "body": "The generating session retains its own reasoning/justification, biasing it against questioning its decisions — use a separate (multi-instance) review pass with fresh context.", "is_correct": true, "rationale": "Correct. Same-session review carries the rationale that led to the code, so it's less likely to challenge it. A fresh, independent instance reviews without that bias." },
-      { "label": "B", "body": "The generation session used a weaker model than review.", "is_correct": false, "rationale": "Same model — the issue is context bias, not capability." },
-      { "label": "C", "body": "Claude can't review code it generated due to a technical limitation.", "is_correct": false, "rationale": "There's no such limitation; self-review works but is biased." },
-      { "label": "D", "body": "The self-review prompt just needs more detail.", "is_correct": false, "rationale": "More detail doesn't remove the reasoning-context bias of the same session." }
+      { "label": "B", "body": "The generating session ran on a weaker model than the reviewer used, so it simply lacked the capability needed to spot the three security gaps in the code.", "is_correct": false, "rationale": "Same model — the issue is context bias, not capability." },
+      { "label": "C", "body": "Claude is technically unable to review code that it generated itself, so the self-review pass never had any real chance of catching the security gaps.", "is_correct": false, "rationale": "There's no such limitation; self-review works but is biased." },
+      { "label": "D", "body": "The self-review prompt simply needs more detail spelling out which security categories to check, after which the same session would reliably catch the gaps.", "is_correct": false, "rationale": "More detail doesn't remove the reasoning-context bias of the same session." }
     ]
   },
   {
@@ -198,9 +198,9 @@
     "explanation": null,
     "options": [
       { "label": "A", "body": "The subagent returns a structured error (what failed, which task, retryable?) to the coordinator, which decides whether to retry, reassign, or continue with partial results.", "is_correct": true, "rationale": "Correct. Structured error propagation to the hub keeps the coordinator in control and observable — it can retry, reroute, or degrade gracefully with the rest of the findings." },
-      { "label": "B", "body": "The subagent silently returns empty output so the pipeline keeps moving.", "is_correct": false, "rationale": "Silent empties look like 'no data found' and corrupt downstream synthesis — the failure is hidden." },
-      { "label": "C", "body": "The subagent crashes the whole pipeline so nothing proceeds on incomplete data.", "is_correct": false, "rationale": "Total failure throws away all the other subagents' valid work; graceful degradation is better." },
-      { "label": "D", "body": "The subagent retries indefinitely on its own until it succeeds.", "is_correct": false, "rationale": "Unbounded self-retry hides the problem from the coordinator and can hang the pipeline." }
+      { "label": "B", "body": "The subagent silently returns empty output when it times out so that the rest of the pipeline keeps moving forward without ever stalling on the failed analysis step.", "is_correct": false, "rationale": "Silent empties look like 'no data found' and corrupt downstream synthesis — the failure is hidden." },
+      { "label": "C", "body": "The subagent crashes the entire pipeline on timeout so that nothing downstream proceeds on incomplete data from the failed document-analysis step at all.", "is_correct": false, "rationale": "Total failure throws away all the other subagents' valid work; graceful degradation is better." },
+      { "label": "D", "body": "The subagent retries the timed-out operation indefinitely on its own until it eventually succeeds, without ever informing the coordinator that anything went wrong.", "is_correct": false, "rationale": "Unbounded self-retry hides the problem from the coordinator and can hang the pipeline." }
     ]
   },
   {
@@ -215,9 +215,9 @@
     "explanation": null,
     "options": [
       { "label": "A", "body": "Have the model emit field-level confidence scores, calibrate a threshold on a labeled set, and route the low-confidence slice to reviewers.", "is_correct": true, "rationale": "Correct. Field-level confidence concentrates the 12% errors into the low-confidence slice; routing that 20% catches far more errors than random sampling." },
-      { "label": "B", "body": "Randomly sample 20% of extractions for review.", "is_correct": false, "rationale": "Great for measurement, poor for coverage — random catches only ~20% of the 12% (~2.4%)." },
-      { "label": "C", "body": "Review only extractions with empty required fields.", "is_correct": false, "rationale": "The 12% problem is wrong values in populated fields, which an empty-field filter misses." },
-      { "label": "D", "body": "Review only documents with unusual formatting.", "is_correct": false, "rationale": "Formatting anomaly doesn't reliably predict where fields got confused." }
+      { "label": "B", "body": "Randomly sample 20% of all extractions for reviewers to check, spreading their limited attention evenly across the entire output stream regardless of likely error rate.", "is_correct": false, "rationale": "Great for measurement, poor for coverage — random catches only ~20% of the 12% (~2.4%)." },
+      { "label": "C", "body": "Route to reviewers only those extractions that came back with empty required fields, on the assumption that's where the semantic errors are most likely to concentrate.", "is_correct": false, "rationale": "The 12% problem is wrong values in populated fields, which an empty-field filter misses." },
+      { "label": "D", "body": "Send reviewers only the documents with unusual or irregular formatting, treating formatting anomalies as a proxy for where extraction errors are most likely to appear.", "is_correct": false, "rationale": "Formatting anomaly doesn't reliably predict where fields got confused." }
     ]
   }
 ]

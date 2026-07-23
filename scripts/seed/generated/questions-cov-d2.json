@@ -11,7 +11,7 @@
     "explanation": null,
     "options": [
       { "label": "A", "body": "Accept it as a valid empty result — the absence of data is the answer.", "is_correct": true, "rationale": "Correct. The tool ran successfully; zero results is a legitimate outcome, not an error. 'Not found' is deliberately not an error category." },
-      { "label": "B", "body": "Treat it as an error and retry the call.", "is_correct": false, "rationale": "Retrying a successful empty search just repeats a valid result — nothing failed." },
+      { "label": "B", "body": "Treat the zero-result search as an error condition and retry the call in case the empty response was a transient failure.", "is_correct": false, "rationale": "Retrying a successful empty search just repeats a valid result — nothing failed." },
       { "label": "C", "body": "Return isError=true so the model knows something went wrong.", "is_correct": false, "rationale": "Marking a valid empty result as an error misleads the model into thinking the tool failed." },
       { "label": "D", "body": "Escalate to a human because no data was found.", "is_correct": false, "rationale": "An empty result doesn't warrant escalation; it's simply the answer." }
     ]
@@ -46,8 +46,8 @@
     "options": [
       { "label": "A", "body": "They don't connect directly — all communication routes through the client/host.", "is_correct": true, "rationale": "Correct. MCP is a three-layer model (Host ⊃ Client ↔ Server). Servers expose tools/resources; the client connects to servers and routes calls. Servers don't talk to each other." },
       { "label": "B", "body": "Servers open direct peer-to-peer connections to each other.", "is_correct": false, "rationale": "MCP servers don't connect directly — that's a classic distractor." },
-      { "label": "C", "body": "Through a shared database both servers write to.", "is_correct": false, "rationale": "Not part of the MCP model; communication goes through the client/host." },
-      { "label": "D", "body": "Via an event bus the servers publish to.", "is_correct": false, "rationale": "No event bus between servers; the client/host mediates." }
+      { "label": "C", "body": "Through a shared database that both MCP servers read from and write to in order to pass information between them.", "is_correct": false, "rationale": "Not part of the MCP model; communication goes through the client/host." },
+      { "label": "D", "body": "Via a common event bus that the MCP servers publish messages to and subscribe from to exchange their information.", "is_correct": false, "rationale": "No event bus between servers; the client/host mediates." }
     ]
   },
   {
@@ -62,9 +62,9 @@
     "explanation": null,
     "options": [
       { "label": "A", "body": "Check for an existing community MCP server first; only build custom when none meets your needs.", "is_correct": true, "rationale": "Correct. Use community servers first — building custom is the fallback for genuinely unmet requirements." },
-      { "label": "B", "body": "Always build a custom server for full control.", "is_correct": false, "rationale": "Building custom for a common integration wastes effort when a community server exists." },
-      { "label": "C", "body": "Skip MCP and call the database directly from the prompt.", "is_correct": false, "rationale": "That bypasses the tool interface entirely and isn't the recommended integration path." },
-      { "label": "D", "body": "Wait for Anthropic to ship an official one.", "is_correct": false, "rationale": "The guidance is to reuse community servers now, not wait." }
+      { "label": "B", "body": "Always build a custom MCP server from scratch for the Postgres integration in order to get full control over exactly how it behaves.", "is_correct": false, "rationale": "Building custom for a common integration wastes effort when a community server exists." },
+      { "label": "C", "body": "Skip MCP entirely and have Claude call the Postgres database directly from within the prompt rather than through a tool interface.", "is_correct": false, "rationale": "That bypasses the tool interface entirely and isn't the recommended integration path." },
+      { "label": "D", "body": "Wait for Anthropic to ship an official Postgres MCP server before building any database integration for the team at all.", "is_correct": false, "rationale": "The guidance is to reuse community servers now, not wait." }
     ]
   },
   {
@@ -79,9 +79,9 @@
     "explanation": null,
     "options": [
       { "label": "A", "body": "Improve the tool descriptions; then add few-shot examples; consolidate tools only as a last resort.", "is_correct": true, "rationale": "Correct. The optimization sequence is descriptions → few-shot → consolidate. Descriptions are the primary selection signal, so start there." },
-      { "label": "B", "body": "Immediately reduce the number of tools.", "is_correct": false, "rationale": "Reducing tools is the last step, not the first — fix descriptions before cutting tools." },
-      { "label": "C", "body": "Rename the tools to be shorter.", "is_correct": false, "rationale": "Names aren't the primary selection signal; descriptions are." },
-      { "label": "D", "body": "Force a specific tool with tool_choice on every call.", "is_correct": false, "rationale": "Forcing one tool removes the model's judgment and isn't a general selection fix." }
+      { "label": "B", "body": "Immediately reduce the number of tools available to the agent so there are fewer similar ones for it to confuse when selecting.", "is_correct": false, "rationale": "Reducing tools is the last step, not the first — fix descriptions before cutting tools." },
+      { "label": "C", "body": "Rename the similar tools to shorter names so the model has an easier time telling them apart from one another when it picks one.", "is_correct": false, "rationale": "Names aren't the primary selection signal; descriptions are." },
+      { "label": "D", "body": "Force a specific tool with tool_choice on every call so the model never has to choose between the similar tools itself.", "is_correct": false, "rationale": "Forcing one tool removes the model's judgment and isn't a general selection fix." }
     ]
   },
   {
@@ -96,9 +96,9 @@
     "explanation": null,
     "options": [
       { "label": "A", "body": "tool_choice: \"any\" — guarantees a tool call while letting the model pick the right schema.", "is_correct": true, "rationale": "Correct. `any` forces some tool call (so you always get structured output) but lets the model choose which extraction tool fits the document." },
-      { "label": "B", "body": "Forced tool_choice for one specific named tool.", "is_correct": false, "rationale": "Forcing one tool assumes you know the single structure — you don't, since the document type is unknown." },
-      { "label": "C", "body": "tool_choice: \"auto\".", "is_correct": false, "rationale": "`auto` lets the model reply with text and skip tools — no guarantee of structured output." },
-      { "label": "D", "body": "Prompt-based JSON instructions.", "is_correct": false, "rationale": "No schema enforcement — risks malformed or incomplete JSON." }
+      { "label": "B", "body": "Use a forced tool_choice pinned to one specific named extraction tool for every document, regardless of which schema it actually matches.", "is_correct": false, "rationale": "Forcing one tool assumes you know the single structure — you don't, since the document type is unknown." },
+      { "label": "C", "body": "Use tool_choice: \"auto\" and let the model decide whether to call an extraction tool at all or just reply with plain text instead.", "is_correct": false, "rationale": "`auto` lets the model reply with text and skip tools — no guarantee of structured output." },
+      { "label": "D", "body": "Rely on prompt-based JSON instructions asking the model to return the correct schema without any tool-level enforcement of the shape.", "is_correct": false, "rationale": "No schema enforcement — risks malformed or incomplete JSON." }
     ]
   },
   {
@@ -147,9 +147,9 @@
     "explanation": null,
     "options": [
       { "label": "A", "body": "Structured metadata: errorCategory \"transient\", isRetryable true, and a human-readable description.", "is_correct": true, "rationale": "Correct. A timeout is transient/retryable; structured metadata (category + retryable + description) lets the agent decide to retry rather than guess." },
-      { "label": "B", "body": "A generic \"Operation failed\" string.", "is_correct": false, "rationale": "A generic string gives the agent nothing to reason with — return structured metadata." },
-      { "label": "C", "body": "An empty successful result so the loop continues.", "is_correct": false, "rationale": "Empty-success hides a real failure and makes the agent think no data exists." },
-      { "label": "D", "body": "Throw an uncaught exception from the handler.", "is_correct": false, "rationale": "Uncaught exceptions break the tool protocol and give the model nothing to reason about." }
+      { "label": "B", "body": "A generic \"Operation failed\" string with no category, no retryability flag, and no description of the cause for the agent to reason about.", "is_correct": false, "rationale": "A generic string gives the agent nothing to reason with — return structured metadata." },
+      { "label": "C", "body": "An empty but successful-looking result so that the agentic loop simply continues on past the timed-out call as if data had come back.", "is_correct": false, "rationale": "Empty-success hides a real failure and makes the agent think no data exists." },
+      { "label": "D", "body": "Throw an uncaught exception straight out of the tool handler so the failure surfaces however the surrounding runtime happens to handle it.", "is_correct": false, "rationale": "Uncaught exceptions break the tool protocol and give the model nothing to reason about." }
     ]
   }
 ]

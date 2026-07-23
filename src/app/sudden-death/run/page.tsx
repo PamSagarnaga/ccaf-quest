@@ -1,6 +1,6 @@
 import Link from "next/link";
-import { getQuestionsByDifficulty } from "@/lib/queries";
-import { SuddenDeathRunner } from "@/components/SuddenDeathRunner";
+import { getDifficultyPool } from "@/lib/queries";
+import { SuddenDeathSession } from "@/components/SuddenDeathSession";
 
 export const metadata = { title: "Sudden Death — The Architect's Codex" };
 
@@ -12,9 +12,9 @@ export default async function SuddenDeathRunPage({
   const { mode } = await searchParams;
   const hard = mode === "hard";
   const tiers = hard ? [3] : [1, 2];
-  const questions = await getQuestionsByDifficulty(tiers, 10);
+  const pool = await getDifficultyPool(tiers);
 
-  if (questions.length === 0) {
+  if (pool.length === 0) {
     return (
       <main className="mx-auto w-full max-w-2xl px-5 py-24 text-center">
         <p className="font-display text-2xl text-ink">No questions available.</p>
@@ -28,5 +28,5 @@ export default async function SuddenDeathRunPage({
     );
   }
 
-  return <SuddenDeathRunner questions={questions} mode={hard ? "hard" : "easy"} />;
+  return <SuddenDeathSession pool={pool} mode={hard ? "hard" : "easy"} />;
 }

@@ -11,9 +11,9 @@
     "explanation": null,
     "options": [
       { "label": "A", "body": "Chain when the task has distinct phases: each step gets a smaller focused prompt, intermediate results can be validated, and steps can be retried independently.", "is_correct": true, "rationale": "Correct. Prompt chaining suits multi-phase tasks — higher accuracy per step, validation between steps, independent retries, and even different models per step. Use a single prompt only when the task is cohesive." },
-      { "label": "B", "body": "Never chain — a single comprehensive prompt is always more reliable.", "is_correct": false, "rationale": "One big prompt handling distinct phases dilutes focus and can't validate intermediate results." },
-      { "label": "C", "body": "Chain only to reduce token cost, never for accuracy.", "is_correct": false, "rationale": "Chaining's main benefits are focus and validation per step; cost optimization (different models per step) is secondary." },
-      { "label": "D", "body": "Chain only when a single prompt exceeds the context window.", "is_correct": false, "rationale": "Distinct phases justify chaining regardless of whether one prompt would fit." }
+      { "label": "B", "body": "Never chain the phases — a single comprehensive prompt that covers extract, validate, format, and synthesize all at once is always the more reliable choice to make.", "is_correct": false, "rationale": "One big prompt handling distinct phases dilutes focus and can't validate intermediate results." },
+      { "label": "C", "body": "Chain the steps only when the goal is to reduce token cost, and never do it for the sake of improving per-step accuracy or enabling validation between the phases.", "is_correct": false, "rationale": "Chaining's main benefits are focus and validation per step; cost optimization (different models per step) is secondary." },
+      { "label": "D", "body": "Chain the phases only in the specific case where a single combined prompt would exceed the model's context window, and otherwise keep it all in one prompt.", "is_correct": false, "rationale": "Distinct phases justify chaining regardless of whether one prompt would fit." }
     ]
   },
   {
@@ -28,9 +28,9 @@
     "explanation": null,
     "options": [
       { "label": "A", "body": "Decompose dynamically — for open-ended tasks the right split only emerges as work proceeds; fixed decomposition suits predictable tasks.", "is_correct": true, "rationale": "Correct. Fixed decomposition fits predictable tasks; dynamic decomposition fits open-ended exploration where you can't predict the structure at design time." },
-      { "label": "B", "body": "Always use a fixed decomposition for consistency.", "is_correct": false, "rationale": "A fixed split on an unknown structure locks the agent into the wrong subtasks." },
-      { "label": "C", "body": "Avoid decomposition entirely and handle it in one prompt.", "is_correct": false, "rationale": "Open-ended tasks benefit from decomposition; one prompt dilutes attention and misses branches." },
-      { "label": "D", "body": "Spawn one subagent per sentence in the request.", "is_correct": false, "rationale": "Arbitrary fan-out isn't decomposition by requirement; it multiplies cost without matching the task's real structure." }
+      { "label": "B", "body": "Always commit to a fixed decomposition up front for the sake of consistency, regardless of how open-ended or unpredictable the task's structure turns out to be.", "is_correct": false, "rationale": "A fixed split on an unknown structure locks the agent into the wrong subtasks." },
+      { "label": "C", "body": "Avoid decomposing the task at all and instead handle the entire open-ended request within a single large prompt from start to finish.", "is_correct": false, "rationale": "Open-ended tasks benefit from decomposition; one prompt dilutes attention and misses branches." },
+      { "label": "D", "body": "Spawn exactly one subagent for each sentence in the request as the mechanism for dividing up the open-ended work among workers.", "is_correct": false, "rationale": "Arbitrary fan-out isn't decomposition by requirement; it multiplies cost without matching the task's real structure." }
     ]
   }
 ]

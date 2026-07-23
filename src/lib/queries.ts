@@ -67,14 +67,28 @@ function shuffle<T>(arr: T[]): T[] {
   return a;
 }
 
-function sortOpts(q: QuizQuestion): QuizQuestion {
-  return { ...q, options: [...q.options].sort((a, b) => a.sort - b.sort) };
+const OPTION_LABELS = ["A", "B", "C", "D", "E", "F"];
+
+// Randomize option order at serve time and re-label A/B/C/D to match the new
+// positions. The seed data always stores the correct answer first (sort 0),
+// which made position A a dead giveaway; grading keys off `is_correct`, never
+// the label, so shuffling here is safe across quizzes, exams, and drills.
+function shuffleOpts(q: QuizQuestion): QuizQuestion {
+  const options = shuffle(q.options).map((opt, index) => ({
+    ...opt,
+    label: OPTION_LABELS[index] ?? opt.label,
+    sort: index,
+  }));
+  return { ...q, options };
 }
 
-/** Fetch a shuffled quiz set, optionally filtered to one domain. */
-export async function getQuizQuestions(
-  domain: number | null,
-  limit: number
+/**
+ * Full shuffled quiz pool, optionally filtered to one domain. Final selection
+ * (size + cross-attempt dedup) happens client-side so we can prefer questions
+ * the user hasn't seen yet — see `pickUnseen` and QuizSession.
+ */
+export async function getQuizPool(
+  domain: number | null
 ): Promise<QuizQuestion[]> {
   const supabase = await createClient();
   let query = supabase.from("questions").select(QUESTION_SELECT);
@@ -83,7 +97,7 @@ export async function getQuizQuestions(
   if (error) throw error;
 
   const questions = (data ?? []) as unknown as QuizQuestion[];
-  return shuffle(questions).slice(0, limit).map(sortOpts);
+  return shuffle(questions).map(shuffleOpts);
 }
 
 // Blueprint-weighted item counts for a 60-item exam (sums to 60).
@@ -95,25 +109,22 @@ export const EXAM_DOMAIN_TARGETS: Record<number, number> = {
   5: 9,
 };
 
-/** A full 60-item exam draw, domain-weighted like the real blueprint. */
-export async function getExamQuestions(): Promise<QuizQuestion[]> {
+/**
+ * Full shuffled question pool for an exam. The weighted 60-item draw
+ * (EXAM_DOMAIN_TARGETS) plus cross-attempt dedup runs client-side in
+ * ExamSession so repeat exams surface fresh items first.
+ */
+export async function getExamPool(): Promise<QuizQuestion[]> {
   const supabase = await createClient();
   const { data, error } = await supabase.from("questions").select(QUESTION_SELECT);
   if (error) throw error;
   const all = (data ?? []) as unknown as QuizQuestion[];
-
-  const out: QuizQuestion[] = [];
-  for (const [d, n] of Object.entries(EXAM_DOMAIN_TARGETS)) {
-    const pool = shuffle(all.filter((q) => q.domain === Number(d)));
-    out.push(...pool.slice(0, n));
-  }
-  return shuffle(out).map(sortOpts);
+  return shuffle(all).map(shuffleOpts);
 }
 
-/** Questions filtered by difficulty tier (1=recall, 2=applied, 3=scenario). */
-export async function getQuestionsByDifficulty(
-  tiers: number[],
-  limit: number
+/** Full shuffled pool for the given difficulty tiers (1=recall, 2=applied, 3=scenario). */
+export async function getDifficultyPool(
+  tiers: number[]
 ): Promise<QuizQuestion[]> {
   const supabase = await createClient();
   const { data, error } = await supabase
@@ -122,7 +133,7 @@ export async function getQuestionsByDifficulty(
     .in("difficulty", tiers);
   if (error) throw error;
   const all = (data ?? []) as unknown as QuizQuestion[];
-  return shuffle(all).slice(0, limit).map(sortOpts);
+  return shuffle(all).map(shuffleOpts);
 }
 
 /** Fetch specific questions by id (for the flagged-review drill). */
@@ -134,5 +145,5 @@ export async function getQuestionsByIds(ids: string[]): Promise<QuizQuestion[]> 
     .select(QUESTION_SELECT)
     .in("id", ids);
   if (error) throw error;
-  return ((data ?? []) as unknown as QuizQuestion[]).map(sortOpts);
+  return ((data ?? []) as unknown as QuizQuestion[]).map(shuffleOpts);
 }

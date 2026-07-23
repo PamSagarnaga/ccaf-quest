@@ -46,8 +46,8 @@
     "options": [
       { "label": "A", "body": "About 4–5 tools maximum — focused sets reduce selection errors.", "is_correct": true, "rationale": "Correct. Scope each agent to ~4–5 tools; the guide's over-tooling example is 18 instead of 4–5." },
       { "label": "B", "body": "As many as possible, so one agent can handle anything.", "is_correct": false, "rationale": "One agent with many tools increases selection errors — the anti-pattern." },
-      { "label": "C", "body": "Exactly one tool per agent, always.", "is_correct": false, "rationale": "Too rigid; ~4–5 related tools per role is the guidance, not exactly one." },
-      { "label": "D", "body": "10–12, to balance breadth and focus.", "is_correct": false, "rationale": "Still too many; the guidance is ~4–5 per agent." }
+      { "label": "C", "body": "Exactly one single tool per agent in every case, regardless of the agent's role or the task it handles.", "is_correct": false, "rationale": "Too rigid; ~4–5 related tools per role is the guidance, not exactly one." },
+      { "label": "D", "body": "Around 10 to 12 tools per agent, chosen to balance capability breadth against keeping the agent focused.", "is_correct": false, "rationale": "Still too many; the guidance is ~4–5 per agent." }
     ]
   },
   {
@@ -62,9 +62,9 @@
     "explanation": null,
     "options": [
       { "label": "A", "body": "Customer ID, a factual summary of what happened, the root cause, and the recommended action.", "is_correct": true, "rationale": "Correct. The four-field structured handoff (who, what, why, suggested next step) lets the human pick up instantly without re-investigating." },
-      { "label": "B", "body": "The full raw conversation transcript.", "is_correct": false, "rationale": "Dumping the transcript forces the human to re-do the investigation." },
-      { "label": "C", "body": "Just the customer's original message and a reference ID.", "is_correct": false, "rationale": "Drops the tool-derived context and diagnosis the agent already produced." },
-      { "label": "D", "body": "A generic error message so the human knows to take over.", "is_correct": false, "rationale": "Never silently fail with a generic error — produce a structured handoff." }
+      { "label": "B", "body": "The full raw conversation transcript, handed over for the human agent to read through in its entirety themselves.", "is_correct": false, "rationale": "Dumping the transcript forces the human to re-do the investigation." },
+      { "label": "C", "body": "Just the customer's original opening message together with a reference ID for the human to look the case up by.", "is_correct": false, "rationale": "Drops the tool-derived context and diagnosis the agent already produced." },
+      { "label": "D", "body": "A generic error message that simply signals to the human that they now need to take the case over from the agent.", "is_correct": false, "rationale": "Never silently fail with a generic error — produce a structured handoff." }
     ]
   },
   {
@@ -96,9 +96,9 @@
     "explanation": null,
     "options": [
       { "label": "A", "body": "fork_session — branch from the shared baseline so each approach has independent context.", "is_correct": true, "rationale": "Correct. Forking gives each branch the exact baseline with no cross-contamination — ideal for divergent exploration." },
-      { "label": "B", "body": "--resume the same session and do both in sequence.", "is_correct": false, "rationale": "One thread lets the first approach's reasoning bias the second." },
-      { "label": "C", "body": "Two fresh sessions that each re-read all the files.", "is_correct": false, "rationale": "Burns tokens redoing analysis and risks divergent conclusions from the same code." },
-      { "label": "D", "body": "Export a summary and start over from it.", "is_correct": false, "rationale": "A summary is lossier than the live baseline state; forking preserves it exactly." }
+      { "label": "B", "body": "Use --resume on the same session and explore both implementation approaches one after another in sequence.", "is_correct": false, "rationale": "One thread lets the first approach's reasoning bias the second." },
+      { "label": "C", "body": "Start two fresh sessions that each independently re-read all of the baseline files before exploring their approach.", "is_correct": false, "rationale": "Burns tokens redoing analysis and risks divergent conclusions from the same code." },
+      { "label": "D", "body": "Export a summary of the analyzed baseline and start each approach over again from that summary instead.", "is_correct": false, "rationale": "A summary is lossier than the live baseline state; forking preserves it exactly." }
     ]
   },
   {
@@ -113,9 +113,9 @@
     "explanation": null,
     "options": [
       { "label": "A", "body": "The tool result is appended to the conversation history, then the updated conversation is sent back.", "is_correct": true, "rationale": "Correct. Tool results must be appended to history so the model can incorporate them on the next iteration." },
-      { "label": "B", "body": "The tool result replaces the conversation history to save context.", "is_correct": false, "rationale": "Replacing history discards what the model needs to reason across turns." },
-      { "label": "C", "body": "The result is stored server-side and the model fetches it automatically.", "is_correct": false, "rationale": "The API is stateless; you must include the result in the messages you send." },
-      { "label": "D", "body": "Nothing — the model remembers tool outputs between calls.", "is_correct": false, "rationale": "It doesn't; without appending the result, the model can't reason about it." }
+      { "label": "B", "body": "The tool result replaces the existing conversation history entirely in order to save context space before the next call.", "is_correct": false, "rationale": "Replacing history discards what the model needs to reason across turns." },
+      { "label": "C", "body": "The result is stored server-side and the model automatically fetches it on the next call without it being sent along.", "is_correct": false, "rationale": "The API is stateless; you must include the result in the messages you send." },
+      { "label": "D", "body": "Nothing needs to happen — the model simply remembers the tool outputs on its own between one call and the next.", "is_correct": false, "rationale": "It doesn't; without appending the result, the model can't reason about it." }
     ]
   },
   {
@@ -130,9 +130,9 @@
     "explanation": null,
     "options": [
       { "label": "A", "body": "No — premature termination is a stop_reason handling bug; iteration caps are only a safety net, not the loop's primary control.", "is_correct": true, "rationale": "Correct. Fix the stop_reason check (continue on tool_use, stop on end_turn). Caps just bound runaway agents; they don't cause or cure premature stops." },
-      { "label": "B", "body": "Yes — a higher cap always prevents premature termination.", "is_correct": false, "rationale": "The cap isn't why it stopped early; the termination logic is. A higher cap masks nothing here." },
-      { "label": "C", "body": "Yes, and you should also parse the text for 'done'.", "is_correct": false, "rationale": "Natural-language parsing is ambiguous — the whole reason stop_reason exists." },
-      { "label": "D", "body": "No — remove the cap entirely and rely on text length.", "is_correct": false, "rationale": "Removing the safety net invites runaway loops; text length isn't a termination signal." }
+      { "label": "B", "body": "Yes — raising the iteration cap from 10 up to 25 will always prevent the loop from terminating prematurely on this kind of task.", "is_correct": false, "rationale": "The cap isn't why it stopped early; the termination logic is. A higher cap masks nothing here." },
+      { "label": "C", "body": "Yes, and on top of raising the cap you should also parse the assistant's output text for a phrase like 'done' to know when to stop.", "is_correct": false, "rationale": "Natural-language parsing is ambiguous — the whole reason stop_reason exists." },
+      { "label": "D", "body": "No — instead remove the iteration cap entirely and rely on the response's text length as the signal for when the loop should stop.", "is_correct": false, "rationale": "Removing the safety net invites runaway loops; text length isn't a termination signal." }
     ]
   }
 ]

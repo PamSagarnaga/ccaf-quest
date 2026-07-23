@@ -11,9 +11,9 @@
     "explanation": null,
     "options": [
       { "label": "A", "body": "Have the coordinator partition research scope up front — assign each subagent distinct subtopics or source types to minimize duplication.", "is_correct": true, "rationale": "Correct. Overlap and gaps come from the coordinator not partitioning scope. Assigning distinct subtopics/source types per subagent is the coordinator's job and fixes both problems." },
-      { "label": "B", "body": "Add a deduplication subagent that removes overlapping findings after synthesis.", "is_correct": false, "rationale": "Post-hoc dedup wastes the duplicated work and doesn't fill the gaps left by poor partitioning." },
-      { "label": "C", "body": "Let each subagent read the others' outputs so they can avoid overlap.", "is_correct": false, "rationale": "Subagents are isolated and shouldn't communicate directly; coordinating scope is the hub's responsibility." },
-      { "label": "D", "body": "Increase the number of subagents so more ground is covered.", "is_correct": false, "rationale": "More subagents without partitioning multiplies overlap and cost — the decomposition is the problem, not the headcount." }
+      { "label": "B", "body": "Add a dedicated deduplication subagent that runs after synthesis to detect overlapping findings and merge the two subagents' redundant coverage into a single cleaned report.", "is_correct": false, "rationale": "Post-hoc dedup wastes the duplicated work and doesn't fill the gaps left by poor partitioning." },
+      { "label": "C", "body": "Let each subagent read the others' in-progress outputs during the run so they can see what's already covered and steer away from the sources their peers have taken.", "is_correct": false, "rationale": "Subagents are isolated and shouldn't communicate directly; coordinating scope is the hub's responsibility." },
+      { "label": "D", "body": "Increase the number of subagents assigned to the job so more ground gets covered per run, spreading the same broad research brief across a larger pool of workers.", "is_correct": false, "rationale": "More subagents without partitioning multiplies overlap and cost — the decomposition is the problem, not the headcount." }
     ]
   },
   {
@@ -28,9 +28,9 @@
     "explanation": null,
     "options": [
       { "label": "A", "body": "The coordinator passed content to synthesis without structured metadata — fix the context passing to include source URLs/names/pages alongside each claim.", "is_correct": true, "rationale": "Correct. Synthesis can't cite sources it was never given. The coordinator must forward structured claim+metadata, not just prose. It's a context-passing fix, not a synthesis-prompt fix." },
-      { "label": "B", "body": "The synthesis agent's prompt needs stronger instructions to always cite.", "is_correct": false, "rationale": "No prompt can make it cite metadata it never received; the data was dropped during handoff." },
-      { "label": "C", "body": "Give the synthesis agent direct tool access to re-search for sources.", "is_correct": false, "rationale": "Re-searching invites misattribution and duplicates work; pass the original mapping instead." },
-      { "label": "D", "body": "The web-search agent is the culprit and should embed citations inline in prose.", "is_correct": false, "rationale": "It already cites correctly; inline-in-prose citations are exactly what get lost downstream." }
+      { "label": "B", "body": "The synthesis agent's prompt needs stronger, repeated instructions demanding that it attach a citation to every single claim it writes into the final report.", "is_correct": false, "rationale": "No prompt can make it cite metadata it never received; the data was dropped during handoff." },
+      { "label": "C", "body": "Give the synthesis agent its own web-search and document tools so it can re-locate and re-attach an appropriate source for each claim as it writes the report.", "is_correct": false, "rationale": "Re-searching invites misattribution and duplicates work; pass the original mapping instead." },
+      { "label": "D", "body": "The web-search agent is the culprit and should embed its citations inline within its prose so the sources travel along with the text into the synthesis step.", "is_correct": false, "rationale": "It already cites correctly; inline-in-prose citations are exactly what get lost downstream." }
     ]
   },
   {
@@ -45,9 +45,9 @@
     "explanation": null,
     "options": [
       { "label": "A", "body": "Decompose the request into distinct items, investigate each in parallel using shared context, then synthesize one unified resolution.", "is_correct": true, "rationale": "Correct. Multi-concern requests should be split into items and worked in parallel against shared context, then resolved together — so nothing is dropped." },
-      { "label": "B", "body": "Ask the customer to resubmit each issue as a separate ticket.", "is_correct": false, "rationale": "Pushes work back onto the customer and fragments context that should be handled together." },
-      { "label": "C", "body": "Handle strictly in the order mentioned and hope context persists.", "is_correct": false, "rationale": "Sequential handling with no decomposition is exactly why later items get forgotten." },
-      { "label": "D", "body": "Escalate the whole thing to a human because it's multi-part.", "is_correct": false, "rationale": "Multi-part isn't itself grounds for escalation; the agent can decompose and resolve." }
+      { "label": "B", "body": "Ask the customer to resubmit each concern — the refund, the address change, and the subscription question — as its own separate ticket so each one is tracked independently.", "is_correct": false, "rationale": "Pushes work back onto the customer and fragments context that should be handled together." },
+      { "label": "C", "body": "Handle the three concerns strictly in the order the customer mentioned them and rely on the running conversation context to carry the later items forward until reached.", "is_correct": false, "rationale": "Sequential handling with no decomposition is exactly why later items get forgotten." },
+      { "label": "D", "body": "Escalate the entire message to a human agent on the grounds that a request bundling three distinct concerns is inherently too complex for the agent to resolve on its own.", "is_correct": false, "rationale": "Multi-part isn't itself grounds for escalation; the agent can decompose and resolve." }
     ]
   },
   {
@@ -62,9 +62,9 @@
     "explanation": null,
     "options": [
       { "label": "A", "body": "A PreToolUse hook that intercepts process_refund, blocks any amount over $500, and redirects to human escalation.", "is_correct": true, "rationale": "Correct. A pre-execution hook enforces the threshold deterministically (code, not prompt) and reroutes over-limit refunds — the guide's exact pattern for a hard money rule." },
-      { "label": "B", "body": "Add emphatic wording and examples to the system prompt about the $500 cap.", "is_correct": false, "rationale": "Prompt guidance is probabilistic — it has a non-zero failure rate, which is the leak here." },
-      { "label": "C", "body": "A PostToolUse hook that flags refunds over $500 after they run.", "is_correct": false, "rationale": "PostToolUse fires after execution — too late to prevent the over-limit refund." },
-      { "label": "D", "body": "Lower the model temperature so it follows the rule more consistently.", "is_correct": false, "rationale": "Temperature doesn't guarantee compliance with a business rule." }
+      { "label": "B", "body": "Add emphatic wording, bold warnings, and several worked examples to the system prompt reinforcing that agent-issued refunds must never exceed the $500 cap under any circumstances.", "is_correct": false, "rationale": "Prompt guidance is probabilistic — it has a non-zero failure rate, which is the leak here." },
+      { "label": "C", "body": "Add a PostToolUse hook that inspects each completed refund and flags any amount over $500 for the finance team to review and reverse after it has already been processed.", "is_correct": false, "rationale": "PostToolUse fires after execution — too late to prevent the over-limit refund." },
+      { "label": "D", "body": "Lower the model's temperature so its outputs are more deterministic and it adheres to the $500 refund rule more consistently across production runs.", "is_correct": false, "rationale": "Temperature doesn't guarantee compliance with a business rule." }
     ]
   },
   {
@@ -79,9 +79,9 @@
     "explanation": null,
     "options": [
       { "label": "A", "body": "Dynamic decomposition: first map the module's structure, identify high-impact/untested areas, then build a prioritized plan that adapts as dependencies surface.", "is_correct": true, "rationale": "Correct. Open-ended tasks call for adaptive decomposition — explore structure, find high-impact areas, and let the plan evolve with what you discover." },
-      { "label": "B", "body": "A fixed pipeline: write tests file-by-file in alphabetical order.", "is_correct": false, "rationale": "A rigid order ignores impact and dependencies and wastes effort on low-value areas first." },
-      { "label": "C", "body": "One large prompt asking for tests across the whole module at once.", "is_correct": false, "rationale": "A single giant pass dilutes attention and misses details in a large legacy module." },
-      { "label": "D", "body": "Spawn a subagent per file immediately, before any exploration.", "is_correct": false, "rationale": "Fan-out before understanding structure duplicates effort and misses cross-file coverage; explore first." }
+      { "label": "B", "body": "Run a fixed pipeline that writes tests file-by-file in strict alphabetical order until the entire legacy module has coverage, regardless of each file's importance or risk.", "is_correct": false, "rationale": "A rigid order ignores impact and dependencies and wastes effort on low-value areas first." },
+      { "label": "C", "body": "Issue one large prompt asking the agent to generate comprehensive tests across the whole module in a single pass, so that nothing gets scoped out of the coverage.", "is_correct": false, "rationale": "A single giant pass dilutes attention and misses details in a large legacy module." },
+      { "label": "D", "body": "Immediately spawn one subagent per file to write tests in parallel, before doing any exploration of the module's structure, dependencies, or which areas actually lack coverage.", "is_correct": false, "rationale": "Fan-out before understanding structure duplicates effort and misses cross-file coverage; explore first." }
     ]
   },
   {
@@ -96,9 +96,9 @@
     "explanation": null,
     "options": [
       { "label": "A", "body": "Resume the session and tell the agent exactly which 3 files changed so it re-reads just those.", "is_correct": true, "rationale": "Correct. Keep the expensive context for the 9 unchanged files; inform the agent about the 3 changed ones for targeted re-analysis — minimum waste, maximum accuracy." },
-      { "label": "B", "body": "Resume silently and continue as if nothing changed.", "is_correct": false, "rationale": "Leaves the agent reasoning on stale content for 3 files — the source of bad recommendations." },
-      { "label": "C", "body": "Start a fresh session so everything reflects current state.", "is_correct": false, "rationale": "Throws away an hour of valid context about the 9 files that didn't change." },
-      { "label": "D", "body": "Resume and have the agent re-read all 12 files.", "is_correct": false, "rationale": "Unnecessary for the 9 unchanged files; just adds tokens without improving accuracy." }
+      { "label": "B", "body": "Resume the session silently and continue the analysis as if nothing changed, since most of the twelve files the agent read overnight are still current in the repository.", "is_correct": false, "rationale": "Leaves the agent reasoning on stale content for 3 files — the source of bad recommendations." },
+      { "label": "C", "body": "Start a completely fresh session so the entire analysis reflects the current repository state after the teammate's overnight merge, rebuilding context from scratch.", "is_correct": false, "rationale": "Throws away an hour of valid context about the 9 files that didn't change." },
+      { "label": "D", "body": "Resume the session but have the agent re-read all twelve files from disk so every one of them reflects the latest committed content before continuing the analysis.", "is_correct": false, "rationale": "Unnecessary for the 9 unchanged files; just adds tokens without improving accuracy." }
     ]
   },
   {
@@ -113,9 +113,9 @@
     "explanation": null,
     "options": [
       { "label": "A", "body": "Rewrite each tool's description to state its distinct purpose, inputs, return shape, and when NOT to use it.", "is_correct": true, "rationale": "Correct. Descriptions are the primary selection signal. Clear, bounded, non-overlapping descriptions are the first fix — before renaming or removing tools." },
-      { "label": "B", "body": "Delete two of the three tools to remove the ambiguity.", "is_correct": false, "rationale": "Consolidating is a later step; if the tools serve different needs you'd lose capability. Fix descriptions first." },
-      { "label": "C", "body": "Rename them tool1/tool2/tool3 so the model isn't biased by names.", "is_correct": false, "rationale": "Opaque names make selection worse — the description, not the name, drives selection." },
-      { "label": "D", "body": "Force a specific tool with tool_choice on every identity request.", "is_correct": false, "rationale": "Forcing one tool removes needed judgment and isn't a general selection fix." }
+      { "label": "B", "body": "Delete two of the three overlapping identity tools so only one remains and the model has no ambiguous choice left to get wrong when it needs to look someone up.", "is_correct": false, "rationale": "Consolidating is a later step; if the tools serve different needs you'd lose capability. Fix descriptions first." },
+      { "label": "C", "body": "Rename the three tools to tool1, tool2, and tool3 so the model isn't biased by suggestive names and instead has to reason about which one fits from context.", "is_correct": false, "rationale": "Opaque names make selection worse — the description, not the name, drives selection." },
+      { "label": "D", "body": "Use tool_choice to force a specific identity tool on every request so the model never has to decide which of the three overlapping tools to call for a given task.", "is_correct": false, "rationale": "Forcing one tool removes needed judgment and isn't a general selection fix." }
     ]
   },
   {
@@ -130,9 +130,9 @@
     "explanation": null,
     "options": [
       { "label": "A", "body": "Return a structured error: errorCategory \"transient\", isRetryable true, and a description — so the agent retries a bounded number of times instead of guessing.", "is_correct": true, "rationale": "Correct. A timeout is transient/retryable; structured metadata lets the agent apply a deterministic bounded-retry policy rather than inconsistent guessing, and never mistakes a failure for empty data." },
-      { "label": "B", "body": "Return an empty result so the pipeline keeps moving.", "is_correct": false, "rationale": "Empty-on-failure looks like 'no data exists' and corrupts downstream synthesis." },
-      { "label": "C", "body": "Retry forever inside the tool until it succeeds.", "is_correct": false, "rationale": "Unbounded retries can hang the pipeline and hide the issue from the agent/coordinator." },
-      { "label": "D", "body": "Add few-shot examples teaching the agent to parse timeout strings.", "is_correct": false, "rationale": "Text-parsing errors is fragile; structured metadata is the reliable signal." }
+      { "label": "B", "body": "Have the tool return an empty result set whenever it times out so the pipeline treats it as 'nothing found' and keeps moving forward without stalling on the failed call.", "is_correct": false, "rationale": "Empty-on-failure looks like 'no data exists' and corrupts downstream synthesis." },
+      { "label": "C", "body": "Have the tool retry the MCP call internally in a loop until it eventually succeeds, keeping the intermittent timeouts hidden from the agent and the coordinator above it.", "is_correct": false, "rationale": "Unbounded retries can hang the pipeline and hide the issue from the agent/coordinator." },
+      { "label": "D", "body": "Add few-shot examples that teach the agent to recognize timeout strings in the raw error text and decide for itself how many times it should retry the call.", "is_correct": false, "rationale": "Text-parsing errors is fragile; structured metadata is the reliable signal." }
     ]
   },
   {
@@ -147,9 +147,9 @@
     "explanation": null,
     "options": [
       { "label": "A", "body": "Accept (1) as a valid empty result (the customer simply isn't found), and treat (2) as an access failure to retry with correct credentials or escalate.", "is_correct": true, "rationale": "Correct. A successful query returning nothing is a valid answer; a 401 means the tool failed to execute and needs recovery. The exam tests this distinction repeatedly." },
-      { "label": "B", "body": "Treat both as errors and retry both.", "is_correct": false, "rationale": "Retrying a successful empty lookup just repeats a valid result — nothing failed there." },
-      { "label": "C", "body": "Treat both as valid empty results and move on.", "is_correct": false, "rationale": "A 401 is an access failure, not an empty result — ignoring it loses data silently." },
-      { "label": "D", "body": "Escalate to a human on both.", "is_correct": false, "rationale": "An empty lookup doesn't warrant escalation; only the unresolved access failure might." }
+      { "label": "B", "body": "Treat both the zero-row lookup and the HTTP 401 as errors and retry each of them until they return data or the session gives up on getting a usable response.", "is_correct": false, "rationale": "Retrying a successful empty lookup just repeats a valid result — nothing failed there." },
+      { "label": "C", "body": "Treat both the zero-row lookup and the HTTP 401 as valid empty results and simply move on with the rest of the session without attempting any recovery step.", "is_correct": false, "rationale": "A 401 is an access failure, not an empty result — ignoring it loses data silently." },
+      { "label": "D", "body": "Escalate to a human on both the empty customer lookup and the 401 response, since neither call returned usable customer data for the agent to continue with.", "is_correct": false, "rationale": "An empty lookup doesn't warrant escalation; only the unresolved access failure might." }
     ]
   },
   {
@@ -164,9 +164,9 @@
     "explanation": null,
     "options": [
       { "label": "A", "body": "They don't connect directly — in MCP's three-layer model all communication flows through the client/host; the coordinating agent passes data between tool calls.", "is_correct": true, "rationale": "Correct. MCP is Host ⊃ Client ↔ Server; servers expose tools and the client routes calls. Servers don't talk to each other directly." },
-      { "label": "B", "body": "Configure a server-to-server webhook between them.", "is_correct": false, "rationale": "Not part of the MCP model; communication is mediated by the client/host." },
-      { "label": "C", "body": "Point both servers at a shared database to exchange state.", "is_correct": false, "rationale": "Not how MCP servers integrate; the client/host coordinates." },
-      { "label": "D", "body": "Merge them into a single MCP server so they can share memory.", "is_correct": false, "rationale": "Unnecessary and unrelated to how tool outputs are passed — the agent/client routes data between calls." }
+      { "label": "B", "body": "Configure a direct server-to-server webhook so the GitHub MCP server pushes its query results straight into the Postgres MCP server without routing through a client or host.", "is_correct": false, "rationale": "Not part of the MCP model; communication is mediated by the client/host." },
+      { "label": "C", "body": "Point both MCP servers at a shared backing database and have them exchange state through it, bypassing the model and the host layer that would otherwise coordinate them.", "is_correct": false, "rationale": "Not how MCP servers integrate; the client/host coordinates." },
+      { "label": "D", "body": "Merge the GitHub and Postgres MCP servers into a single combined server so they can share memory internally and pass tool outputs between each other without the client.", "is_correct": false, "rationale": "Unnecessary and unrelated to how tool outputs are passed — the agent/client routes data between calls." }
     ]
   },
   {
@@ -181,9 +181,9 @@
     "explanation": null,
     "options": [
       { "label": "A", "body": "Read the barrel/wrapper files to enumerate every name the function is exported under, then Grep for each alias across the repo.", "is_correct": true, "rationale": "Correct. Re-exports rename the symbol, so you must gather all aliases (Read the barrels) then Grep each — otherwise renamed callers stay hidden." },
-      { "label": "B", "body": "Grep the original function name across the repo and remove those call sites.", "is_correct": false, "rationale": "The original name won't appear where a barrel renamed it — you'd miss a class of callers." },
-      { "label": "C", "body": "Grep for files importing the utility module, assuming those are all the callers.", "is_correct": false, "rationale": "Misses re-exports and indirect chains; import presence doesn't equal usage." },
-      { "label": "D", "body": "Search the docs for where the function is described as used.", "is_correct": false, "rationale": "Docs are stale/incomplete; you can't safely remove code on documentation evidence." }
+      { "label": "B", "body": "Grep the repo for the utility's original function name and remove exactly the call sites that match, assuming that original name is how every caller references the function.", "is_correct": false, "rationale": "The original name won't appear where a barrel renamed it — you'd miss a class of callers." },
+      { "label": "C", "body": "Grep for every file that imports the utility's module and treat that set of files as the complete and authoritative list of the function's callers to update or remove.", "is_correct": false, "rationale": "Misses re-exports and indirect chains; import presence doesn't equal usage." },
+      { "label": "D", "body": "Search the project documentation for the places that describe where the function is used, and remove the callers listed there as the basis for the deletion.", "is_correct": false, "rationale": "Docs are stale/incomplete; you can't safely remove code on documentation evidence." }
     ]
   },
   {
@@ -198,9 +198,9 @@
     "explanation": null,
     "options": [
       { "label": "A", "body": "The api rules were placed in that one developer's user-level ~/.claude/CLAUDE.md, which isn't committed — so the teammate never received them.", "is_correct": true, "rationale": "Correct. User-level config isn't shared via git. Package rules belong in the repo (directory-level CLAUDE.md or .claude/rules/) so every clone gets them." },
-      { "label": "B", "body": "CLAUDE.md files override each other, so the frontend rules replaced the api rules.", "is_correct": false, "rationale": "CLAUDE.md files are concatenated, not overriding; scope layering wouldn't delete the api rules." },
-      { "label": "C", "body": "The teammate needs to run /memory to load the api rules.", "is_correct": false, "rationale": "/memory is diagnostic; it shows what's loaded but doesn't cause loading. The real issue is file location." },
-      { "label": "D", "body": "Directory-level CLAUDE.md files aren't supported in monorepos.", "is_correct": false, "rationale": "Directory-level CLAUDE.md is supported and version-controlled; that's not the problem." }
+      { "label": "B", "body": "CLAUDE.md files override one another, so the packages/frontend rules loaded later in the hierarchy and replaced the packages/api rules on the teammate's clone of the monorepo.", "is_correct": false, "rationale": "CLAUDE.md files are concatenated, not overriding; scope layering wouldn't delete the api rules." },
+      { "label": "C", "body": "The teammate simply needs to run the /memory command to load the api package rules that currently aren't being applied when they work in that part of the monorepo.", "is_correct": false, "rationale": "/memory is diagnostic; it shows what's loaded but doesn't cause loading. The real issue is file location." },
+      { "label": "D", "body": "Directory-level CLAUDE.md files aren't supported inside monorepos, so the per-package api rules can't take effect there and the shared standards are all that ever apply.", "is_correct": false, "rationale": "Directory-level CLAUDE.md is supported and version-controlled; that's not the problem." }
     ]
   },
   {
@@ -215,9 +215,9 @@
     "explanation": null,
     "options": [
       { "label": "A", "body": "No — the multi-file architectural scope is already known from the requirements, so plan mode should be chosen up front to map dependencies and design the approach.", "is_correct": true, "rationale": "Correct. When complexity is stated in the requirements (restructuring, 15 files, cross-module), waiting for surprises is wrong; plan mode belongs at the start." },
-      { "label": "B", "body": "Yes — start lean with direct execution and escalate to plan mode only if needed.", "is_correct": false, "rationale": "The complexity isn't speculative here; it's known, so plan mode should be chosen up front." },
-      { "label": "C", "body": "Yes — 15 files is below the threshold that requires plan mode.", "is_correct": false, "rationale": "There's no fixed file-count threshold; the trigger is ambiguity/multiple valid approaches, which this has." },
-      { "label": "D", "body": "No — always use plan mode for every task regardless of scope.", "is_correct": false, "rationale": "Plan mode for trivial, well-defined tasks wastes time; the point is matching mode to ambiguity." }
+      { "label": "B", "body": "Yes — start lean in direct execution mode and escalate to plan mode only if the restructuring actually turns out to be complicated once the colleague is partway into the work.", "is_correct": false, "rationale": "The complexity isn't speculative here; it's known, so plan mode should be chosen up front." },
+      { "label": "C", "body": "Yes — fifteen files sits below the file-count threshold at which plan mode becomes necessary, so direct execution is a reasonable place to begin the authentication restructuring.", "is_correct": false, "rationale": "There's no fixed file-count threshold; the trigger is ambiguity/multiple valid approaches, which this has." },
+      { "label": "D", "body": "No — plan mode should be used for every task without exception, regardless of how small or well-defined the scope is, so the colleague should always plan before executing anything.", "is_correct": false, "rationale": "Plan mode for trivial, well-defined tasks wastes time; the point is matching mode to ambiguity." }
     ]
   },
   {
@@ -232,9 +232,9 @@
     "explanation": null,
     "options": [
       { "label": "A", "body": "No — Batch has up to a 24-hour window with no latency SLA, so it's wrong for a blocking pre-merge check; use the synchronous API here.", "is_correct": true, "rationale": "Correct. Batch trades latency for cost and suits non-blocking, latency-tolerant jobs (nightly audits), not checks developers wait on to merge." },
-      { "label": "B", "body": "Yes — the 50% savings justify using Batch for all CI.", "is_correct": false, "rationale": "Savings don't compensate for blocking developers who can't merge until it completes." },
-      { "label": "C", "body": "Yes, if they set a 5-minute timeout on the batch.", "is_correct": false, "rationale": "Batch offers no such timeout guarantee." },
-      { "label": "D", "body": "No, because Batch can't perform code review tasks.", "is_correct": false, "rationale": "It can do the task; the problem is latency, not capability." }
+      { "label": "B", "body": "Yes — the roughly 50% cost savings from the Batch API justify routing all CI review checks through it, including the pre-merge ones developers are actively waiting on before merging.", "is_correct": false, "rationale": "Savings don't compensate for blocking developers who can't merge until it completes." },
+      { "label": "C", "body": "Yes, provided the team configures a 5-minute timeout on each batch so developers aren't left waiting an unbounded amount of time before their pre-merge check comes back.", "is_correct": false, "rationale": "Batch offers no such timeout guarantee." },
+      { "label": "D", "body": "No — the Batch API simply isn't capable of performing code-review tasks, so it's the wrong tool for pre-merge review regardless of how latency-tolerant the team might be.", "is_correct": false, "rationale": "It can do the task; the problem is latency, not capability." }
     ]
   },
   {
@@ -249,9 +249,9 @@
     "explanation": null,
     "options": [
       { "label": "A", "body": "Add explicit severity-calibration examples (2–3 code samples) showing what counts as critical vs. minor, and instruct it to prioritize accordingly.", "is_correct": true, "rationale": "Correct. Without calibration the model treats all issues equally. Concrete severity examples plus explicit criteria teach it your bar and cut the noise." },
-      { "label": "B", "body": "Tell it in prose to 'only report important issues.'", "is_correct": false, "rationale": "Vague prose doesn't define your severity scale; calibration examples do." },
-      { "label": "C", "body": "Cap it at one comment per file.", "is_correct": false, "rationale": "Arbitrary caps drop real issues instead of ranking by severity." },
-      { "label": "D", "body": "Switch to a larger model.", "is_correct": false, "rationale": "Capability isn't the gap — the model doesn't know your critical-vs-minor standard." }
+      { "label": "B", "body": "Instruct the agent in prose to 'only report the important issues' and trust it to infer on its own which findings actually rise to that bar without any concrete examples.", "is_correct": false, "rationale": "Vague prose doesn't define your severity scale; calibration examples do." },
+      { "label": "C", "body": "Cap the agent at a single comment per file so it's forced to surface only what it judges to be the one most pressing issue in each file and stays quiet about the rest.", "is_correct": false, "rationale": "Arbitrary caps drop real issues instead of ranking by severity." },
+      { "label": "D", "body": "Switch to a larger, more capable model on the assumption that the extra capability will make it naturally prioritize serious security issues over trivial style nits.", "is_correct": false, "rationale": "Capability isn't the gap — the model doesn't know your critical-vs-minor standard." }
     ]
   },
   {
@@ -266,9 +266,9 @@
     "explanation": null,
     "options": [
       { "label": "A", "body": "Define an extraction tool with the invoice JSON schema and force it via tool_choice { type: \"tool\", name: ... } so the API validates the shape.", "is_correct": true, "rationale": "Correct. Forced tool_choice guarantees the call and the tool's schema is validated by the API — no malformed JSON, missing, or extra fields. The exam's preferred structured-output pattern for one known shape." },
-      { "label": "B", "body": "Add stricter prompt wording demanding valid JSON with no extra fields.", "is_correct": false, "rationale": "Prompt-based JSON has no schema enforcement; it's the source of the malformed output." },
-      { "label": "C", "body": "Post-process with a JSON repair library.", "is_correct": false, "rationale": "Patches symptoms; the API-validated tool schema prevents the problem at the source." },
-      { "label": "D", "body": "Use tool_choice: any across several schemas.", "is_correct": false, "rationale": "'any' is for when the document could match multiple schemas; here there's exactly one known shape, so force that specific tool." }
+      { "label": "B", "body": "Add stricter prompt wording that demands valid JSON conforming exactly to the invoice schema, with no missing and no extra fields, on every single run of the extraction.", "is_correct": false, "rationale": "Prompt-based JSON has no schema enforcement; it's the source of the malformed output." },
+      { "label": "C", "body": "Parse whatever JSON the model returns and run it through a JSON-repair library that fixes malformed structures and strips extra fields before the pipeline consumes the result.", "is_correct": false, "rationale": "Patches symptoms; the API-validated tool schema prevents the problem at the source." },
+      { "label": "D", "body": "Set tool_choice to 'any' across several candidate invoice schemas and let the API pick whichever tool it thinks best matches the document on each extraction request.", "is_correct": false, "rationale": "'any' is for when the document could match multiple schemas; here there's exactly one known shape, so force that specific tool." }
     ]
   },
   {
@@ -283,9 +283,9 @@
     "explanation": null,
     "options": [
       { "label": "A", "body": "Make those fields nullable/optional and instruct the model to return null when the value isn't stated in the source.", "is_correct": true, "rationale": "Correct. Required fields CAUSE fabrication — the model must produce something to satisfy the schema. Nullable fields plus a 'return null if not stated' instruction is the standard fix." },
-      { "label": "B", "body": "Keep them required but add validation that rejects suspicious values.", "is_correct": false, "rationale": "Requiredness is the cause; validation just rejects the invented value after the fact." },
-      { "label": "C", "body": "Add a second LLM pass to verify each value exists in the source.", "is_correct": false, "rationale": "Expensive workaround for something the schema design fixes directly." },
-      { "label": "D", "body": "Upgrade to a more capable model.", "is_correct": false, "rationale": "The schema, not the model, is forcing invention." }
+      { "label": "B", "body": "Keep summary and category required but add downstream validation that rejects values which look fabricated or implausible before they're written into the extraction store.", "is_correct": false, "rationale": "Requiredness is the cause; validation just rejects the invented value after the fact." },
+      { "label": "C", "body": "Add a second LLM verification pass that checks whether each extracted summary and category value actually appears in the source document before the pipeline accepts it.", "is_correct": false, "rationale": "Expensive workaround for something the schema design fixes directly." },
+      { "label": "D", "body": "Upgrade to a more capable model on the expectation that a stronger model won't invent values for information the source document doesn't actually contain.", "is_correct": false, "rationale": "The schema, not the model, is forcing invention." }
     ]
   },
   {
@@ -300,9 +300,9 @@
     "explanation": null,
     "options": [
       { "label": "A", "body": "Run review in a separate model instance (new conversation, no shared history) that sees only the output, not the reasoning that produced it.", "is_correct": true, "rationale": "Correct. Same-session review retains the reasoning/justifications and is biased toward confirming its own decisions. A fresh instance reviews without that bias." },
-      { "label": "B", "body": "Give the same session a more detailed review prompt.", "is_correct": false, "rationale": "More detail doesn't remove the reasoning-context bias of the writing session." },
-      { "label": "C", "body": "Ask the model to 'be more critical of its own work.'", "is_correct": false, "rationale": "Self-criticism instructions don't overcome the confirmation bias of shared reasoning context." },
-      { "label": "D", "body": "Lower temperature for the review pass.", "is_correct": false, "rationale": "Temperature doesn't address the bias from reviewing in the same session." }
+      { "label": "B", "body": "Keep the review in the same session but give it a longer, more detailed review prompt that spells out exactly which categories of security issue to look for in the code.", "is_correct": false, "rationale": "More detail doesn't remove the reasoning-context bias of the writing session." },
+      { "label": "C", "body": "Ask the model, within the same session that wrote the code, to 'be more critical of its own work' when it turns around and reviews the output it just produced.", "is_correct": false, "rationale": "Self-criticism instructions don't overcome the confirmation bias of shared reasoning context." },
+      { "label": "D", "body": "Lower the temperature for the review pass so that the same-session review is more deterministic and therefore less likely to rubber-stamp the code it just generated.", "is_correct": false, "rationale": "Temperature doesn't address the bias from reviewing in the same session." }
     ]
   },
   {
@@ -317,9 +317,9 @@
     "explanation": null,
     "options": [
       { "label": "A", "body": "Add 2–4 well-chosen examples that include reasoning and cover an edge case; beyond ~4 there are diminishing returns and rising context cost.", "is_correct": true, "rationale": "Correct. Few-shot fixes consistency, but the 0→2 jump has the biggest impact and 4→8+ rarely helps. Pick 2–4 that demonstrate format and an edge case." },
-      { "label": "B", "body": "Yes, 12 examples — more is always better.", "is_correct": false, "rationale": "Diminishing returns after ~4; 12 mostly adds context cost." },
-      { "label": "C", "body": "Avoid examples; rewrite the instructions more precisely instead.", "is_correct": false, "rationale": "Instructions already failed to give consistency; concrete examples are the fix." },
-      { "label": "D", "body": "Use exactly one example to keep the prompt short.", "is_correct": false, "rationale": "One example may miss edge cases; 2–4 is the sweet spot." }
+      { "label": "B", "body": "Yes, add all 12 examples — the more worked resume examples the extractor sees, the more consistent its field-by-field formatting will become across every run.", "is_correct": false, "rationale": "Diminishing returns after ~4; 12 mostly adds context cost." },
+      { "label": "C", "body": "Skip examples entirely and instead rewrite the extraction instructions more precisely, tightening the wording until the resume formatting finally comes out consistent run to run.", "is_correct": false, "rationale": "Instructions already failed to give consistency; concrete examples are the fix." },
+      { "label": "D", "body": "Use exactly one carefully chosen example to keep the prompt as short as possible while still showing the model the desired output format for a parsed resume.", "is_correct": false, "rationale": "One example may miss edge cases; 2–4 is the sweet spot." }
     ]
   },
   {
@@ -334,9 +334,9 @@
     "explanation": null,
     "options": [
       { "label": "A", "body": "Maintain a persistent structured facts block (customer ID, order #, amounts, status) carried forward verbatim rather than summarized.", "is_correct": true, "rationale": "Correct. Progressive summarization loses specifics on each pass. A persistent facts block is copied forward exactly, so the model can't drop names, numbers, or codes." },
-      { "label": "B", "body": "Summarize more aggressively to free up context.", "is_correct": false, "rationale": "More summarization loses more detail — the opposite of what's needed." },
-      { "label": "C", "body": "Move to a larger-context model.", "is_correct": false, "rationale": "A bigger window delays the problem but details still degrade in long noisy contexts; keep a verbatim facts block." },
-      { "label": "D", "body": "Re-fetch every detail from tools on each turn.", "is_correct": false, "rationale": "Wasteful and loses the conversational record; the facts block is the direct fix." }
+      { "label": "B", "body": "Summarize the conversation more aggressively on each turn to free up context space, trusting the tighter running summary to retain the order numbers, amounts, and postcodes.", "is_correct": false, "rationale": "More summarization loses more detail — the opposite of what's needed." },
+      { "label": "C", "body": "Move the agent to a larger-context model so the whole conversation fits and the summarization step that keeps dropping the exact details is no longer needed at all.", "is_correct": false, "rationale": "A bigger window delays the problem but details still degrade in long noisy contexts; keep a verbatim facts block." },
+      { "label": "D", "body": "Re-fetch every order number, amount, and postcode from the backend tools on each turn instead of carrying any of those specifics forward in the conversation context.", "is_correct": false, "rationale": "Wasteful and loses the conversational record; the facts block is the direct fix." }
     ]
   },
   {
@@ -351,9 +351,9 @@
     "explanation": null,
     "options": [
       { "label": "A", "body": "Stratified validation — break accuracy down per field type to expose the underperforming category, then target it with better examples/schema.", "is_correct": true, "rationale": "Correct. Aggregate 95% can hide an address-field category sitting at 60%. Grouping by type and computing per-type accuracy surfaces the weak spot; then apply targeted fixes." },
-      { "label": "B", "body": "Trust the 95% — the system is reliable overall.", "is_correct": false, "rationale": "Aggregate metrics mask per-type degradation; the complaints are real." },
-      { "label": "C", "body": "Randomly sample more extractions across all fields.", "is_correct": false, "rationale": "Undirected sampling can miss a concentrated category problem; stratify by field type." },
-      { "label": "D", "body": "Raise the overall accuracy target to 98%.", "is_correct": false, "rationale": "Chasing a higher aggregate still hides the address-field weakness." }
+      { "label": "B", "body": "Trust the 95% aggregate figure — an extraction system scoring that high overall is reliable enough that the downstream team's complaints about address fields are probably noise.", "is_correct": false, "rationale": "Aggregate metrics mask per-type degradation; the complaints are real." },
+      { "label": "C", "body": "Randomly sample more extractions evenly across all field types and re-check their accuracy, expecting the larger undirected sample to reveal wherever the real problem is hiding.", "is_correct": false, "rationale": "Undirected sampling can miss a concentrated category problem; stratify by field type." },
+      { "label": "D", "body": "Raise the overall accuracy target from 95% to 98% so the team is pushed to improve extraction quality across the board and the address errors get squeezed out along the way.", "is_correct": false, "rationale": "Chasing a higher aggregate still hides the address-field weakness." }
     ]
   },
   {
@@ -368,9 +368,9 @@
     "explanation": null,
     "options": [
       { "label": "A", "body": "Keep both figures, annotated with their source and date, and let the reader interpret — the dates often reveal a temporal change rather than a true conflict.", "is_correct": true, "rationale": "Correct. Never average or silently pick one. Annotate both with provenance and dates; the gap frequently reflects change over time, which the dates make clear." },
-      { "label": "B", "body": "Report only the newer $50B figure and drop the other.", "is_correct": false, "rationale": "Silently choosing recency discards provenance the reader may need — a classic distractor." },
-      { "label": "C", "body": "Average them to $40B.", "is_correct": false, "rationale": "Averaging conflicting figures invents a wrong number and destroys the real information." },
-      { "label": "D", "body": "Only include a figure if two sources agree on it.", "is_correct": false, "rationale": "Drops legitimate single-source data and still doesn't resolve dated differences." }
+      { "label": "B", "body": "Report only the newer 2024 figure of $50B and drop the 2022 $30B number entirely, on the basis that the most recent source is the most accurate one to cite.", "is_correct": false, "rationale": "Silently choosing recency discards provenance the reader may need — a classic distractor." },
+      { "label": "C", "body": "Average the two conflicting figures and report a single $40B market size that splits the difference between the 2022 and 2024 sources for the reader.", "is_correct": false, "rationale": "Averaging conflicting figures invents a wrong number and destroys the real information." },
+      { "label": "D", "body": "Only include a market-size figure in the report if at least two independent sources agree on the same number, dropping both the $50B and $30B figures as unconfirmed.", "is_correct": false, "rationale": "Drops legitimate single-source data and still doesn't resolve dated differences." }
     ]
   },
   {
@@ -385,9 +385,9 @@
     "explanation": null,
     "options": [
       { "label": "A", "body": "Delegate well-scoped sub-questions to subagents with fresh context while the main agent keeps the architectural overview — and/or persist findings to a scratchpad file the agent re-reads.", "is_correct": true, "rationale": "Correct. Scale exploration beyond one context window by delegating scoped investigations to fresh-context subagents and offloading findings to a durable scratchpad, keeping a stable overview." },
-      { "label": "B", "body": "Switch to a bigger-context model and keep going in the same thread.", "is_correct": false, "rationale": "A larger window delays attention degradation but doesn't solve it over a long noisy session." },
-      { "label": "C", "body": "Clear the context entirely and start over.", "is_correct": false, "rationale": "Wholesale clearing discards the valid understanding already built — exactly the state you're trying to preserve." },
-      { "label": "D", "body": "Grep for function names only, to reduce what's loaded.", "is_correct": false, "rationale": "You can't understand module behavior by grepping names alone; you lose the needed depth." }
+      { "label": "B", "body": "Switch to a larger-context model and keep the investigation going in the same thread, counting on the bigger window to hold all 80 files without the earlier answers degrading.", "is_correct": false, "rationale": "A larger window delays attention degradation but doesn't solve it over a long noisy session." },
+      { "label": "C", "body": "Clear the agent's context entirely and start the investigation of the 80-file service over from a clean slate so its answers stop contradicting what it said earlier.", "is_correct": false, "rationale": "Wholesale clearing discards the valid understanding already built — exactly the state you're trying to preserve." },
+      { "label": "D", "body": "Grep only for function names across the service to cut down how much gets loaded into context, and rely on those name matches to reason about how the modules behave.", "is_correct": false, "rationale": "You can't understand module behavior by grepping names alone; you lose the needed depth." }
     ]
   },
   {
@@ -402,9 +402,9 @@
     "explanation": null,
     "options": [
       { "label": "A", "body": "Treat it as a policy gap (the policy is silent) and escalate for a human decision.", "is_correct": true, "rationale": "Correct. A gap — policy doesn't cover the case — is a valid escalation trigger. (A violation, where policy forbids it, would mean refuse with the policy explanation.)" },
-      { "label": "B", "body": "Refuse and cite the policy as prohibiting competitor matches.", "is_correct": false, "rationale": "The policy is silent, not prohibitive — that's a gap, not a violation." },
-      { "label": "C", "body": "Approve the match since nothing explicitly forbids it.", "is_correct": false, "rationale": "Silence isn't blanket permission; escalate rather than inventing policy." },
-      { "label": "D", "body": "Ask the customer how they think the policy should apply.", "is_correct": false, "rationale": "Resolving a policy gap is a business/human decision, not the customer's." }
+      { "label": "B", "body": "Refuse the price-match and cite the company policy to the customer as though it explicitly prohibits matching a competitor's price, even though the policy never addresses that case.", "is_correct": false, "rationale": "The policy is silent, not prohibitive — that's a gap, not a violation." },
+      { "label": "C", "body": "Approve the competitor price-match on the reasoning that since nothing in the written policy explicitly forbids it, the agent is free to grant the adjustment on its own authority.", "is_correct": false, "rationale": "Silence isn't blanket permission; escalate rather than inventing policy." },
+      { "label": "D", "body": "Ask the customer how they believe the company's policy should apply to a competitor match, and then follow the interpretation the customer offers for resolving their own request.", "is_correct": false, "rationale": "Resolving a policy gap is a business/human decision, not the customer's." }
     ]
   }
 ]

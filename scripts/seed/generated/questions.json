@@ -11,9 +11,9 @@
     "explanation": null,
     "options": [
       { "label": "A", "body": "The order details are appended to the conversation and the model reasons about which action to take.", "is_correct": true, "rationale": "Correct. The agentic loop appends `tool_result` messages to the conversation and lets the model choose the next step each turn — that's how 45 days → refund vs. escalate gets resolved." },
-      { "label": "B", "body": "The agent follows a pre-configured decision tree mapping order attributes to tool calls.", "is_correct": false, "rationale": "Agentic loops are model-driven, not decision-tree-driven. Hardcoded trees are the opposite of the pattern." },
-      { "label": "C", "body": "An orchestration layer automatically routes to the next tool based on the order's status field.", "is_correct": false, "rationale": "There is no implicit orchestration layer picking tools from a field. The model drives tool selection." },
-      { "label": "D", "body": "The agent executes a tool sequence planned in full at the start of the request.", "is_correct": false, "rationale": "There is no committed upfront plan — the agent chooses each next step from the latest context." }
+      { "label": "B", "body": "The agent follows a pre-configured decision tree that maps order attributes like purchase age directly onto specific tool calls.", "is_correct": false, "rationale": "Agentic loops are model-driven, not decision-tree-driven. Hardcoded trees are the opposite of the pattern." },
+      { "label": "C", "body": "An orchestration layer automatically routes to the next tool based on the order's status field, without the model choosing.", "is_correct": false, "rationale": "There is no implicit orchestration layer picking tools from a field. The model drives tool selection." },
+      { "label": "D", "body": "The agent executes a tool sequence that was planned in full at the very start of the request and then runs to completion.", "is_correct": false, "rationale": "There is no committed upfront plan — the agent chooses each next step from the latest context." }
     ]
   },
   {
@@ -28,9 +28,9 @@
     "explanation": null,
     "options": [
       { "label": "A", "body": "Have the coordinator analyze each query and dynamically decide which subagents to invoke based on its assessment of requirements.", "is_correct": true, "rationale": "Correct. Letting the coordinator LLM reason per-query and invoke only the needed subagents adapts naturally to an evolving, diverse distribution — the strength of the orchestrator pattern." },
-      { "label": "B", "body": "Implement pattern-based routing mapping query structure categories to predefined subagent combinations.", "is_correct": false, "rationale": "Pattern routing calcifies as the distribution evolves — new intents break the patterns and land on the wrong pipeline." },
-      { "label": "C", "body": "Create a fast-path for factual questions that bypasses subagents, routing everything else through the full pipeline.", "is_correct": false, "rationale": "A binary fast-path wastes the full pipeline on every moderately complex query that could have used a subset." },
-      { "label": "D", "body": "Train a query-complexity classifier on labeled history and retrain periodically.", "is_correct": false, "rationale": "A trained classifier needs labels, retraining, and drift monitoring — over-engineered when the coordinator can decide at runtime." }
+      { "label": "B", "body": "Implement pattern-based routing that maps recognized query-structure categories onto predefined subagent combinations chosen ahead of time for each pattern.", "is_correct": false, "rationale": "Pattern routing calcifies as the distribution evolves — new intents break the patterns and land on the wrong pipeline." },
+      { "label": "C", "body": "Create a fast-path for factual questions that bypasses the subagents entirely, and route everything else through the full four-subagent pipeline.", "is_correct": false, "rationale": "A binary fast-path wastes the full pipeline on every moderately complex query that could have used a subset." },
+      { "label": "D", "body": "Train a query-complexity classifier on labeled query history and retrain it periodically on new data so its routing keeps up as the distribution evolves.", "is_correct": false, "rationale": "A trained classifier needs labels, retraining, and drift monitoring — over-engineered when the coordinator can decide at runtime." }
     ]
   },
   {
@@ -45,9 +45,9 @@
     "explanation": null,
     "options": [
       { "label": "A", "body": "The coordinator receives the web search agent's output and includes the relevant findings in the prompt when invoking the document analysis agent.", "is_correct": true, "rationale": "Correct. In an orchestrator-worker pattern the coordinator is the hub — it collects each subagent's output and forwards the relevant parts into the next subagent's prompt." },
-      { "label": "B", "body": "The web search agent directly invokes the document analysis agent, passing sources as parameters.", "is_correct": false, "rationale": "Subagents are isolated and can't directly call siblings — that would tightly couple them and defeat the orchestrator pattern." },
-      { "label": "C", "body": "The agents communicate through an event-driven message queue with completion events.", "is_correct": false, "rationale": "Event buses aren't part of the Claude subagent model; subagents don't publish/subscribe to each other." },
-      { "label": "D", "body": "Both agents share a memory store the first writes and the second reads.", "is_correct": false, "rationale": "A shared store can be an optimization but isn't how subagents typically communicate, and it introduces stale-read problems." }
+      { "label": "B", "body": "The web search agent directly invokes the document analysis agent as a sibling, passing the gathered sources to it as call parameters without going through the coordinator.", "is_correct": false, "rationale": "Subagents are isolated and can't directly call siblings — that would tightly couple them and defeat the orchestrator pattern." },
+      { "label": "C", "body": "The agents communicate through an event-driven message queue, with the web search agent emitting completion events that the document analysis agent subscribes to and consumes.", "is_correct": false, "rationale": "Event buses aren't part of the Claude subagent model; subagents don't publish/subscribe to each other." },
+      { "label": "D", "body": "Both agents share a common memory store that the web search agent writes its sources into and the document analysis agent later reads them back out of when it runs.", "is_correct": false, "rationale": "A shared store can be an optimization but isn't how subagents typically communicate, and it introduces stale-read problems." }
     ]
   },
   {
@@ -62,9 +62,9 @@
     "explanation": null,
     "options": [
       { "label": "A", "body": "Dynamically generate investigation subtasks based on what is discovered at each step, adapting the plan as the error path emerges.", "is_correct": true, "rationale": "Correct. Debugging is adaptive — each file read changes the most useful next step. Let the agent follow the evidence." },
-      { "label": "B", "body": "First build a comprehensive plan mapping all code paths before any exploration.", "is_correct": false, "rationale": "You can't plan a correct path for an unknown error without exploration; planning blind wastes time and misses the real failure path." },
-      { "label": "C", "body": "Define a fixed sequence of steps upfront and execute each regardless of intermediate findings.", "is_correct": false, "rationale": "A fixed pipeline wastes work on uninvolved layers and can lock the agent out of the real root-cause path." },
-      { "label": "D", "body": "Run parallel workers across all four layers simultaneously, then synthesize.", "is_correct": false, "rationale": "Fan-out helps once subtasks are well-scoped. Here they aren't — you'd pay 4× to look in three layers that aren't the problem." }
+      { "label": "B", "body": "First build a comprehensive upfront plan that maps all the routing, middleware, business-logic, and database code paths before doing any exploration of the codebase.", "is_correct": false, "rationale": "You can't plan a correct path for an unknown error without exploration; planning blind wastes time and misses the real failure path." },
+      { "label": "C", "body": "Define a fixed sequence of investigation steps upfront and execute each one in order, regardless of what the intermediate findings at each layer actually reveal about the error.", "is_correct": false, "rationale": "A fixed pipeline wastes work on uninvolved layers and can lock the agent out of the real root-cause path." },
+      { "label": "D", "body": "Run parallel workers across all four layers — routing, middleware, business logic, and database — simultaneously, then synthesize their separate findings into one diagnosis.", "is_correct": false, "rationale": "Fan-out helps once subtasks are well-scoped. Here they aren't — you'd pay 4× to look in three layers that aren't the problem." }
     ]
   },
   {
@@ -81,7 +81,7 @@
       { "label": "A", "body": "Use `--resume auth-deep-dive` to load that specific session by name.", "is_correct": true, "rationale": "Correct. `--resume` with the session name is designed for picking a specific prior session out of many by the name you gave it." },
       { "label": "B", "body": "Use `--continue` to pick up where the most recent conversation left off.", "is_correct": false, "rationale": "`--continue` resumes the most recent session in the repo — but she's worked on three other codebases since, so the most recent isn't auth-deep-dive." },
       { "label": "C", "body": "Use `--session-id` with the UUID from yesterday's transcript file.", "is_correct": false, "rationale": "Possible but cumbersome — hunting for the UUID when she already has the session name." },
-      { "label": "D", "body": "Start fresh and re-read the same files.", "is_correct": false, "rationale": "Wastes the two hours of accumulated context from yesterday." }
+      { "label": "D", "body": "Start a fresh session from scratch today and re-read the same authentication files she went through during yesterday's investigation.", "is_correct": false, "rationale": "Wastes the two hours of accumulated context from yesterday." }
     ]
   },
   {
@@ -96,9 +96,9 @@
     "explanation": null,
     "options": [
       { "label": "A", "body": "Enhance error responses with structured metadata: `errorCategory` (transient/validation/permission), an `isRetryable` boolean, and a description of the cause.", "is_correct": true, "rationale": "Correct. Give the agent category, retryability, and a human-readable cause — that replaces guessing with deterministic policy." },
-      { "label": "B", "body": "Add an `analyze_error` tool the agent calls after any failure to determine the category.", "is_correct": false, "rationale": "Adds a round-trip for something the original tool already knows. Put the metadata in the original response." },
-      { "label": "C", "body": "Implement exponential-backoff retries in the MCP server for all errors before returning.", "is_correct": false, "rationale": "Blanket retries hurt on permanent errors (order not found) and hide useful distinctions from the agent." },
-      { "label": "D", "body": "Add few-shot examples showing how to interpret error-message patterns.", "is_correct": false, "rationale": "If the tool returns 'Operation failed' for every failure, no amount of few-shots can extract category info that isn't there." }
+      { "label": "B", "body": "Add a separate `analyze_error` tool that the agent calls after any failure to determine the error's category before it decides whether to retry, escalate, or ask the user.", "is_correct": false, "rationale": "Adds a round-trip for something the original tool already knows. Put the metadata in the original response." },
+      { "label": "C", "body": "Implement exponential-backoff retries inside the MCP server for all errors before returning, so the agent only ever sees failures that survived several automatic retry attempts.", "is_correct": false, "rationale": "Blanket retries hurt on permanent errors (order not found) and hide useful distinctions from the agent." },
+      { "label": "D", "body": "Add few-shot examples to the prompt showing the agent how to interpret the error-message patterns and infer from the wording whether a given failure is worth retrying.", "is_correct": false, "rationale": "If the tool returns 'Operation failed' for every failure, no amount of few-shots can extract category info that isn't there." }
     ]
   },
   {
@@ -113,9 +113,9 @@
     "explanation": null,
     "options": [
       { "label": "A", "body": "Return structured error responses with `retryable: false` for business errors plus a customer-friendly explanation for Claude to use.", "is_correct": true, "rationale": "Correct. A retryable flag tells Claude deterministically not to retry, and a ready-made message improves the outgoing reply — both problems fixed at once." },
-      { "label": "B", "body": "Add few-shot examples showing how to distinguish retryable errors by parsing message text.", "is_correct": false, "rationale": "Relying on the model to text-parse error strings is fragile — exactly the instability seen today." },
-      { "label": "C", "body": "Add a `check_refund_eligibility` tool that must run before every `process_refund`.", "is_correct": false, "rationale": "Adds a round-trip to every refund to guard 12% of cases, and doesn't help when refund fails for other business reasons." },
-      { "label": "D", "body": "Retry technical errors automatically at the tool level; pass business errors to Claude unchanged.", "is_correct": false, "rationale": "Hiding retries masks latency and takes the model out of recovery decisions; business errors still arrive as plain strings, so the customer reply doesn't improve." }
+      { "label": "B", "body": "Add few-shot examples showing the agent how to distinguish retryable technical errors from permanent business ones by parsing the wording of each plain-text error message.", "is_correct": false, "rationale": "Relying on the model to text-parse error strings is fragile — exactly the instability seen today." },
+      { "label": "C", "body": "Add a `check_refund_eligibility` tool that must run before every `process_refund` call so ineligible refunds are caught up front rather than failing partway through the process.", "is_correct": false, "rationale": "Adds a round-trip to every refund to guard 12% of cases, and doesn't help when refund fails for other business reasons." },
+      { "label": "D", "body": "Retry technical errors automatically at the tool level and pass business errors straight through to Claude unchanged, as the same plain text messages they arrive as today.", "is_correct": false, "rationale": "Hiding retries masks latency and takes the model out of recovery decisions; business errors still arrive as plain strings, so the customer reply doesn't improve." }
     ]
   },
   {
@@ -130,9 +130,9 @@
     "explanation": null,
     "options": [
       { "label": "A", "body": "Use Read to load the file, add the function at the right location in memory, then Write the full file back.", "is_correct": true, "rationale": "Correct. When Edit's unique-match contract can't be satisfied in a repetitive file, fall back to Read → modify → Write." },
-      { "label": "B", "body": "Use Edit with a 30+ line `old_string` to guarantee uniqueness.", "is_correct": false, "rationale": "Long, brittle match strings frequently miss on whitespace or minor edits and fail confusingly." },
+      { "label": "B", "body": "Use Edit with a 30-plus line `old_string` that spans enough surrounding lines to guarantee a unique match despite the file's repetitive docstrings and structural patterns.", "is_correct": false, "rationale": "Long, brittle match strings frequently miss on whitespace or minor edits and fail confusingly." },
       { "label": "C", "body": "Use Edit's `replace_all` on a common pattern, embedding the new function in the replacement.", "is_correct": false, "rationale": "`replace_all` mutates every occurrence — corrupting the whole file." },
-      { "label": "D", "body": "Use Bash to append the function to the end of the file with a heredoc.", "is_correct": false, "rationale": "Appending puts it at the wrong location; the requirement is to insert between two existing functions." }
+      { "label": "D", "body": "Use Bash with a heredoc to append the new helper function to the end of the file, then rely on that placement satisfying the insertion requirement.", "is_correct": false, "rationale": "Appending puts it at the wrong location; the requirement is to insert between two existing functions." }
     ]
   },
   {
@@ -147,9 +147,9 @@
     "explanation": null,
     "options": [
       { "label": "A", "body": "Read the library and wrapper modules to enumerate every exposed name, then Grep for each name across the codebase.", "is_correct": true, "rationale": "Correct. You must enumerate every alias the function is exposed under — otherwise renamed wrappers hide callers. Gather aliases, then grep each." },
-      { "label": "B", "body": "Grep for files importing from the library or wrappers, then read each to check usage.", "is_correct": false, "rationale": "Misses dynamic imports, re-exports, and indirect call chains, and scales poorly." },
-      { "label": "C", "body": "Grep for the function's original name across the codebase.", "is_correct": false, "rationale": "The original name won't appear where a wrapper renamed it — you'd miss a whole class of callers." },
-      { "label": "D", "body": "Search project documentation to find documented integration points.", "is_correct": false, "rationale": "Docs are incomplete and stale; you can't safely remove a function on documentation-level evidence." }
+      { "label": "B", "body": "Grep for the files that import from the library or its wrappers, then read each of those files individually to check whether it actually uses the function.", "is_correct": false, "rationale": "Misses dynamic imports, re-exports, and indirect call chains, and scales poorly." },
+      { "label": "C", "body": "Grep for the function's original name across the codebase and treat every match as a caller that needs updating before the removal goes ahead.", "is_correct": false, "rationale": "The original name won't appear where a wrapper renamed it — you'd miss a whole class of callers." },
+      { "label": "D", "body": "Search the project documentation to find the integration points where the function is described as being used by other parts of the system.", "is_correct": false, "rationale": "Docs are incomplete and stale; you can't safely remove a function on documentation-level evidence." }
     ]
   },
   {
@@ -164,9 +164,9 @@
     "explanation": null,
     "options": [
       { "label": "A", "body": "All three load hierarchically — user, then project root, then the directory-level `CLAUDE.md` — with more specific scopes layering on top.", "is_correct": true, "rationale": "Correct. CLAUDE.md is hierarchical: user (`~/.claude/CLAUDE.md`), project (root `CLAUDE.md`), and directory-level files in subdirectories, each adding scope." },
-      { "label": "B", "body": "Only the project root `CLAUDE.md` is read; the others are ignored.", "is_correct": false, "rationale": "User and directory-level CLAUDE.md files are both honored — the hierarchy is the whole point." },
-      { "label": "C", "body": "The directory-level file replaces the project and user files entirely within that path.", "is_correct": false, "rationale": "Scopes layer, they don't wholesale-replace — the more specific file adds to (and can override) the broader ones." },
-      { "label": "D", "body": "You must use `@import` to combine them; otherwise only the last-modified file wins.", "is_correct": false, "rationale": "`@import` is for modular composition, not a requirement for the hierarchy to work, and there's no last-modified-wins rule." }
+      { "label": "B", "body": "Only the project root `CLAUDE.md` is read by Claude Code; the user-level file and the directory-level file inside packages/api are both ignored entirely.", "is_correct": false, "rationale": "User and directory-level CLAUDE.md files are both honored — the hierarchy is the whole point." },
+      { "label": "C", "body": "The directory-level `CLAUDE.md` inside packages/api replaces the project and user files entirely for any work done within that path, rather than layering on top of them.", "is_correct": false, "rationale": "Scopes layer, they don't wholesale-replace — the more specific file adds to (and can override) the broader ones." },
+      { "label": "D", "body": "You must use `@import` to combine the three files; otherwise only the most recently modified `CLAUDE.md` wins and the other two are silently dropped.", "is_correct": false, "rationale": "`@import` is for modular composition, not a requirement for the hierarchy to work, and there's no last-modified-wins rule." }
     ]
   },
   {
@@ -198,9 +198,9 @@
     "explanation": null,
     "options": [
       { "label": "A", "body": "Run headless with `-p`/`--print`, `--output-format json`, and a `--json-schema`, with session isolation per run.", "is_correct": true, "rationale": "Correct. `-p`/`--print` runs non-interactively, `--output-format json` + `--json-schema` give machine-readable conforming output, and isolated sessions keep CI runs independent." },
-      { "label": "B", "body": "Run interactively and scrape the terminal output with a regex.", "is_correct": false, "rationale": "Scraping interactive output is brittle; the CLI provides structured JSON output for exactly this." },
-      { "label": "C", "body": "Use `--continue` so each PR builds on the previous run's context.", "is_correct": false, "rationale": "CI runs should be isolated — sharing context across PRs leaks state and causes nondeterministic reviews." },
-      { "label": "D", "body": "Set `--output-format json` but omit `-p`, keeping the interactive REPL open.", "is_correct": false, "rationale": "Without `-p`/`--print` it won't run headless to completion in CI." }
+      { "label": "B", "body": "Run Claude Code interactively and scrape the terminal output with a regex to pull the review results into whatever shape the CI job needs downstream.", "is_correct": false, "rationale": "Scraping interactive output is brittle; the CLI provides structured JSON output for exactly this." },
+      { "label": "C", "body": "Use `--continue` so each PR review builds on the previous run's context, carrying prior conversation state forward from one CI run to the next.", "is_correct": false, "rationale": "CI runs should be isolated — sharing context across PRs leaks state and causes nondeterministic reviews." },
+      { "label": "D", "body": "Set `--output-format json` but omit the `-p`/`--print` flag, keeping the interactive REPL open while still requesting JSON-formatted output from the run.", "is_correct": false, "rationale": "Without `-p`/`--print` it won't run headless to completion in CI." }
     ]
   },
   {
@@ -215,9 +215,9 @@
     "explanation": null,
     "options": [
       { "label": "A", "body": "Add an \"other\" value to the enum plus a separate `property_type_detail` string field for specifics when \"other\" is selected.", "is_correct": true, "rationale": "Correct. Keeps the strong enum for common cases (clean downstream joins) while giving a well-typed escape hatch that preserves detail. Stable long-term." },
-      { "label": "B", "body": "Continuously expand the enum as new types appear and monitor for more.", "is_correct": false, "rationale": "Whack-a-mole enum maintenance — every new listing style risks another validation failure." },
-      { "label": "C", "body": "Change `property_type` to a free-form string and normalize in post-processing.", "is_correct": false, "rationale": "Loses the validation guarantee entirely and pushes normalization downstream with no canonical vocabulary." },
-      { "label": "D", "body": "Add few-shot examples mapping unexpected types to the closest existing enum value.", "is_correct": false, "rationale": "Forcing 'tiny house' into 'house' drops real distinctions downstream — silently lossy." }
+      { "label": "B", "body": "Continuously expand the enum with each new property type as it appears in listings, and monitor extraction failures to catch the next unexpected type when it shows up.", "is_correct": false, "rationale": "Whack-a-mole enum maintenance — every new listing style risks another validation failure." },
+      { "label": "C", "body": "Change `property_type` from an enum to a free-form string field and normalize the many resulting variations into canonical types in a separate post-processing step.", "is_correct": false, "rationale": "Loses the validation guarantee entirely and pushes normalization downstream with no canonical vocabulary." },
+      { "label": "D", "body": "Add few-shot examples that map unexpected property types onto the closest existing enum value, so a 'studio' or 'loft' listing resolves to one of the four allowed types.", "is_correct": false, "rationale": "Forcing 'tiny house' into 'house' drops real distinctions downstream — silently lossy." }
     ]
   },
   {
@@ -232,9 +232,9 @@
     "explanation": null,
     "options": [
       { "label": "A", "body": "Add few-shot examples demonstrating extractions from documents with varied structures — citations in different formats, methodology across section types.", "is_correct": true, "rationale": "Correct. The failure mode is the model not recognizing varied formats; concrete examples across the distribution directly raise recall on the 5%." },
-      { "label": "B", "body": "Retry the same request when validation detects empty required fields.", "is_correct": false, "rationale": "Retrying the same prompt won't teach the model to recognize methodology embedded in an intro — the capability is the gap." },
-      { "label": "C", "body": "Build a regex post-processor to scan for citation patterns and keywords.", "is_correct": false, "rationale": "Regex over prose is brittle, misses nuanced cases, and ships silently wrong data." },
-      { "label": "D", "body": "Make the fields optional and flag incomplete records for manual review.", "is_correct": false, "rationale": "Papers over the symptom — the fields really are required downstream; this just trades one problem for reviewer workload." }
+      { "label": "B", "body": "Retry the exact same extraction request whenever validation detects an empty required field, on the assumption a second attempt will populate the missing citations or methodology.", "is_correct": false, "rationale": "Retrying the same prompt won't teach the model to recognize methodology embedded in an intro — the capability is the gap." },
+      { "label": "C", "body": "Build a regex post-processor that scans each document for citation patterns and methodology keywords, filling the empty required fields from whatever text it manages to match.", "is_correct": false, "rationale": "Regex over prose is brittle, misses nuanced cases, and ships silently wrong data." },
+      { "label": "D", "body": "Make the citation and methodology fields optional in the schema and flag any record that comes back incomplete for a human reviewer to inspect and fill in manually.", "is_correct": false, "rationale": "Papers over the symptom — the fields really are required downstream; this just trades one problem for reviewer workload." }
     ]
   },
   {
@@ -249,9 +249,9 @@
     "explanation": null,
     "options": [
       { "label": "A", "body": "Route standard reports to the Batch API for 50% savings, and urgent exception reports to the real-time Messages API.", "is_correct": true, "rationale": "Correct. Match latency profile to urgency: batch for the cheap bulk, real-time for the latency-sensitive exceptions. Minimizes cost while meeting SLA." },
-      { "label": "B", "body": "Submit everything to the real-time API for consistent latency.", "is_correct": false, "rationale": "Consistent but expensive — monthly reports don't need real-time and shouldn't pay for it." },
-      { "label": "C", "body": "Submit all documents to the Batch API and trigger delayed alerts for exceptions.", "is_correct": false, "rationale": "Batch has up to a 24-hour window; a 30-minute alert SLA can't be met through batch." },
-      { "label": "D", "body": "Queue everything and submit hourly batches, flagging urgent docs for expedited handling.", "is_correct": false, "rationale": "Hourly batches still ride the batch SLO and don't guarantee the 30-minute window." }
+      { "label": "B", "body": "Submit every document — both the monthly reports and the urgent exceptions — to the real-time Messages API so that latency stays consistent across the whole pipeline.", "is_correct": false, "rationale": "Consistent but expensive — monthly reports don't need real-time and shouldn't pay for it." },
+      { "label": "C", "body": "Submit all documents to the Batch API for the cost savings and trigger delayed alerts for the exception reports once their batch results eventually come back.", "is_correct": false, "rationale": "Batch has up to a 24-hour window; a 30-minute alert SLA can't be met through batch." },
+      { "label": "D", "body": "Queue everything and submit it in hourly batches, flagging the urgent exception documents within each batch for expedited handling by downstream processing.", "is_correct": false, "rationale": "Hourly batches still ride the batch SLO and don't guarantee the 30-minute window." }
     ]
   },
   {
@@ -266,9 +266,9 @@
     "explanation": null,
     "options": [
       { "label": "A", "body": "Summarize earlier turns into a narrative description, keeping full message history only for the active issue.", "is_correct": true, "rationale": "Correct. Progressive summarization compresses stable resolved topics while keeping the active thread verbatim — the classic pattern near the context limit." },
-      { "label": "B", "body": "Rely on MCP tools to re-fetch relevant information on demand.", "is_correct": false, "rationale": "Re-fetching helps freshness but doesn't solve context length, and you lose what was actually said." },
-      { "label": "C", "body": "Extract structured issue data into a separate context layer.", "is_correct": false, "rationale": "A sidecar layer adds engineering and doesn't preserve the conversational narrative the customer expects." },
-      { "label": "D", "body": "Use a sliding window that retains the most recent 30 turns.", "is_correct": false, "rationale": "A pure sliding window silently drops the refund issue (turns 1–15) — exactly what the customer is asking about." }
+      { "label": "B", "body": "Rely on MCP tools to re-fetch the relevant refund, subscription, and payment information on demand whenever the agent needs it later in the conversation.", "is_correct": false, "rationale": "Re-fetching helps freshness but doesn't solve context length, and you lose what was actually said." },
+      { "label": "C", "body": "Extract the structured data for each of the three issues into a separate context layer that sits alongside the main conversation for the agent to consult.", "is_correct": false, "rationale": "A sidecar layer adds engineering and doesn't preserve the conversational narrative the customer expects." },
+      { "label": "D", "body": "Use a sliding window that retains only the most recent 30 turns of the conversation and drops everything older as new turns arrive.", "is_correct": false, "rationale": "A pure sliding window silently drops the refund issue (turns 1–15) — exactly what the customer is asking about." }
     ]
   },
   {
@@ -283,9 +283,9 @@
     "explanation": null,
     "options": [
       { "label": "A", "body": "Have the agent maintain a scratchpad file recording key findings and re-read it for later questions.", "is_correct": true, "rationale": "Correct. A scratchpad offloads findings to durable storage the agent can re-read, giving a stable memory independent of how crowded the context window gets." },
-      { "label": "B", "body": "Switch to a higher-capacity model tier for a bigger context window.", "is_correct": false, "rationale": "A bigger window delays the problem but doesn't solve attention degradation over long, noisy contexts." },
-      { "label": "C", "body": "Automatically clear context every 15 minutes for a fresh start.", "is_correct": false, "rationale": "Wholesale clearing throws away valid findings — exactly the state engineers complain about re-establishing." },
-      { "label": "D", "body": "Pre-summarize all source files before exploration and load only summaries.", "is_correct": false, "rationale": "Pre-summaries lose the detail that makes exploration useful and often misrepresent the files that matter most." }
+      { "label": "B", "body": "Switch to a higher-capacity model tier that offers a bigger context window so more of the exploration session fits before the agent's answers start drifting.", "is_correct": false, "rationale": "A bigger window delays the problem but doesn't solve attention degradation over long, noisy contexts." },
+      { "label": "C", "body": "Automatically clear the agent's context every 15 minutes so each stretch of the exploration starts from a fresh, uncluttered window.", "is_correct": false, "rationale": "Wholesale clearing throws away valid findings — exactly the state engineers complain about re-establishing." },
+      { "label": "D", "body": "Pre-summarize all of the source files before exploration begins and load only those summaries, keeping the raw file contents out of the agent's context.", "is_correct": false, "rationale": "Pre-summaries lose the detail that makes exploration useful and often misrepresent the files that matter most." }
     ]
   },
   {
@@ -302,7 +302,7 @@
       { "label": "A", "body": "Require all subagents to output structured claim-source mappings that the synthesis agent must preserve and merge.", "is_correct": true, "rationale": "Correct. Explicit claim-source mappings are a first-class output the synthesis agent can merge deterministically — no attribution gets dropped during summarization." },
       { "label": "B", "body": "Maintain full transcripts and add a citation-resolution agent to reconstruct attributions from logs.", "is_correct": false, "rationale": "Post-hoc log analysis is fragile and expensive, and still loses bindings when synthesis merges points from multiple sources." },
       { "label": "C", "body": "Have the report generator use semantic similarity against original sources to reconstruct which claims came from where.", "is_correct": false, "rationale": "Similarity matching can attribute the wrong source when two sources say similar things — you want the model's original mapping." },
-      { "label": "D", "body": "Have the coordinator inject source-identifier prefixes into text before each handoff.", "is_correct": false, "rationale": "Prefix tokens inside prose get dropped, paraphrased, or hallucinated; structured mappings outside the prose are more robust." }
+      { "label": "D", "body": "Have the coordinator inject source-identifier prefixes into the text before each handoff so the synthesis agent can tell which source each passage originally came from.", "is_correct": false, "rationale": "Prefix tokens inside prose get dropped, paraphrased, or hallucinated; structured mappings outside the prose are more robust." }
     ]
   },
   {
@@ -317,9 +317,9 @@
     "explanation": null,
     "options": [
       { "label": "A", "body": "Instruct the agent to escalate when the customer requests a human, when the issue requires a policy exception, or when it cannot make meaningful progress.", "is_correct": true, "rationale": "Correct. Escalation is a judgment call about intent and progress — exactly what LLMs handle well. Clear natural-language criteria beat rigid rules on the long tail." },
-      { "label": "B", "body": "Escalate after three consecutive failed tool calls.", "is_correct": false, "rationale": "A hard retry count fires both too early (legitimate retries) and too late (obvious policy issues on the first call)." },
-      { "label": "C", "body": "Use sentiment analysis and escalate when a frustration score exceeds a threshold.", "is_correct": false, "rationale": "Sentiment misses calm customers who need a human for a policy exception and over-escalates on stylistic language." },
-      { "label": "D", "body": "Build a rules engine mapping issue types, segments, and product categories to escalation decisions.", "is_correct": false, "rationale": "Rules engines break on the cases they weren't designed for — and support is full of those." }
+      { "label": "B", "body": "Escalate automatically after three consecutive failed tool calls, treating a run of failures as the signal that the case now needs a human agent to step in.", "is_correct": false, "rationale": "A hard retry count fires both too early (legitimate retries) and too late (obvious policy issues on the first call)." },
+      { "label": "C", "body": "Use sentiment analysis on the customer's messages and escalate whenever their computed frustration score rises above a preset threshold value.", "is_correct": false, "rationale": "Sentiment misses calm customers who need a human for a policy exception and over-escalates on stylistic language." },
+      { "label": "D", "body": "Build a rules engine that maps issue types, customer segments, and product categories to fixed escalation decisions for the agent to follow.", "is_correct": false, "rationale": "Rules engines break on the cases they weren't designed for — and support is full of those." }
     ]
   }
 ]

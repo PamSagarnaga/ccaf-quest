@@ -11,9 +11,9 @@
     "explanation": null,
     "options": [
       { "label": "A", "body": "Add 2–3 severity-calibration examples showing what counts as critical vs. minor, with specific code samples.", "is_correct": true, "rationale": "Correct. Without calibration examples the model can't tell critical from minor. Concrete severity examples teach the distinction." },
-      { "label": "B", "body": "Tell it in prose to 'prioritize important issues'.", "is_correct": false, "rationale": "Vague prose doesn't define your bar; calibration examples do." },
-      { "label": "C", "body": "Switch to a larger model tier.", "is_correct": false, "rationale": "Capability isn't the gap — the model doesn't know your severity scale." },
-      { "label": "D", "body": "Only report the first issue it finds.", "is_correct": false, "rationale": "That drops real issues instead of ranking them by severity." }
+      { "label": "B", "body": "Tell the agent in prose to 'prioritize the important issues' and leave it to judge on its own which ones actually qualify as important.", "is_correct": false, "rationale": "Vague prose doesn't define your bar; calibration examples do." },
+      { "label": "C", "body": "Switch the review agent to a larger, more capable model tier in the hope that it starts prioritizing serious issues over trivial ones by itself.", "is_correct": false, "rationale": "Capability isn't the gap — the model doesn't know your severity scale." },
+      { "label": "D", "body": "Have the agent only report the very first issue it finds in each file and stay silent about everything else it detects there.", "is_correct": false, "rationale": "That drops real issues instead of ranking them by severity." }
     ]
   },
   {
@@ -28,9 +28,9 @@
     "explanation": null,
     "options": [
       { "label": "A", "body": "2–4 examples is the sweet spot; going from 4 to 8+ rarely improves quality and adds context cost.", "is_correct": true, "rationale": "Correct. The 0→2 jump has the largest impact; diminishing returns set in after ~4. Cover edge cases and include reasoning rather than piling on examples." },
-      { "label": "B", "body": "More is always better — 12 will beat 3.", "is_correct": false, "rationale": "Diminishing returns: 10+ examples rarely help and cost more context." },
-      { "label": "C", "body": "Few-shot examples should be avoided in production.", "is_correct": false, "rationale": "Few-shot is a core technique for consistency; the point is 2–4, not zero." },
-      { "label": "D", "body": "Only use one example to keep the prompt short.", "is_correct": false, "rationale": "One example may not cover edge cases; 2–4 is the sweet spot." }
+      { "label": "B", "body": "More examples are always better, so a set of 12 few-shot examples will reliably beat a smaller set of just 3.", "is_correct": false, "rationale": "Diminishing returns: 10+ examples rarely help and cost more context." },
+      { "label": "C", "body": "Few-shot examples should generally be avoided in production extraction prompts in order to keep them as lean as possible.", "is_correct": false, "rationale": "Few-shot is a core technique for consistency; the point is 2–4, not zero." },
+      { "label": "D", "body": "Only ever use a single example so that the extraction prompt stays as short and inexpensive as it possibly can.", "is_correct": false, "rationale": "One example may not cover edge cases; 2–4 is the sweet spot." }
     ]
   },
   {
@@ -45,9 +45,9 @@
     "explanation": null,
     "options": [
       { "label": "A", "body": "Define a tool whose purpose is to structure the output and force it with tool_choice { type: \"tool\", name: ... }.", "is_correct": true, "rationale": "Correct. Forced tool_choice guarantees the call, and the tool's JSON schema is validated by the API — no malformed/missing/extra fields." },
-      { "label": "B", "body": "Ask for JSON in the prompt and parse it afterward.", "is_correct": false, "rationale": "Prompt-based JSON has no schema enforcement — risks malformed output. Use forced tool_choice for production." },
-      { "label": "C", "body": "Use tool_choice: auto and hope it calls the tool.", "is_correct": false, "rationale": "`auto` may reply with text instead — no guarantee." },
-      { "label": "D", "body": "Lower temperature to 0 so the JSON is deterministic.", "is_correct": false, "rationale": "Determinism doesn't enforce a schema; the shape can still be wrong." }
+      { "label": "B", "body": "Ask for the JSON structure in the prompt and parse whatever the model returns afterward in your own code.", "is_correct": false, "rationale": "Prompt-based JSON has no schema enforcement — risks malformed output. Use forced tool_choice for production." },
+      { "label": "C", "body": "Use tool_choice: auto and simply hope that the model chooses to call the structuring tool on each request it gets.", "is_correct": false, "rationale": "`auto` may reply with text instead — no guarantee." },
+      { "label": "D", "body": "Lower the temperature all the way to 0 so the JSON the model produces comes out deterministic from one run to the next.", "is_correct": false, "rationale": "Determinism doesn't enforce a schema; the shape can still be wrong." }
     ]
   },
   {
@@ -62,9 +62,9 @@
     "explanation": null,
     "options": [
       { "label": "A", "body": "Make the field nullable/optional and instruct the model to return null when the value isn't stated.", "is_correct": true, "rationale": "Correct. Required fields CAUSE fabrication — the model invents a value to satisfy the schema. Nullable fields give it permission to return null." },
-      { "label": "B", "body": "Keep it required but add stricter validation rules.", "is_correct": false, "rationale": "Required-ness is the cause; stricter validation on a required field just rejects the fabrication after the fact." },
-      { "label": "C", "body": "Upgrade to a more capable model.", "is_correct": false, "rationale": "The schema, not the model, is forcing invention." },
-      { "label": "D", "body": "Add a post-processing LLM call to verify each value.", "is_correct": false, "rationale": "Expensive second pass for something the schema design fixes directly." }
+      { "label": "B", "body": "Keep the field marked required but add stricter downstream validation rules that reject values which look fabricated.", "is_correct": false, "rationale": "Required-ness is the cause; stricter validation on a required field just rejects the fabrication after the fact." },
+      { "label": "C", "body": "Upgrade to a more capable model in the hope that a stronger one stops fabricating values for data the source doesn't contain.", "is_correct": false, "rationale": "The schema, not the model, is forcing invention." },
+      { "label": "D", "body": "Add a post-processing LLM call that verifies each extracted value against the source document before it is accepted.", "is_correct": false, "rationale": "Expensive second pass for something the schema design fixes directly." }
     ]
   },
   {
@@ -79,7 +79,7 @@
     "explanation": null,
     "options": [
       { "label": "A", "body": "The original prompt, the failed output, and the specific validation error.", "is_correct": true, "rationale": "Correct. Showing what it produced and exactly what was wrong lets the model correct specifically. Never just say 'try again'." },
-      { "label": "B", "body": "Just 'try again' — the model will figure it out.", "is_correct": false, "rationale": "Without the specific error the model can't target the fix." },
+      { "label": "B", "body": "Just say 'try again' and trust the model to work out on its own what went wrong the first time.", "is_correct": false, "rationale": "Without the specific error the model can't target the fix." },
       { "label": "C", "body": "A fresh prompt with no reference to the prior attempt.", "is_correct": false, "rationale": "Dropping the failed output and error loses the signal needed to correct." },
       { "label": "D", "body": "The full document re-pasted with no error details.", "is_correct": false, "rationale": "More input without the error diagnosis doesn't guide correction." }
     ]
@@ -96,9 +96,9 @@
     "explanation": null,
     "options": [
       { "label": "A", "body": "Per-file passes (analyze each file independently) plus a cross-file integration pass to synthesize.", "is_correct": true, "rationale": "Correct. This mitigates attention dilution — one giant pass causes the model to miss details; focused per-file passes plus an integration pass preserve fidelity." },
-      { "label": "B", "body": "Cram everything into a single larger context window.", "is_correct": false, "rationale": "One big pass is exactly what dilutes attention and drops details." },
-      { "label": "C", "body": "Summarize each file first, then process only summaries.", "is_correct": false, "rationale": "Pre-summaries lose the detail the task needs." },
-      { "label": "D", "body": "Review the output in the same session that produced it.", "is_correct": false, "rationale": "Same-session review is biased; and it doesn't address the missed-detail problem." }
+      { "label": "B", "body": "Cram every one of the files into a single larger context window and process all of them together in one pass.", "is_correct": false, "rationale": "One big pass is exactly what dilutes attention and drops details." },
+      { "label": "C", "body": "Summarize each file first and then process only those summaries rather than the full contents of the files.", "is_correct": false, "rationale": "Pre-summaries lose the detail the task needs." },
+      { "label": "D", "body": "Review the extracted output in the very same session that originally produced it from the multi-file input.", "is_correct": false, "rationale": "Same-session review is biased; and it doesn't address the missed-detail problem." }
     ]
   }
 ]

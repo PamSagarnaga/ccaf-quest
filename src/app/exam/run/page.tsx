@@ -1,13 +1,13 @@
 import Link from "next/link";
-import { getExamQuestions } from "@/lib/queries";
-import { ExamRunner } from "@/components/ExamRunner";
+import { getExamPool } from "@/lib/queries";
+import { ExamSession } from "@/components/ExamSession";
 
 export const metadata = { title: "Exam — The Architect's Codex" };
 
 export default async function ExamRunPage() {
-  const questions = await getExamQuestions();
+  const pool = await getExamPool();
 
-  if (questions.length < 10) {
+  if (pool.length < 10) {
     return (
       <main className="mx-auto w-full max-w-2xl px-5 py-24 text-center">
         <p className="font-display text-2xl text-ink">
@@ -23,5 +23,5 @@ export default async function ExamRunPage() {
     );
   }
 
-  return <ExamRunner questions={questions} />;
+  return <ExamSession pool={pool} />;
 }

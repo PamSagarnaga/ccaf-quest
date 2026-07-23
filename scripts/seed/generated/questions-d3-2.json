@@ -11,9 +11,9 @@
     "explanation": null,
     "options": [
       { "label": "A", "body": "Move topic-specific conventions into `.claude/rules/` files (testing.md, api-conventions.md, deployment.md).", "is_correct": true, "rationale": "Correct. `.claude/rules/` is the designed mechanism for splitting conventions by topic — each file handles one concern." },
-      { "label": "B", "body": "Split it into multiple CLAUDE.md files in the root directory.", "is_correct": false, "rationale": "You can't have multiple CLAUDE.md files in the same directory; `.claude/rules/` is the split mechanism." },
-      { "label": "C", "body": "Move everything to user-level ~/.claude/CLAUDE.md so each developer customizes.", "is_correct": false, "rationale": "User-level config isn't shared via git — new team members would get nothing." },
-      { "label": "D", "body": "Create a skill that loads the conventions on demand.", "is_correct": false, "rationale": "Skills load on-demand; conventions should apply to every edit automatically." }
+      { "label": "B", "body": "Split the oversized file into several separate CLAUDE.md files sitting side by side in the repository's root directory, one for each topic area.", "is_correct": false, "rationale": "You can't have multiple CLAUDE.md files in the same directory; `.claude/rules/` is the split mechanism." },
+      { "label": "C", "body": "Move all of the conventions into each developer's user-level ~/.claude/CLAUDE.md so that everyone can customize the standards for themselves as they like.", "is_correct": false, "rationale": "User-level config isn't shared via git — new team members would get nothing." },
+      { "label": "D", "body": "Create a skill that loads the naming, testing, and deployment conventions on demand whenever a developer chooses to invoke it during a session.", "is_correct": false, "rationale": "Skills load on-demand; conventions should apply to every edit automatically." }
     ]
   },
   {
@@ -28,9 +28,9 @@
     "explanation": null,
     "options": [
       { "label": "A", "body": "The file is missing, has malformed frontmatter, or (for path-scoped rules) they aren't editing a file that matches its glob.", "is_correct": true, "rationale": "Correct. Those are the three reasons a rule doesn't load. /memory is a diagnostic that shows what's loaded." },
-      { "label": "B", "body": "They need to run /memory again with a --reload flag.", "is_correct": false, "rationale": "/memory has no --reload flag — it's diagnostic only, it doesn't trigger loading." },
-      { "label": "C", "body": "/memory only works in interactive mode and failed here.", "is_correct": false, "rationale": "/memory works in the interactive session to show loaded config; that's not the issue." },
-      { "label": "D", "body": "They must restart Claude Code because config loads only at startup.", "is_correct": false, "rationale": "Config loads based on the files being edited and the hierarchy, not only at startup." }
+      { "label": "B", "body": "They need to run /memory again with a --reload flag to force Claude Code to re-scan the directory and pick up the rules file that isn't currently showing as loaded.", "is_correct": false, "rationale": "/memory has no --reload flag — it's diagnostic only, it doesn't trigger loading." },
+      { "label": "C", "body": "The /memory command only works in interactive mode and silently failed to run in this context, which is the reason the expected rules file isn't appearing in the list.", "is_correct": false, "rationale": "/memory works in the interactive session to show loaded config; that's not the issue." },
+      { "label": "D", "body": "They must restart Claude Code entirely, because configuration and rules files are only ever loaded once at startup and are never refreshed during a running session.", "is_correct": false, "rationale": "Config loads based on the files being edited and the hierarchy, not only at startup." }
     ]
   },
   {
@@ -45,9 +45,9 @@
     "explanation": null,
     "options": [
       { "label": "A", "body": "There's no precedence winner — CLAUDE.md files are concatenated, so a direct contradiction may be resolved arbitrarily; fix it at the source.", "is_correct": true, "rationale": "Correct. CLAUDE.md files load together (broadest to most specific) and none overrides another. Contradictions should be removed, not relied on to resolve a certain way." },
-      { "label": "B", "body": "The project-level file wins because it's more specific.", "is_correct": false, "rationale": "It's a load order, not a precedence chain — 'more specific wins' is a classic distractor." },
-      { "label": "C", "body": "The user-level file wins because it loads first.", "is_correct": false, "rationale": "Loading first doesn't mean overriding; files are concatenated, not ranked." },
-      { "label": "D", "body": "Claude Code errors and refuses to start until you resolve it.", "is_correct": false, "rationale": "It doesn't error — it just may pick one arbitrarily, which is why you fix contradictions at the source." }
+      { "label": "B", "body": "The project-level CLAUDE.md wins the conflict because it is the more specific of the two files, so its 'use spaces' rule takes effect over the user-level 'use tabs'.", "is_correct": false, "rationale": "It's a load order, not a precedence chain — 'more specific wins' is a classic distractor." },
+      { "label": "C", "body": "The user-level CLAUDE.md wins the conflict because it loads first in the hierarchy, so its 'use tabs' rule ends up overriding the project's 'use spaces' convention.", "is_correct": false, "rationale": "Loading first doesn't mean overriding; files are concatenated, not ranked." },
+      { "label": "D", "body": "Claude Code detects the direct contradiction, errors out, and refuses to start the session until the developer resolves the tabs-versus-spaces conflict at the source.", "is_correct": false, "rationale": "It doesn't error — it just may pick one arbitrarily, which is why you fix contradictions at the source." }
     ]
   },
   {
@@ -62,9 +62,9 @@
     "explanation": null,
     "options": [
       { "label": "A", "body": "/review in `.claude/commands/` (shared via git); /brainstorm as a SKILL.md in `~/.claude/skills/` with `context: fork`.", "is_correct": true, "rationale": "Correct. /review is project-scoped so it's shared; /brainstorm is personal (user scope) and `context: fork` isolates its verbose output." },
-      { "label": "B", "body": "Both in `.claude/commands/`, with brainstorm using `context: fork`.", "is_correct": false, "rationale": "The personal /brainstorm shouldn't be shared with the whole team via project scope." },
-      { "label": "C", "body": "/review documented in CLAUDE.md; /brainstorm in `.claude/skills/` with only allowed-tools.", "is_correct": false, "rationale": "CLAUDE.md is for always-loaded standards, not command definitions; brainstorm needs `context: fork` for isolation, not just tool limits." },
-      { "label": "D", "body": "Both in `~/.claude/commands/` and each developer copies them.", "is_correct": false, "rationale": "User-scoped commands aren't shared via git — manual copying defeats project-scoped sharing." }
+      { "label": "B", "body": "Put both /review and /brainstorm in `.claude/commands/`, with the brainstorm command using `context: fork` to keep its verbose output isolated from the main conversation.", "is_correct": false, "rationale": "The personal /brainstorm shouldn't be shared with the whole team via project scope." },
+      { "label": "C", "body": "Document /review in CLAUDE.md and put /brainstorm in `.claude/skills/` configured with only an allowed-tools list to keep its analysis appropriately contained.", "is_correct": false, "rationale": "CLAUDE.md is for always-loaded standards, not command definitions; brainstorm needs `context: fork` for isolation, not just tool limits." },
+      { "label": "D", "body": "Put both /review and /brainstorm in `~/.claude/commands/` at user scope and have each developer manually copy them onto their own machine after cloning the repo.", "is_correct": false, "rationale": "User-scoped commands aren't shared via git — manual copying defeats project-scoped sharing." }
     ]
   },
   {
@@ -79,9 +79,9 @@
     "explanation": null,
     "options": [
       { "label": "A", "body": "A skill is a directory with a SKILL.md entrypoint; a flat .md file is a command. Skills need the directory + SKILL.md structure.", "is_correct": true, "rationale": "Correct. Commands are single flat .md prompt templates; skills are directories with a SKILL.md (plus supporting files, frontmatter config, and automatic invocation)." },
-      { "label": "B", "body": "Skill files must be named after the skill, not deploy.md.", "is_correct": false, "rationale": "The issue is structure (directory + SKILL.md), not the filename." },
-      { "label": "C", "body": "Skills only work at user scope (~/.claude/skills/).", "is_correct": false, "rationale": "Skills work at project scope too; the problem is the flat-file structure." },
-      { "label": "D", "body": "The file needs a `context: fork` frontmatter to register as a skill.", "is_correct": false, "rationale": "Frontmatter configures a skill, but without the directory + SKILL.md entrypoint it isn't a skill at all." }
+      { "label": "B", "body": "Skill files must be named to match the skill itself rather than a generic name like deploy.md, and it's that filename mismatch that keeps the file from registering as a skill.", "is_correct": false, "rationale": "The issue is structure (directory + SKILL.md), not the filename." },
+      { "label": "C", "body": "Skills only work when placed at user scope in ~/.claude/skills/, so a project-scoped file under `.claude/skills/` can never register as a real skill no matter how it's structured.", "is_correct": false, "rationale": "Skills work at project scope too; the problem is the flat-file structure." },
+      { "label": "D", "body": "The flat file simply needs a `context: fork` line added to its frontmatter, after which Claude Code would recognize and register deploy.md as a proper skill.", "is_correct": false, "rationale": "Frontmatter configures a skill, but without the directory + SKILL.md entrypoint it isn't a skill at all." }
     ]
   },
   {
@@ -96,9 +96,9 @@
     "explanation": null,
     "options": [
       { "label": "A", "body": "`.claude/rules/terraform.md` with paths: [\"terraform/**/*\", \"**/*.tf\"] in the frontmatter.", "is_correct": true, "rationale": "Correct. Glob patterns cover both the directory tree and stray .tf files anywhere, loading only when editing matching files." },
-      { "label": "B", "body": "Root CLAUDE.md so they're always available.", "is_correct": false, "rationale": "Root CLAUDE.md loads every session — Terraform rules would burn tokens while editing React." },
-      { "label": "C", "body": "A directory-level CLAUDE.md inside terraform/.", "is_correct": false, "rationale": "That misses .tf files located outside terraform/." },
-      { "label": "D", "body": "A skill at .claude/skills/terraform/.", "is_correct": false, "rationale": "Skills load on-demand; infra conventions should shape every edit to an infra file automatically." }
+      { "label": "B", "body": "Put the Terraform naming rules in the root CLAUDE.md so that they are always loaded and available in every single session regardless of what code is being edited.", "is_correct": false, "rationale": "Root CLAUDE.md loads every session — Terraform rules would burn tokens while editing React." },
+      { "label": "C", "body": "Place a directory-level CLAUDE.md inside the terraform/ folder so the naming rules apply automatically to everything located within that particular directory tree.", "is_correct": false, "rationale": "That misses .tf files located outside terraform/." },
+      { "label": "D", "body": "Create a skill at .claude/skills/terraform/ that the developer invokes on demand whenever they want the infrastructure naming conventions applied to a file.", "is_correct": false, "rationale": "Skills load on-demand; infra conventions should shape every edit to an infra file automatically." }
     ]
   },
   {
@@ -130,9 +130,9 @@
     "explanation": null,
     "options": [
       { "label": "A", "body": "Provide 2–3 concrete input/output examples of the exact before/after transformation.", "is_correct": true, "rationale": "Correct. Concrete examples eliminate interpretation ambiguity — the model generalizes from them more reliably than from prose. The documented first-line fix." },
-      { "label": "B", "body": "Rewrite the prose with more precise technical language.", "is_correct": false, "rationale": "More prose still relies on interpretation — the root cause of the inconsistency." },
+      { "label": "B", "body": "Rewrite the prose description using more precise, technical language so that Claude Code interprets the transformation consistently across runs.", "is_correct": false, "rationale": "More prose still relies on interpretation — the root cause of the inconsistency." },
       { "label": "C", "body": "Use the interview pattern so Claude asks clarifying questions.", "is_correct": false, "rationale": "The interview pattern is for unfamiliar domains; here the developer knows the transformation, so examples are the fix." },
-      { "label": "D", "body": "Write a full test suite and iterate on failures.", "is_correct": false, "rationale": "Heavier than needed as a first step; concrete examples are faster and directly address interpretation." }
+      { "label": "D", "body": "Write a full test suite for the transformation up front and iterate on the failing cases until the output is correct.", "is_correct": false, "rationale": "Heavier than needed as a first step; concrete examples are faster and directly address interpretation." }
     ]
   },
   {
@@ -147,9 +147,9 @@
     "explanation": null,
     "options": [
       { "label": "A", "body": "The interview pattern — have Claude ask about invalidation strategies, TTL policies, consistency, and failure modes before implementing.", "is_correct": true, "rationale": "Correct. The interview pattern surfaces considerations an expert would know but the developer might overlook — exactly right for an unfamiliar domain." },
-      { "label": "B", "body": "Provide concrete input/output examples of cache behavior.", "is_correct": false, "rationale": "The developer doesn't know enough to write meaningful examples and would miss edge cases." },
-      { "label": "C", "body": "Write tests first and iterate on failures.", "is_correct": false, "rationale": "Writing tests requires knowing the expected behavior, which they don't yet." },
-      { "label": "D", "body": "Describe the desired behavior in detailed prose.", "is_correct": false, "rationale": "In an unfamiliar domain, prose is likely to miss critical considerations the interview pattern would surface." }
+      { "label": "B", "body": "Provide Claude with concrete input/output examples of the desired cache behavior and have it generalize the caching-layer design from those worked cases.", "is_correct": false, "rationale": "The developer doesn't know enough to write meaningful examples and would miss edge cases." },
+      { "label": "C", "body": "Write the tests for the caching layer first and iterate on the failures until the implementation Claude produces passes every one of them.", "is_correct": false, "rationale": "Writing tests requires knowing the expected behavior, which they don't yet." },
+      { "label": "D", "body": "Describe the desired caching behavior to Claude in detailed prose, spelling out the invalidation and consistency requirements as fully as the developer can manage.", "is_correct": false, "rationale": "In an unfamiliar domain, prose is likely to miss critical considerations the interview pattern would surface." }
     ]
   },
   {
@@ -164,9 +164,9 @@
     "explanation": null,
     "options": [
       { "label": "A", "body": "Issues 1 and 2 together (they interact via errorCode), and issue 3 separately (independent).", "is_correct": true, "rationale": "Correct. Batch interacting fixes so the model sees the shared constraint; fix independent issues separately to avoid conflation." },
-      { "label": "B", "body": "All three in one message, since they were found together.", "is_correct": false, "rationale": "Batching an independent naming fix with interdependent ones can confuse which feedback applies where." },
-      { "label": "C", "body": "All three in separate sequential messages.", "is_correct": false, "rationale": "Splitting 1 and 2 means the model changes the error shape without knowing the logging format must change too." },
-      { "label": "D", "body": "Issue 3 first (simplest), then 1 and 2.", "is_correct": false, "rationale": "Order of simplicity doesn't matter — what matters is that interacting issues (1 and 2) are batched." }
+      { "label": "B", "body": "Deliver all three issues together in a single message, since they were all discovered together during the same review pass and belong to the same round of feedback.", "is_correct": false, "rationale": "Batching an independent naming fix with interdependent ones can confuse which feedback applies where." },
+      { "label": "C", "body": "Deliver each of the three issues in its own separate, sequential message so that the model works through them strictly one at a time in order.", "is_correct": false, "rationale": "Splitting 1 and 2 means the model changes the error shape without knowing the logging format must change too." },
+      { "label": "D", "body": "Deliver issue 3 first because it is the simplest of the three, then follow with issues 1 and 2 once the easy naming fix has already been taken care of.", "is_correct": false, "rationale": "Order of simplicity doesn't matter — what matters is that interacting issues (1 and 2) are batched." }
     ]
   },
   {
@@ -181,9 +181,9 @@
     "explanation": null,
     "options": [
       { "label": "A", "body": "Include prior review findings in context and instruct Claude to report only new or still-unaddressed issues.", "is_correct": true, "rationale": "Correct. Giving prior findings + a 'only new/unresolved' instruction stops duplicate comments and preserves signal-to-noise." },
-      { "label": "B", "body": "Reduce review frequency to once per day.", "is_correct": false, "rationale": "Same issues would still reappear each run — frequency isn't the problem." },
-      { "label": "C", "body": "Suppress findings older than 24 hours.", "is_correct": false, "rationale": "Age filtering is unreliable — it can hide still-valid issues and surface fixed ones." },
-      { "label": "D", "body": "Use a less thorough review prompt.", "is_correct": false, "rationale": "That misses real issues; the problem is duplication, not over-detection." }
+      { "label": "B", "body": "Reduce the CI review frequency from every push down to once per day so that the same five issues are re-flagged far less often across the team's work.", "is_correct": false, "rationale": "Same issues would still reappear each run — frequency isn't the problem." },
+      { "label": "C", "body": "Suppress any review findings that are older than 24 hours so that previously reported issues stop reappearing on subsequent pushes to the branch.", "is_correct": false, "rationale": "Age filtering is unreliable — it can hide still-valid issues and surface fixed ones." },
+      { "label": "D", "body": "Use a less thorough review prompt so the agent surfaces fewer issues overall and therefore stops repeating the same five findings on every run.", "is_correct": false, "rationale": "That misses real issues; the problem is duplication, not over-detection." }
     ]
   },
   {
@@ -198,9 +198,9 @@
     "explanation": null,
     "options": [
       { "label": "A", "body": "--append-system-prompt \"<text>\" — adds to the default prompt and keeps the defaults.", "is_correct": true, "rationale": "Correct. --append-system-prompt augments the default (tool guidance + safety stay); --system-prompt would replace everything." },
-      { "label": "B", "body": "--system-prompt \"<text>\" — sets the instructions.", "is_correct": false, "rationale": "That replaces the whole default prompt, so you'd lose the built-in tool guidance and safety instructions." },
-      { "label": "C", "body": "--bare with the instructions inline.", "is_correct": false, "rationale": "--bare strips hooks, skills, MCP, memory, and CLAUDE.md for fast scripted runs — the opposite of adding guidance." },
-      { "label": "D", "body": "--output-format json to include the instructions.", "is_correct": false, "rationale": "That controls output shape, not the system prompt." }
+      { "label": "B", "body": "--system-prompt \"<text>\" — replaces the entire default prompt with the given project-specific instructions for the CI run.", "is_correct": false, "rationale": "That replaces the whole default prompt, so you'd lose the built-in tool guidance and safety instructions." },
+      { "label": "C", "body": "--bare with the extra project-specific instructions passed inline alongside it for the scripted CI run to pick up.", "is_correct": false, "rationale": "--bare strips hooks, skills, MCP, memory, and CLAUDE.md for fast scripted runs — the opposite of adding guidance." },
+      { "label": "D", "body": "--output-format json, passing the project-specific instructions in through the JSON output configuration for the run.", "is_correct": false, "rationale": "That controls output shape, not the system prompt." }
     ]
   }
 ]
