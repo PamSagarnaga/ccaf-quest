@@ -1,0 +1,172 @@
+[
+  {
+    "id": "f1000000-0000-4000-8000-000000000101",
+    "task_code": "1.1",
+    "domain": 1,
+    "scenario": "customer-support",
+    "stem": "Your agent calls the model, gets a response, and must decide whether to run tools and call the model again. Which field drives that continue-or-stop decision?",
+    "type": "single",
+    "source": "generated",
+    "difficulty": 1,
+    "explanation": null,
+    "options": [
+      { "label": "A", "body": "The response's stop_reason: \"tool_use\" means execute the requested tools, append their results, and loop again; \"end_turn\" means the model is finished and the loop exits.", "is_correct": true, "rationale": "Correct. The agentic loop is driven by stop_reason — tool_use continues the loop, end_turn ends it. Grading the loop off anything else breaks the contract." },
+      { "label": "B", "body": "The running token count of the conversation: keep looping while it stays under the model's context window and stop the very moment the window would overflow, ignoring stop_reason entirely.", "is_correct": false, "rationale": "Token budget is a separate concern; it doesn't tell you whether the model wants a tool run. stop_reason does." },
+      { "label": "C", "body": "Whether the user has sent another message: a single assistant turn should never trigger a second model call on its own, so the loop simply waits for fresh human input each and every time.", "is_correct": false, "rationale": "That describes a chat turn, not an agentic loop — the whole point is the model can drive multiple tool cycles autonomously." },
+      { "label": "D", "body": "A fixed wall-clock timer: re-invoke the model at a set interval until a time budget is spent, which supposedly keeps the agent making steady, predictable forward progress on the task.", "is_correct": false, "rationale": "Timers don't reflect the model's intent and would fire calls even when it has already ended the turn." }
+    ]
+  },
+  {
+    "id": "f1000000-0000-4000-8000-000000000102",
+    "task_code": "1.1",
+    "domain": 1,
+    "scenario": "customer-support",
+    "stem": "Should the decision to call a tool be made by the model at runtime or hard-coded by the developer ahead of time?",
+    "type": "single",
+    "source": "generated",
+    "difficulty": 2,
+    "explanation": null,
+    "options": [
+      { "label": "A", "body": "Let the model decide when the path is open-ended and depends on intermediate results; pre-configure the call only when the sequence is fixed and known in advance.", "is_correct": true, "rationale": "Correct. Model-driven decisions suit variable, data-dependent flows; pre-configured calls suit deterministic, always-the-same sequences." },
+      { "label": "B", "body": "Always hard-code every tool call in a fixed order, because letting the model choose introduces nondeterminism that makes the agent much harder to test or reason about later.", "is_correct": false, "rationale": "Hard-coding everything throws away the model's ability to adapt to inputs it can't know at design time." },
+      { "label": "C", "body": "Always let the model decide every call at runtime, since pre-configuring even one step removes the flexibility that supposedly makes an agent more capable than a plain script.", "is_correct": false, "rationale": "Some steps are genuinely fixed; forcing a runtime decision there just adds latency and failure modes." },
+      { "label": "D", "body": "Decide based purely on model size: use pre-configured calls with smaller models and reserve model-driven calls only for the largest, most capable available model tier.", "is_correct": false, "rationale": "The choice follows task structure, not model size." }
+    ]
+  },
+  {
+    "id": "f1000000-0000-4000-8000-000000000103",
+    "task_code": "1.2",
+    "domain": 1,
+    "scenario": "multi-agent-research",
+    "stem": "A research coordinator spawns a subagent to read 40 source documents. Why give that subagent an isolated context window rather than sharing the coordinator's?",
+    "type": "single",
+    "source": "generated",
+    "difficulty": 2,
+    "explanation": null,
+    "options": [
+      { "label": "A", "body": "So the bulky, noisy document text stays in the subagent's window and only its distilled findings return to the coordinator, keeping the coordinator's context clean and focused.", "is_correct": true, "rationale": "Correct. Isolated context is how hub-and-spoke keeps the coordinator uncluttered — the subagent absorbs the noise and hands back a summary." },
+      { "label": "B", "body": "Because subagents are technically unable to read from a shared parent context, so isolation is the only configuration the Task tool actually permits when spawning a worker at runtime.", "is_correct": false, "rationale": "Context passing to subagents is configurable; isolation is a deliberate design choice, not a hard limitation." },
+      { "label": "C", "body": "To make the subagent run measurably faster, since a smaller context window is the single primary lever for reducing per-token latency across a multi-agent system like this one.", "is_correct": false, "rationale": "The motivation is context hygiene and avoiding pollution, not raw latency." },
+      { "label": "D", "body": "So each subagent can use a completely different model provider, which the runtime only allows when their context windows are kept fully separate and never overlap with the parent.", "is_correct": false, "rationale": "Per-subagent model choice doesn't require isolation, and that isn't the reason to isolate here." }
+    ]
+  },
+  {
+    "id": "f1000000-0000-4000-8000-000000000104",
+    "task_code": "1.2",
+    "domain": 1,
+    "scenario": "multi-agent-research",
+    "stem": "When does a coordinator-subagent (hub-and-spoke) architecture pay off over a single agent doing everything itself?",
+    "type": "single",
+    "source": "generated",
+    "difficulty": 3,
+    "explanation": null,
+    "options": [
+      { "label": "A", "body": "When the work splits into independent sub-tasks that each need focus or a large private context — the coordinator delegates, collects distilled results, and synthesizes.", "is_correct": true, "rationale": "Correct. Hub-and-spoke shines when sub-tasks are separable and each benefits from an isolated, focused context." },
+      { "label": "B", "body": "Whenever the task is short and linear, because the overhead of spawning and coordinating subagents is always repaid many times over by the parallelism it unlocks.", "is_correct": false, "rationale": "For short linear tasks the coordination overhead is pure cost — a single agent is simpler and cheaper." },
+      { "label": "C", "body": "Only when you need higher accuracy on a single indivisible reasoning step that fundamentally cannot be broken apart into smaller independent pieces of separable work.", "is_correct": false, "rationale": "An indivisible step can't be fanned out; multi-agent helps precisely when work decomposes." },
+      { "label": "D", "body": "Any time the conversation exceeds a few thousand tokens, since multi-agent systems are widely regarded as the standard remedy for essentially all forms of context pressure.", "is_correct": false, "rationale": "Long context alone isn't the trigger; separability of the work is." }
+    ]
+  },
+  {
+    "id": "f1000000-0000-4000-8000-000000000105",
+    "task_code": "1.3",
+    "domain": 1,
+    "scenario": "developer-productivity",
+    "stem": "You configure a coordinator agent, but at runtime it never spawns subagents and instead tries to do everything itself. What's the most likely cause?",
+    "type": "single",
+    "source": "generated",
+    "difficulty": 2,
+    "explanation": null,
+    "options": [
+      { "label": "A", "body": "The coordinator's allowedTools list omits \"Task\", so the model has no spawn tool available and simply falls back to handling the whole job within its own turn.", "is_correct": true, "rationale": "Correct. Subagent spawning requires \"Task\" in allowedTools; without it there is literally no tool to invoke." },
+      { "label": "B", "body": "The subagent definitions are missing a system prompt, which causes the coordinator to silently skip delegation and quietly complete the task inline instead of raising an error.", "is_correct": false, "rationale": "A missing subagent prompt would affect the subagent's behavior, not the coordinator's ability to spawn at all." },
+      { "label": "C", "body": "The model's sampling temperature is set too low, making the coordinator far too conservative to ever choose the seemingly riskier option of delegating out to another agent.", "is_correct": false, "rationale": "Temperature doesn't gate tool availability; the Task tool must be granted." },
+      { "label": "D", "body": "The context window is too small to hold a subagent's returned results, so the runtime automatically disables all spawning until the window is manually enlarged in configuration.", "is_correct": false, "rationale": "There's no such auto-disable; the cause is the missing Task permission." }
+    ]
+  },
+  {
+    "id": "f1000000-0000-4000-8000-000000000106",
+    "task_code": "1.4",
+    "domain": 1,
+    "scenario": "multi-agent-research",
+    "stem": "A workflow requires that a report is never published before a fact-checking step passes. How should you enforce that ordering most reliably?",
+    "type": "single",
+    "source": "generated",
+    "difficulty": 2,
+    "explanation": null,
+    "options": [
+      { "label": "A", "body": "Enforce the prerequisite programmatically — a gate in code (or a hook) that blocks the publish step until the fact-check result is present and passing, independent of the prompt.", "is_correct": true, "rationale": "Correct. Hard ordering constraints belong in deterministic code, not in prompt instructions the model can forget." },
+      { "label": "B", "body": "Write a very firm instruction in the system prompt telling the model to always fact-check first, and rely on the model's strong instruction-following to preserve that order on every run.", "is_correct": false, "rationale": "Prompts are probabilistic; a critical ordering guarantee shouldn't hinge on the model remembering." },
+      { "label": "C", "body": "Give the publish tool a longer, more detailed description explaining that the fact-check must happen first, so the model re-reads the prerequisite each time it considers publishing anything.", "is_correct": false, "rationale": "Descriptions inform but don't enforce; the model can still call publish out of order." },
+      { "label": "D", "body": "Lower the model's sampling temperature so its behavior becomes deterministic enough that it reliably performs the two steps in the same fixed order on every single execution.", "is_correct": false, "rationale": "Low temperature reduces variance but never guarantees a hard prerequisite." }
+    ]
+  },
+  {
+    "id": "f1000000-0000-4000-8000-000000000107",
+    "task_code": "1.5",
+    "domain": 1,
+    "scenario": "structured-extraction",
+    "stem": "Every tool result in your pipeline must be normalized to the same JSON shape before the model sees it. Deterministic hook or prompt instruction?",
+    "type": "single",
+    "source": "generated",
+    "difficulty": 2,
+    "explanation": null,
+    "options": [
+      { "label": "A", "body": "A PostToolUse hook: it runs in code on every tool result, so normalization happens deterministically regardless of whether the model would have remembered to do it.", "is_correct": true, "rationale": "Correct. Deterministic, must-happen-every-time transforms are exactly what PostToolUse hooks are for." },
+      { "label": "B", "body": "A prompt instruction asking the model to reformat each tool result before using it, which conveniently keeps the normalization logic visible right alongside the rest of the task description.", "is_correct": false, "rationale": "A prompt instruction is probabilistic — the model may skip or vary the reformat, which defeats a must-always guarantee." },
+      { "label": "C", "body": "A few-shot example set showing the desired shape, relying on the model to generalize the demonstrated pattern to every future tool result it happens to encounter at runtime.", "is_correct": false, "rationale": "Few-shot nudges output but doesn't deterministically transform tool results the way a hook does." },
+      { "label": "D", "body": "A lower sampling temperature so the model's formatting becomes stable enough that every tool result reliably comes back in one consistent structure without any extra code at all.", "is_correct": false, "rationale": "Temperature can't guarantee a fixed schema on arbitrary tool outputs." }
+    ]
+  },
+  {
+    "id": "f1000000-0000-4000-8000-000000000108",
+    "task_code": "1.6",
+    "domain": 1,
+    "scenario": "code-generation",
+    "stem": "A single prompt tells the model to lint, refactor, write tests, update docs, and summarize — all at once — and quality on each drops. What's the failure mode?",
+    "type": "single",
+    "source": "generated",
+    "difficulty": 2,
+    "explanation": null,
+    "options": [
+      { "label": "A", "body": "Attention dilution: cramming many unrelated instructions into one prompt spreads the model's focus thin, so each sub-task is handled worse than if it were its own focused step.", "is_correct": true, "rationale": "Correct. Over-stuffed prompts dilute attention; decomposing into focused steps restores per-step quality." },
+      { "label": "B", "body": "Context overflow: the combined instructions exceed the model's window, silently truncating the later tasks so that they end up receiving essentially no attention at all during generation.", "is_correct": false, "rationale": "A handful of instructions rarely overflows the window; the issue is diluted focus, not truncation." },
+      { "label": "C", "body": "Tool starvation: with so many competing goals in play, the model runs out of its tool-call budget partway through and quietly abandons the remaining sub-tasks in an unfinished state.", "is_correct": false, "rationale": "There's no fixed tool budget being exhausted here; quality drops across the board from split attention." },
+      { "label": "D", "body": "Temperature drift: handling many tasks in one pass causes the sampling temperature to climb steadily, making the later portions of the output progressively more random and lower quality.", "is_correct": false, "rationale": "Temperature doesn't drift within a response; the cause is diluted attention." }
+    ]
+  },
+  {
+    "id": "f1000000-0000-4000-8000-000000000109",
+    "task_code": "1.7",
+    "domain": 1,
+    "scenario": "code-generation",
+    "stem": "You want to try two different refactoring approaches from the same starting point without one polluting the other's history. Which session mechanism fits?",
+    "type": "single",
+    "source": "generated",
+    "difficulty": 2,
+    "explanation": null,
+    "options": [
+      { "label": "A", "body": "Fork the session (fork_session): it branches a new independent thread from the chosen point, so each approach evolves separately without disturbing the original conversation.", "is_correct": true, "rationale": "Correct. Forking branches from a point to explore alternatives in isolation, unlike resuming the same linear thread." },
+      { "label": "B", "body": "Resume the session with --resume <session-name>, which reopens the exact same thread so both refactoring approaches simply continue appending to one shared, strictly linear history together.", "is_correct": false, "rationale": "Resuming continues one thread; both approaches would share and pollute the same history." },
+      { "label": "C", "body": "Run /compact to shrink the existing history first, then just keep going in the very same session so there's enough room to hold both refactoring attempts side by side at once.", "is_correct": false, "rationale": "Compaction manages context size; it doesn't branch independent explorations." },
+      { "label": "D", "body": "Start a brand-new session with no prior context at all, manually re-describing the starting point from memory so that the second approach effectively begins from scratch each time.", "is_correct": false, "rationale": "A cold session loses the shared starting state that forking preserves." }
+    ]
+  },
+  {
+    "id": "f1000000-0000-4000-8000-000000000110",
+    "task_code": "1.3",
+    "domain": 1,
+    "scenario": "multi-agent-research",
+    "stem": "When a coordinator spawns a subagent for a focused sub-task, what should it pass so the subagent can work without the coordinator's full history?",
+    "type": "single",
+    "source": "generated",
+    "difficulty": 3,
+    "explanation": null,
+    "options": [
+      { "label": "A", "body": "A tight, self-contained brief — the specific goal, the inputs it needs, and the expected output format — rather than the coordinator's entire running transcript.", "is_correct": true, "rationale": "Correct. Good context passing is a distilled, self-sufficient brief; dumping the whole transcript reintroduces the noise isolation was meant to avoid." },
+      { "label": "B", "body": "The coordinator's complete conversation history verbatim, so the subagent has the maximum possible context and never once has to ask a clarifying question back to its parent.", "is_correct": false, "rationale": "Passing everything defeats isolation and floods the subagent with irrelevant context." },
+      { "label": "C", "body": "Nothing at all beyond the tool name itself, on the theory that a well-designed subagent should infer its entire task purely from which Task invocation happened to trigger it.", "is_correct": false, "rationale": "Subagents need an explicit brief; they can't reliably infer the goal from the invocation alone." },
+      { "label": "D", "body": "Only the raw user message that first started the session, expecting the subagent to somehow re-derive its narrow delegated sub-task from that broad original request on its own.", "is_correct": false, "rationale": "The original message rarely captures the specific delegated sub-task; the coordinator must brief it explicitly." }
+    ]
+  }
+]

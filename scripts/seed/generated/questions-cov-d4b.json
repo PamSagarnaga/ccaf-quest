@@ -1,0 +1,206 @@
+[
+  {
+    "id": "f4000000-0000-4000-8000-000000000401",
+    "task_code": "4.1",
+    "domain": 4,
+    "scenario": "cicd",
+    "stem": "An automated code reviewer flags too many non-issues (false positives). Which prompt change most directly reduces them?",
+    "type": "single",
+    "source": "generated",
+    "difficulty": 2,
+    "explanation": null,
+    "options": [
+      { "label": "A", "body": "Spell out explicit criteria for what counts as a real issue — severity thresholds and clear inclusion/exclusion rules — so the model only flags findings that actually meet the bar.", "is_correct": true, "rationale": "Correct. Explicit criteria are the lever for precision; they tell the model exactly what qualifies and cut false positives." },
+      { "label": "B", "body": "Simply instruct the model to be stricter and to flag noticeably fewer things overall, trusting that a broad general nudge toward caution will somehow lower the false-positive rate across all of the categories at once.", "is_correct": false, "rationale": "Vague 'be stricter' guidance is unreliable; the model needs concrete criteria to apply consistently." },
+      { "label": "C", "body": "Lower the sampling temperature so the reviewer's output becomes considerably more deterministic, working from the assumption that greater consistency will naturally translate into fewer spurious findings each run.", "is_correct": false, "rationale": "Determinism doesn't equal precision; without criteria it just consistently flags the same non-issues." },
+      { "label": "D", "body": "Ask the model to review the same code twice over and then only report the issues that happen to appear in both passes, using that repetition as a rough filter against any one-off false positives.", "is_correct": false, "rationale": "Repeating a criteria-less review mostly reproduces the same false positives; explicit criteria address the root cause." }
+    ]
+  },
+  {
+    "id": "f4000000-0000-4000-8000-000000000402",
+    "task_code": "4.1",
+    "domain": 4,
+    "scenario": "structured-extraction",
+    "stem": "Why do explicit criteria improve precision more reliably than a general instruction like \"only extract important fields\"?",
+    "type": "single",
+    "source": "generated",
+    "difficulty": 2,
+    "explanation": null,
+    "options": [
+      { "label": "A", "body": "\"Important\" is subjective and the model will interpret it inconsistently; naming the exact fields and conditions gives an objective bar it can apply the same way every time.", "is_correct": true, "rationale": "Correct. Explicit, objective criteria remove interpretation variance that vague adjectives introduce." },
+      { "label": "B", "body": "General instructions are essentially always ignored outright by the model, so almost any specific wording at all — practically regardless of its actual content — is bound to outperform a broad instruction on precision.", "is_correct": false, "rationale": "General instructions aren't ignored outright; the issue is that vague terms are interpreted inconsistently, not that they're skipped." },
+      { "label": "C", "body": "Explicit criteria tend to make the prompt shorter overall, and it is well established that shorter prompts get processed with higher precision because the model then has far fewer tokens to get distracted by.", "is_correct": false, "rationale": "Explicit criteria often make prompts longer, not shorter; precision comes from clarity, not brevity." },
+      { "label": "D", "body": "Stating criteria forces the model into tool_use mode automatically, and structured tool calls are simply more precise than free-text extraction no matter what the surrounding wording of the prompt looks like.", "is_correct": false, "rationale": "Criteria don't require tool_use; the precision gain is from an objective standard, not the output channel." }
+    ]
+  },
+  {
+    "id": "f4000000-0000-4000-8000-000000000403",
+    "task_code": "4.2",
+    "domain": 4,
+    "scenario": "structured-extraction",
+    "stem": "Your model produces the right content but the formatting drifts run to run. Which technique most directly stabilizes the output shape?",
+    "type": "single",
+    "source": "generated",
+    "difficulty": 1,
+    "explanation": null,
+    "options": [
+      { "label": "A", "body": "Few-shot prompting: include a couple of worked examples in exactly the target format, so the model patterns its output on them and the formatting stops drifting.", "is_correct": true, "rationale": "Correct. Few-shot examples are the standard fix for output-consistency problems — the model mirrors the demonstrated shape." },
+      { "label": "B", "body": "Just add a single sentence describing the desired format in prose, trusting that one clear written specification will hold the output shape perfectly steady without needing to show any concrete example.", "is_correct": false, "rationale": "A prose description helps less than showing examples; demonstrations pin the format far more reliably." },
+      { "label": "C", "body": "Increase the sampling temperature so that the model actively considers many more possible formatting options and, over enough runs, eventually converges on the single most natural and consistent one.", "is_correct": false, "rationale": "Higher temperature increases variance — the opposite of what you want for consistent formatting." },
+      { "label": "D", "body": "Run the exact same request several separate times and then just manually pick out whichever output happens to look the best, treating that hand selection as the mechanism for enforcing a consistent shape.", "is_correct": false, "rationale": "Manual cherry-picking doesn't make the model consistent; few-shot examples do." }
+    ]
+  },
+  {
+    "id": "f4000000-0000-4000-8000-000000000404",
+    "task_code": "4.2",
+    "domain": 4,
+    "scenario": "customer-support",
+    "stem": "You're adding few-shot examples for a classification prompt. What makes the examples effective rather than harmful?",
+    "type": "single",
+    "source": "generated",
+    "difficulty": 3,
+    "explanation": null,
+    "options": [
+      { "label": "A", "body": "They should be correct, representative of the real distribution (including tricky cases), and consistently formatted — biased or mislabeled examples teach the model the wrong pattern.", "is_correct": true, "rationale": "Correct. Few-shot quality matters: representative, correctly-labeled, consistent examples help; skewed ones mislead the model." },
+      { "label": "B", "body": "They should all just be the single easiest and most obvious case simply repeated a few times over, so that the model firmly locks onto the very clearest possible signal well before it ever sees any real inputs.", "is_correct": false, "rationale": "Only-easy examples fail to cover the hard cases and can bias the model toward one class." },
+      { "label": "C", "body": "They should be as numerous as will physically fit inside the context window, on the reasoning that adding more examples monotonically improves accuracy no matter how redundant those extra ones eventually become.", "is_correct": false, "rationale": "Beyond a point, extra redundant examples add cost and noise without helping; representativeness beats sheer count." },
+      { "label": "D", "body": "They should deliberately include a handful of deliberately wrong labels mixed in, so that the model learns to stay skeptical and doesn't end up over-trusting the demonstrations that it has been given.", "is_correct": false, "rationale": "Mislabeled examples teach the wrong pattern; few-shot demonstrations must be correct." }
+    ]
+  },
+  {
+    "id": "f4000000-0000-4000-8000-000000000405",
+    "task_code": "4.3",
+    "domain": 4,
+    "scenario": "structured-extraction",
+    "stem": "You need extraction output that downstream code can consume with zero parsing ambiguity. What's the most reliable way to enforce the structure?",
+    "type": "single",
+    "source": "generated",
+    "difficulty": 2,
+    "explanation": null,
+    "options": [
+      { "label": "A", "body": "Define a tool with a JSON schema and have the model return its answer via that tool call, so the output is validated against the schema instead of parsed loosely from free text.", "is_correct": true, "rationale": "Correct. Structured output via tool_use + JSON schema is the reliable enforcement mechanism — the shape is guaranteed by the schema." },
+      { "label": "B", "body": "Simply ask the model in the prompt to \"respond only with valid JSON\" and then JSON-parse whatever text comes back, retrying that parse again whenever it happens to fail on a given response.", "is_correct": false, "rationale": "Prose-requested JSON often includes stray text or invalid structure; a schema-backed tool call avoids that ambiguity." },
+      { "label": "C", "body": "Request Markdown with clearly labeled sections and headers instead, and then have the downstream code carefully read the individual fields back out of that formatted document one section at a time.", "is_correct": false, "rationale": "Markdown is for humans; parsing structured fields out of it is far more fragile than a JSON schema." },
+      { "label": "D", "body": "Lower the sampling temperature all the way down to zero so that the model's text output becomes fully deterministic and therefore, supposedly, always parses into the very same structure every single time.", "is_correct": false, "rationale": "Determinism doesn't guarantee schema-valid structure; it can deterministically emit malformed output." }
+    ]
+  },
+  {
+    "id": "f4000000-0000-4000-8000-000000000406",
+    "task_code": "4.3",
+    "domain": 4,
+    "scenario": "structured-extraction",
+    "stem": "A field in your JSON schema is defined as an enum of five allowed values. What does this buy you at extraction time?",
+    "type": "single",
+    "source": "generated",
+    "difficulty": 2,
+    "explanation": null,
+    "options": [
+      { "label": "A", "body": "It constrains that field to one of the permitted values, eliminating free-text variants and spelling drift so downstream logic can switch on it without any normalization.", "is_correct": true, "rationale": "Correct. Enums lock a field to a known set, removing variant/typo handling downstream — a key benefit of schema-enforced output." },
+      { "label": "B", "body": "It makes the model reason noticeably harder about that one field specifically, and as a helpful side effect this also improves the accuracy of every other field in the schema thanks to the added constraint.", "is_correct": false, "rationale": "An enum constrains that field's value space; it doesn't magically improve unrelated fields." },
+      { "label": "C", "body": "It lets you safely omit any description for that field entirely, on the grounds that the five listed values are self-explanatory enough that the model will never need guidance on when to pick each one.", "is_correct": false, "rationale": "Enums still benefit from descriptions clarifying when each value applies; the constraint isn't a substitute for that." },
+      { "label": "D", "body": "It automatically retries the whole extraction whenever the model seems at all uncertain, quietly cycling through each of the five values in turn until one of them finally validates against the rest of the record.", "is_correct": false, "rationale": "Enums don't trigger retries; they simply restrict the allowed values." }
+    ]
+  },
+  {
+    "id": "f4000000-0000-4000-8000-000000000407",
+    "task_code": "4.4",
+    "domain": 4,
+    "scenario": "structured-extraction",
+    "stem": "Some extracted records come back failing schema validation. What's the most robust way to handle them in the pipeline?",
+    "type": "single",
+    "source": "generated",
+    "difficulty": 2,
+    "explanation": null,
+    "options": [
+      { "label": "A", "body": "Feed the specific validation error back to the model and ask it to correct just that one record — a validation/retry loop that repairs failures instead of discarding them.", "is_correct": true, "rationale": "Correct. Validation-and-retry loops close the quality gap by returning the error so the model can fix the failing record." },
+      { "label": "B", "body": "Silently drop every single record that fails validation, on the reasoning that a malformed extraction is inherently untrustworthy and that keeping any of them around risks quietly corrupting the whole downstream dataset.", "is_correct": false, "rationale": "Dropping failures loses data that a retry loop could often recover; blanket discarding is wasteful." },
+      { "label": "C", "body": "Coerce each invalid output into the schema in code using best-guess default values, so that every record ends up validating cleanly even in the cases where the model's actual answer did not really fit at all.", "is_correct": false, "rationale": "Papering over failures with defaults fabricates data; feeding the error back for correction is more faithful." },
+      { "label": "D", "body": "Re-run the entire batch again completely from scratch the instant any single record fails, working from the theory that a clean full restart is simpler to reason about than repairing the individual failures.", "is_correct": false, "rationale": "Reprocessing everything for one failure is expensive; targeted retry of the failing record is the robust pattern." }
+    ]
+  },
+  {
+    "id": "f4000000-0000-4000-8000-000000000408",
+    "task_code": "4.4",
+    "domain": 4,
+    "scenario": "structured-extraction",
+    "stem": "You add a retry loop that re-asks the model on validation failure. What guardrail keeps it from becoming a problem in production?",
+    "type": "single",
+    "source": "generated",
+    "difficulty": 3,
+    "explanation": null,
+    "options": [
+      { "label": "A", "body": "Cap the number of retries and route persistent failures to human review, so a record that simply can't be repaired doesn't loop forever or silently disappear from the run.", "is_correct": true, "rationale": "Correct. Bounded retries plus an escalation path prevent infinite loops and ensure hard cases still get handled." },
+      { "label": "B", "body": "Retry the record unconditionally over and over until it finally validates, since a valid record is the entire goal here and stopping any earlier than that would only leave the resulting dataset incomplete.", "is_correct": false, "rationale": "Unbounded retries can loop forever and rack up cost on records that will never validate." },
+      { "label": "C", "body": "Raise the sampling temperature a little bit further on each successive retry so the model's answers keep changing every time, which supposedly guarantees it eventually lands on some valid structure in the end.", "is_correct": false, "rationale": "Escalating temperature adds randomness, not correctness, and still needs a stopping condition." },
+      { "label": "D", "body": "Turn off schema validation entirely after the very first retry attempt, simply accepting whatever the model returns from then on so that the pipeline is never once allowed to stall on a stubborn record.", "is_correct": false, "rationale": "Turning off validation defeats the purpose and lets malformed data through." }
+    ]
+  },
+  {
+    "id": "f4000000-0000-4000-8000-000000000409",
+    "task_code": "4.5",
+    "domain": 4,
+    "scenario": "structured-extraction",
+    "stem": "You must extract fields from 50,000 independent documents overnight, and latency per document doesn't matter. Which strategy fits best?",
+    "type": "single",
+    "source": "generated",
+    "difficulty": 2,
+    "explanation": null,
+    "options": [
+      { "label": "A", "body": "Use the Message Batches API: submit the documents as an asynchronous batch and collect results when ready, which is cheaper and purpose-built for high-volume, latency-insensitive work.", "is_correct": true, "rationale": "Correct. The Batches API is the efficient path for large, latency-tolerant workloads — lower cost, asynchronous processing." },
+      { "label": "B", "body": "Just fire all 50,000 documents off as individual real-time requests as fast as you possibly can, aiming to maximize raw throughput by keeping every last request on the low-latency synchronous path the whole time.", "is_correct": false, "rationale": "Synchronous fan-out at that scale is costlier and hits rate limits; batching is designed for exactly this case." },
+      { "label": "C", "body": "Concatenate a great many of the documents together into one enormous prompt and then extract them all within a single call, mainly to minimize the sheer number of separate requests you have to make overall.", "is_correct": false, "rationale": "Stuffing many documents into one prompt causes attention dilution and context limits; batch separate requests instead." },
+      { "label": "D", "body": "Process them strictly one at a time in a sequential loop, with a human being confirming each individual result as it comes back, deliberately trading away throughput for the sake of maximum oversight everywhere.", "is_correct": false, "rationale": "Per-document human confirmation doesn't scale to 50,000 and ignores the available batch efficiency." }
+    ]
+  },
+  {
+    "id": "f4000000-0000-4000-8000-000000000410",
+    "task_code": "4.5",
+    "domain": 4,
+    "scenario": "structured-extraction",
+    "stem": "Which characteristic makes a workload a good fit for the Message Batches API rather than synchronous calls?",
+    "type": "single",
+    "source": "generated",
+    "difficulty": 2,
+    "explanation": null,
+    "options": [
+      { "label": "A", "body": "The requests are independent and the results aren't needed immediately, so you can trade real-time latency for lower cost and higher throughput across the whole batch.", "is_correct": true, "rationale": "Correct. Batching fits independent, latency-tolerant jobs where you accept delayed results for efficiency." },
+      { "label": "B", "body": "The requests are all tightly dependent on each other, with each one needing the previous request's answer before it can even be formed, meaning they simply must be processed together as one connected unit.", "is_correct": false, "rationale": "Dependent, sequential requests are a poor batch fit; batching assumes independence." },
+      { "label": "C", "body": "A human user is actively waiting on each response inside a live interactive session, so keeping the time to first token as low as humanly possible on every single call is very clearly the top priority here.", "is_correct": false, "rationale": "Interactive, latency-sensitive use is exactly what the synchronous API is for, not batches." },
+      { "label": "D", "body": "The overall workload is genuinely tiny — really just a small handful of requests total — a case where the modest setup overhead of a batch is very easily justified by the small volume that is actually involved.", "is_correct": false, "rationale": "For a handful of requests, synchronous calls are simpler; batching pays off at high volume." }
+    ]
+  },
+  {
+    "id": "f4000000-0000-4000-8000-000000000411",
+    "task_code": "4.6",
+    "domain": 4,
+    "scenario": "cicd",
+    "stem": "For a high-stakes document review, you run one pass to draft findings and a second independent pass to critique them. What's the value of the second pass?",
+    "type": "single",
+    "source": "generated",
+    "difficulty": 2,
+    "explanation": null,
+    "options": [
+      { "label": "A", "body": "A fresh independent reviewer catches errors and unsupported claims the first pass was committed to, so the multi-pass architecture raises reliability on high-stakes output.", "is_correct": true, "rationale": "Correct. Multi-pass / multi-instance review adds an independent check that surfaces mistakes the original pass anchored on." },
+      { "label": "B", "body": "The second pass really just reformats the first pass's output into a somewhat cleaner layout, since a reviewer's main contribution is generally about presentation rather than about actually catching substantive errors.", "is_correct": false, "rationale": "The value of a review pass is catching substantive errors, not cosmetic reformatting." },
+      { "label": "C", "body": "Running the very same prompt a second time within the same shared context effectively averages out the randomness, and that averaging effect is precisely what ends up improving the final answer's reliability here.", "is_correct": false, "rationale": "A shared-context repeat isn't independent and mostly reproduces the same reasoning; independence is what matters." },
+      { "label": "D", "body": "The second pass conveniently lets you skip any separate validation entirely, on the grounds that two full generation passes taken together are already trustworthy enough to remove the need for a checking step.", "is_correct": false, "rationale": "Review passes complement validation; they don't remove the need for it." }
+    ]
+  },
+  {
+    "id": "f4000000-0000-4000-8000-000000000412",
+    "task_code": "4.6",
+    "domain": 4,
+    "scenario": "multi-agent-research",
+    "stem": "In a multi-instance review setup, why should the critic instance be separate from the generator rather than the same agent re-reading its own work?",
+    "type": "single",
+    "source": "generated",
+    "difficulty": 3,
+    "explanation": null,
+    "options": [
+      { "label": "A", "body": "A separate instance isn't anchored to the generator's earlier reasoning, so it evaluates the output far more objectively instead of rationalizing choices it already made.", "is_correct": true, "rationale": "Correct. Independence reduces self-consistency bias — a fresh critic judges the artifact, not its own prior commitments." },
+      { "label": "B", "body": "A separate instance generally runs a fair bit faster, and that raw speed gain is really the primary reason you would ever want to split generation and critique apart across two different agents at all.", "is_correct": false, "rationale": "The benefit is objectivity from independence, not speed." },
+      { "label": "C", "body": "The same agent is technically forbidden from ever reading back its own previous output, so spinning up a second separate instance is simply required purely to work around that particular platform-level restriction.", "is_correct": false, "rationale": "No such restriction exists; separation is a design choice for independent judgment." },
+      { "label": "D", "body": "A separate critic can be run on a smaller and cheaper model tier, and it is really those cost savings that provide the main motivation for keeping the two distinct roles on different instances at all.", "is_correct": false, "rationale": "Model tiering is incidental; the core reason is unbiased, independent review." }
+    ]
+  }
+]

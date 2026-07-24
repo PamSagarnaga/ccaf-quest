@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { domains, tasksForDomain } from "@/lib/blueprint";
 import { getDomainQuestionCounts } from "@/lib/queries";
+import { CoverageBadge } from "@/components/CoverageBadge";
 
 export const metadata = { title: "Practice — The Architect's Codex" };
 
@@ -26,6 +27,7 @@ export default async function PracticePage() {
         Pick a domain to drill, or take a mixed set across the whole blueprint.
         Each question is explained the moment you answer.
       </p>
+      <CoverageBadge bankTotal={total} />
 
       {/* Mixed set */}
       <Link

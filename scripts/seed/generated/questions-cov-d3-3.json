@@ -1,0 +1,121 @@
+[
+  {
+    "id": "f3000000-0000-4000-8000-000000000301",
+    "task_code": "3.1",
+    "domain": 3,
+    "scenario": "code-generation",
+    "stem": "A monorepo has org-wide conventions plus rules that only apply inside the payments package. How should CLAUDE.md be organized?",
+    "type": "single",
+    "source": "generated",
+    "difficulty": 2,
+    "explanation": null,
+    "options": [
+      { "label": "A", "body": "Put shared conventions in the root CLAUDE.md and a scoped CLAUDE.md inside the payments package, so package-specific rules load only when work happens there and inherit the root otherwise.", "is_correct": true, "rationale": "Correct. CLAUDE.md is hierarchical — root for shared rules, nested files for scoped rules that apply within their directory." },
+      { "label": "B", "body": "Put absolutely everything into a single root CLAUDE.md, then add a section instructing the model to apply the payments-specific rules only on the occasions when it happens to be editing that one package's files.", "is_correct": false, "rationale": "One giant file makes the model gate rules by prose; nesting scopes them structurally and keeps each file focused." },
+      { "label": "C", "body": "Keep only the payments rules in the root file and then paste copies of the shared conventions into every single package, so that each package ends up fully self-contained without depending on any parent at all.", "is_correct": false, "rationale": "Duplicating shared conventions everywhere is the opposite of the hierarchy's inheritance model and drifts out of sync." },
+      { "label": "D", "body": "Avoid CLAUDE.md altogether and instead pass all of the conventions inline in each prompt at runtime, which supposedly guarantees the model always has exactly the rules that are relevant to the current request.", "is_correct": false, "rationale": "That discards the persistent, scoped configuration CLAUDE.md exists to provide." }
+    ]
+  },
+  {
+    "id": "f3000000-0000-4000-8000-000000000302",
+    "task_code": "3.2",
+    "domain": 3,
+    "scenario": "code-generation",
+    "stem": "You keep typing the same multi-step review instructions. You want them reusable, parameterized, and runnable on demand. What do you build?",
+    "type": "single",
+    "source": "generated",
+    "difficulty": 2,
+    "explanation": null,
+    "options": [
+      { "label": "A", "body": "A custom slash command in .claude/commands/ that captures the instructions and accepts an argument, so you invoke the whole workflow with one command instead of retyping it.", "is_correct": true, "rationale": "Correct. Custom slash commands package repeatable, parameterized prompts you invoke on demand." },
+      { "label": "B", "body": "A brand-new MCP server that exposes a tool returning those instructions as plain text, which the model then reads and follows on whatever occasions it happens to decide the review workflow is relevant.", "is_correct": false, "rationale": "An MCP tool is heavyweight and indirect for what is simply a reusable prompt; a slash command is the fit." },
+      { "label": "C", "body": "A CLAUDE.md section that contains the full instructions, so that they are always loaded into context and the model then applies the review steps automatically on every single task that it ever touches.", "is_correct": false, "rationale": "CLAUDE.md is always-on context, not an on-demand parameterized command you trigger when wanted." },
+      { "label": "D", "body": "A path-specific rule file that fires the review instructions any time you open a file that matches some glob, thereby tying the whole workflow to file paths rather than to an explicit on-demand invocation.", "is_correct": false, "rationale": "Path rules trigger on file matches, not on an explicit on-demand invocation with an argument." }
+    ]
+  },
+  {
+    "id": "f3000000-0000-4000-8000-000000000303",
+    "task_code": "3.3",
+    "domain": 3,
+    "scenario": "code-generation",
+    "stem": "You want Python-specific conventions to load only when the model is working on .py files, and TypeScript ones only for .ts files. What mechanism does this?",
+    "type": "single",
+    "source": "generated",
+    "difficulty": 2,
+    "explanation": null,
+    "options": [
+      { "label": "A", "body": "Path-specific rules that use glob patterns (e.g., **/*.py) in their frontmatter, so a rule set is loaded conditionally only when the files in scope actually match its glob.", "is_correct": true, "rationale": "Correct. Path-specific rules attach conventions to glob patterns so they load only for matching files." },
+      { "label": "B", "body": "Two separate root CLAUDE.md files, one written for Python and one for TypeScript, and then just letting the model pick whichever of the two language files best matches the code that it is currently editing.", "is_correct": false, "rationale": "There's a single root CLAUDE.md; language gating by file type is what path-specific globs are for." },
+      { "label": "C", "body": "A separate slash command for each language that the developer has to remember to run first before editing, thereby manually loading the right set of conventions for whichever file is about to be changed.", "is_correct": false, "rationale": "That's manual and error-prone; path rules load automatically based on the file glob." },
+      { "label": "D", "body": "Environment variables set per shell session that name the currently active language, which the model then reads in order to decide which particular block of conventions ought to apply to the current edit.", "is_correct": false, "rationale": "Conventions aren't selected via env vars; glob-based path rules handle conditional loading." }
+    ]
+  },
+  {
+    "id": "f3000000-0000-4000-8000-000000000304",
+    "task_code": "3.3",
+    "domain": 3,
+    "scenario": "cicd",
+    "stem": "A path-specific rule uses the glob `src/api/**` but your convention isn't applying to files in `src/api/v2/handlers/`. What's the most likely issue?",
+    "type": "single",
+    "source": "generated",
+    "difficulty": 3,
+    "explanation": null,
+    "options": [
+      { "label": "A", "body": "The glob isn't matching the nested path as intended — verify the pattern actually covers deep subdirectories (e.g., `src/api/**/*`) so files several levels down are included.", "is_correct": true, "rationale": "Correct. Path rules hinge on the glob; a pattern that doesn't recurse the way you expect silently skips deeper files." },
+      { "label": "B", "body": "Path-specific rules only ever apply to files sitting directly in the one named directory and never to any of its subdirectories, so the nested handlers are simply out of scope by design and cannot match.", "is_correct": false, "rationale": "`**` is meant to recurse; the tool supports nested matching, so this framing is wrong." },
+      { "label": "C", "body": "Any rules that happen to be stored outside the repository root are ignored entirely, so the convention has to be moved up into the top-level CLAUDE.md file before any glob at all will actually take effect.", "is_correct": false, "rationale": "Path rules don't require living at the root; the symptom points to a glob that doesn't match, not file location." },
+      { "label": "D", "body": "The model quietly caches all path rules for the duration of a session, so it simply won't pick up this convention until the entire session has been fully restarted from a completely cold state again.", "is_correct": false, "rationale": "This isn't a caching issue; the glob pattern simply isn't covering the nested path." }
+    ]
+  },
+  {
+    "id": "f3000000-0000-4000-8000-000000000305",
+    "task_code": "3.4",
+    "domain": 3,
+    "scenario": "code-generation",
+    "stem": "A developer asks the agent to refactor a critical, widely-used module with unclear requirements. Plan mode or direct execution?",
+    "type": "single",
+    "source": "generated",
+    "difficulty": 2,
+    "explanation": null,
+    "options": [
+      { "label": "A", "body": "Plan mode: surface an approach for review before touching code, because the change is high-impact and under-specified, so agreeing on scope first prevents costly wrong edits.", "is_correct": true, "rationale": "Correct. Plan mode fits high-impact, ambiguous, multi-file work — align on the approach before executing." },
+      { "label": "B", "body": "Direct execution: just start editing right away and iterate, on the theory that making changes and seeing what breaks is by far the fastest way to clarify fuzzy requirements on a critical module like this.", "is_correct": false, "rationale": "Editing a critical module under unclear requirements risks expensive, hard-to-reverse mistakes; plan first." },
+      { "label": "C", "body": "Direct execution, but only after first lowering the sampling temperature, so that the model's edits become deterministic enough to trust on an important module even without any separate review step.", "is_correct": false, "rationale": "Determinism isn't the issue; the risk is proceeding without agreed scope on ambiguous, high-impact work." },
+      { "label": "D", "body": "Neither one — simply decline the whole task outright until a human goes and rewrites the requirements in complete detail, since an agent really should never work from anything less than a full specification.", "is_correct": false, "rationale": "Plan mode exists precisely to handle under-specified tasks collaboratively; declining is unnecessary." }
+    ]
+  },
+  {
+    "id": "f3000000-0000-4000-8000-000000000306",
+    "task_code": "3.5",
+    "domain": 3,
+    "scenario": "structured-extraction",
+    "stem": "An extraction prompt is close but keeps mishandling one edge case. Which refinement technique targets that most directly?",
+    "type": "single",
+    "source": "generated",
+    "difficulty": 2,
+    "explanation": null,
+    "options": [
+      { "label": "A", "body": "Add a concrete input/output example of that exact edge case to the prompt, then iterate — showing the desired handling is more precise than describing it abstractly.", "is_correct": true, "rationale": "Correct. Concrete I/O examples for the failing case are a core iterative-refinement technique; they pin down behavior words alone miss." },
+      { "label": "B", "body": "Rewrite the entire prompt from scratch using completely different wording, on the general theory that a fresh phrasing is somehow the most reliable route to fixing any single stubborn case that comes up.", "is_correct": false, "rationale": "Wholesale rewrites are shotgun changes; targeting the specific edge case with an example is more direct." },
+      { "label": "C", "body": "Raise the sampling temperature so that the model explores a much wider range of possible outputs, thereby increasing the odds that it eventually stumbles onto the correct handling for this tricky input.", "is_correct": false, "rationale": "More randomness doesn't reliably fix a specific edge case; a targeted example does." },
+      { "label": "D", "body": "Switch over to a substantially larger model while keeping the prompt entirely unchanged, on the assumption that sheer raw capability will absorb the edge case without any prompt-level adjustment at all.", "is_correct": false, "rationale": "Scaling the model may help broadly but doesn't specifically address the identified failing case the way an example does." }
+    ]
+  },
+  {
+    "id": "f3000000-0000-4000-8000-000000000307",
+    "task_code": "3.6",
+    "domain": 3,
+    "scenario": "cicd",
+    "stem": "You're running Claude Code in a CI job that must fail the build on lint violations and be parsed by a downstream script. Which invocation shape fits?",
+    "type": "single",
+    "source": "generated",
+    "difficulty": 2,
+    "explanation": null,
+    "options": [
+      { "label": "A", "body": "Non-interactive `-p/--print` with `--output-format json`, so the job runs headless, emits machine-parseable output for the downstream script, and exits with a status the pipeline can gate on.", "is_correct": true, "rationale": "Correct. CI needs headless --print plus structured JSON output that a script can parse and act on, with session isolation per run." },
+      { "label": "B", "body": "The normal interactive session, but scripted so that it types the commands into the TTY, on the idea that the CI job should just reuse the very same flow that a developer would use at their terminal.", "is_correct": false, "rationale": "Interactive mode isn't meant for CI; --print is the non-interactive path built for automation." },
+      { "label": "C", "body": "Non-interactive mode but configured to emit plain-text output, and then having the downstream script scrape that human-readable prose in order to detect whether any lint violations were actually reported.", "is_correct": false, "rationale": "Scraping prose is brittle; --output-format json gives the script a stable contract." },
+      { "label": "D", "body": "A single long-lived shared session that gets reused across all of the CI runs, so that state steadily accumulates and later builds can benefit from whatever context earlier ones happened to gather.", "is_correct": false, "rationale": "CI wants session isolation per run; shared state across builds causes cross-contamination." }
+    ]
+  }
+]

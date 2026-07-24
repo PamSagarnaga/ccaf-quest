@@ -6,6 +6,7 @@ import { AnimatePresence, motion } from "motion/react";
 import type { QuizQuestion } from "@/lib/queries";
 import { domainByNumber } from "@/lib/blueprint";
 import { markActivity, saveAttempt } from "@/lib/progress";
+import { recordItemResults } from "@/lib/itemStats";
 import { awardXp, type LevelProgress } from "@/lib/gamification";
 import {
   logCalibration,
@@ -18,6 +19,8 @@ import { FlagButton } from "@/components/FlagButton";
 interface Answer {
   questionId: string;
   domain: number;
+  task: string | null;
+  scenario: string | null;
   correct: boolean;
   confidence: Confidence;
 }
@@ -53,7 +56,14 @@ export function QuizRunner({
     setRevealed(true);
     setAnswers((prev) => [
       ...prev,
-      { questionId: q.id, domain: q.domain, correct, confidence },
+      {
+        questionId: q.id,
+        domain: q.domain,
+        task: q.task_code,
+        scenario: q.scenario,
+        correct,
+        confidence,
+      },
     ]);
     logCalibration({
       date: new Date().toISOString(),
@@ -332,6 +342,15 @@ function Results({
         durationSec,
         perDomain,
       });
+      recordItemResults(
+        answers.map((a) => ({
+          id: a.questionId,
+          domain: a.domain,
+          task: a.task,
+          scenario: a.scenario,
+          correct: a.correct,
+        }))
+      );
       markActivity();
       const { leveledTo } = awardXp(xpEarned, "quiz");
       setLeveledTo(leveledTo);

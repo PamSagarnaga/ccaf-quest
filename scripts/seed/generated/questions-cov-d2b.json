@@ -1,0 +1,138 @@
+[
+  {
+    "id": "f2000000-0000-4000-8000-000000000201",
+    "task_code": "2.1",
+    "domain": 2,
+    "scenario": "customer-support",
+    "stem": "You're designing a process_refund tool. What makes its interface most effective for the model to use correctly?",
+    "type": "single",
+    "source": "generated",
+    "difficulty": 2,
+    "explanation": null,
+    "options": [
+      { "label": "A", "body": "A precise description of what it does and when to use it, explicit parameter meanings, and clear boundaries — including what it must not do — so the model calls it only in the right situations.", "is_correct": true, "rationale": "Correct. Effective tools have clear descriptions, well-specified parameters, and stated boundaries; that's what lets the model choose and call them correctly." },
+      { "label": "B", "body": "The shortest possible description and terse parameter names, trusting the model to correctly infer the tool's full intent from its name alone so that the schema stays small and cheap to send along.", "is_correct": false, "rationale": "Terse, under-described tools invite misuse; the model needs enough description to know when and how to call them." },
+      { "label": "C", "body": "A single catch-all parameter that accepts a free-form string of any kind, letting the model pass in whatever it wants and pushing all of the real validation logic out to some later downstream stage.", "is_correct": false, "rationale": "Free-form catch-alls remove the structure and guardrails that make a tool reliable to call." },
+      { "label": "D", "body": "As many optional parameters as you can possibly think of, so the tool is able to cover every conceivable refund variation, including the rare and unusual ones the agent will almost never actually encounter.", "is_correct": false, "rationale": "Parameter bloat increases confusion and error surface; interfaces should be focused, not maximal." }
+    ]
+  },
+  {
+    "id": "f2000000-0000-4000-8000-000000000202",
+    "task_code": "2.1",
+    "domain": 2,
+    "scenario": "developer-productivity",
+    "stem": "Two tools, search_files and grep_code, have overlapping descriptions and the model keeps picking the wrong one. Best fix?",
+    "type": "single",
+    "source": "generated",
+    "difficulty": 2,
+    "explanation": null,
+    "options": [
+      { "label": "A", "body": "Sharpen each description so their boundaries don't overlap — state exactly what each is for and when to prefer one over the other, removing the ambiguity that drives the wrong pick.", "is_correct": true, "rationale": "Correct. Tool-selection errors usually come from fuzzy, overlapping descriptions; clarifying boundaries is the direct fix." },
+      { "label": "B", "body": "Remove one of the two tools from the agent entirely and force every search through the survivor, even though the two of them genuinely serve quite different retrieval needs across the codebase.", "is_correct": false, "rationale": "Deleting a genuinely useful tool loses capability; the problem is description overlap, not tool count." },
+      { "label": "C", "body": "Set tool_choice to \"any\" so the model is now required to pick some tool on every turn, on the theory that this nudges it toward making a more decisive and therefore more accurate selection between them.", "is_correct": false, "rationale": "\"any\" forces a call but doesn't help it choose between two confusable tools." },
+      { "label": "D", "body": "Lower the sampling temperature so the model becomes far more consistent from run to run, on the assumption that greater consistency will make it reliably settle on the correct one of the two tools.", "is_correct": false, "rationale": "Consistency isn't correctness; it may just reliably pick the wrong one." }
+    ]
+  },
+  {
+    "id": "f2000000-0000-4000-8000-000000000203",
+    "task_code": "2.2",
+    "domain": 2,
+    "scenario": "customer-support",
+    "stem": "An MCP tool hits a downstream timeout that may succeed if tried again. What should its structured error response convey?",
+    "type": "single",
+    "source": "generated",
+    "difficulty": 2,
+    "explanation": null,
+    "options": [
+      { "label": "A", "body": "isError set true, an errorCategory identifying it as a transient/timeout failure, and isRetryable true — so the agent knows it may retry rather than treating it as fatal.", "is_correct": true, "rationale": "Correct. Structured errors carry isError, an errorCategory, and isRetryable so the agent can react appropriately — retry a transient failure, surface a permanent one." },
+      { "label": "B", "body": "A plain-text sentence saying the request simply failed, with no category and no retry flag at all, leaving the agent to parse the prose and merely guess whether trying again is even worthwhile here.", "is_correct": false, "rationale": "Unstructured prose forces the model to guess; the point of structured errors is machine-actionable fields." },
+      { "label": "C", "body": "isError true together with isRetryable false, so the agent stops immediately — the reasoning being that a timeout is always safest treated as permanent so as to avoid hammering the downstream service.", "is_correct": false, "rationale": "A timeout that may succeed on retry should be marked retryable; marking it permanent needlessly fails the task." },
+      { "label": "D", "body": "A perfectly ordinary success response that just happens to contain an empty result, so that the agent moves on gracefully and this transient failure never once interrupts the overall conversation flow.", "is_correct": false, "rationale": "Masking an error as success hides the failure and produces wrong downstream behavior." }
+    ]
+  },
+  {
+    "id": "f2000000-0000-4000-8000-000000000204",
+    "task_code": "2.3",
+    "domain": 2,
+    "scenario": "multi-agent-research",
+    "stem": "You want the model to answer directly from its own knowledge when no tool is needed, but still call tools when they'd help. Which tool_choice setting fits?",
+    "type": "single",
+    "source": "generated",
+    "difficulty": 2,
+    "explanation": null,
+    "options": [
+      { "label": "A", "body": "\"auto\": the model decides on a per-turn basis whether to call a tool or respond directly, which is exactly the flexible behavior you want when the tools are genuinely optional.", "is_correct": true, "rationale": "Correct. tool_choice \"auto\" lets the model choose to call a tool or not — the right setting when tool use is situational." },
+      { "label": "B", "body": "\"any\": require the model to call some tool on every single turn, which guarantees the tools get exercised even on the turns where a plain direct answer would clearly have been perfectly sufficient.", "is_correct": false, "rationale": "\"any\" forces a tool call every turn, which is wrong when some turns need no tool." },
+      { "label": "C", "body": "A forced single tool: name one specific tool that the model absolutely must call each and every time, ensuring fully predictable behavior at the cost of never answering from its own knowledge alone.", "is_correct": false, "rationale": "Forcing one tool removes the model's ability to answer directly when appropriate." },
+      { "label": "D", "body": "Disable all tools entirely for this agent, on the reasoning that if you're happy letting the model answer from knowledge then the tools aren't really needed anywhere in the configuration to begin with.", "is_correct": false, "rationale": "You still want tools available for when they help — disabling them loses that capability." }
+    ]
+  },
+  {
+    "id": "f2000000-0000-4000-8000-000000000205",
+    "task_code": "2.3",
+    "domain": 2,
+    "scenario": "multi-agent-research",
+    "stem": "In a hub-and-spoke system, why distribute tools across specialized subagents instead of granting every tool to one generalist agent?",
+    "type": "single",
+    "source": "generated",
+    "difficulty": 3,
+    "explanation": null,
+    "options": [
+      { "label": "A", "body": "A smaller, task-relevant tool set per agent reduces wrong-tool selection and keeps each agent's decisions focused, while the coordinator routes work to the right specialist.", "is_correct": true, "rationale": "Correct. Narrowing each agent's toolset cuts selection errors and sharpens focus; the coordinator handles routing." },
+      { "label": "B", "body": "A single agent physically cannot be granted more than a small handful of tools at any one time, so distributing them is a hard platform limit that you must work around rather than a design preference.", "is_correct": false, "rationale": "There's no such hard cap; distribution is a design choice to reduce confusion, not a platform constraint." },
+      { "label": "C", "body": "Distributing tools is really purely about cost, since each individual tool definition sent to the model is billed on its own and splitting them across agents is what lowers the per-request token charge.", "is_correct": false, "rationale": "The main benefit is reduced selection error and focus, not a billing trick." },
+      { "label": "D", "body": "Specialized agents conveniently let you turn off structured error responses altogether, because any agent focused enough is so unlikely to ever fail that dedicated error handling simply becomes optional for it.", "is_correct": false, "rationale": "Specialization doesn't remove the need for structured errors; that's unrelated." }
+    ]
+  },
+  {
+    "id": "f2000000-0000-4000-8000-000000000206",
+    "task_code": "2.4",
+    "domain": 2,
+    "scenario": "developer-productivity",
+    "stem": "A team wants an MCP server available only within one project's repo, not across every project on their machines. Where should it be configured?",
+    "type": "single",
+    "source": "generated",
+    "difficulty": 2,
+    "explanation": null,
+    "options": [
+      { "label": "A", "body": "In the project-scoped .mcp.json checked into the repo, so the server is available to anyone working in that project but doesn't leak into unrelated projects.", "is_correct": true, "rationale": "Correct. Project scope lives in .mcp.json in the repo; user scope (~/.claude.json) would apply everywhere, which isn't wanted here." },
+      { "label": "B", "body": "In the user-scoped ~/.claude.json file, since defining the server just once at the user level is by far the most convenient way to make absolutely sure the whole team is able to reach it.", "is_correct": false, "rationale": "User scope applies across all of that user's projects — the opposite of the project-only requirement." },
+      { "label": "C", "body": "As an environment variable exported in each individual developer's shell profile, which conveniently keeps the whole configuration out of version control and neatly local to each separate machine.", "is_correct": false, "rationale": "Env vars can supply values but aren't where an MCP server is registered per-project; .mcp.json is." },
+      { "label": "D", "body": "Hard-coded directly inside the agent's system prompt, describing the server's endpoint in prose so that the model connects to it whenever it happens to be doing work inside that repository.", "is_correct": false, "rationale": "MCP servers are wired via config, not described in prompts; the model can't connect from prose." }
+    ]
+  },
+  {
+    "id": "f2000000-0000-4000-8000-000000000207",
+    "task_code": "2.4",
+    "domain": 2,
+    "scenario": "developer-productivity",
+    "stem": "Your .mcp.json needs an API key that must not be committed to the repo. What's the intended way to supply it?",
+    "type": "single",
+    "source": "generated",
+    "difficulty": 2,
+    "explanation": null,
+    "options": [
+      { "label": "A", "body": "Reference an environment variable in the config (env var expansion) so the committed .mcp.json holds only the variable name while the secret itself stays in each environment.", "is_correct": true, "rationale": "Correct. MCP configs support env var expansion precisely so secrets live in the environment, not in committed files." },
+      { "label": "B", "body": "Paste the key directly into .mcp.json but then add that whole file to .gitignore, which keeps the working config intact locally while preventing the secret from ever being tracked by git in the repo.", "is_correct": false, "rationale": "Gitignoring the whole config breaks it for teammates and still risks the secret leaking locally; env expansion is the designed path." },
+      { "label": "C", "body": "Store the key inside the agent's own system prompt and instruct the model to include it whenever it connects, so that the credential simply travels along with the conversation context each time.", "is_correct": false, "rationale": "Secrets in prompts are exposed in context and are not how MCP auth works." },
+      { "label": "D", "body": "Commit an encrypted copy of the key inside .mcp.json and have each developer decrypt it at runtime using a shared passphrase that the team keeps written down together in the project's README file.", "is_correct": false, "rationale": "A shared passphrase in the README defeats the encryption; env var expansion is the simple, intended mechanism." }
+    ]
+  },
+  {
+    "id": "f2000000-0000-4000-8000-000000000208",
+    "task_code": "2.5",
+    "domain": 2,
+    "scenario": "developer-productivity",
+    "stem": "An agent needs to change one specific line in a large source file without rewriting the whole thing. Which built-in tool is the right choice?",
+    "type": "single",
+    "source": "generated",
+    "difficulty": 1,
+    "explanation": null,
+    "options": [
+      { "label": "A", "body": "Edit, which performs a targeted find-and-replace on an existing file, changing just the intended span while leaving the rest of the file byte-for-byte intact.", "is_correct": true, "rationale": "Correct. Edit does a surgical replacement; Write would overwrite the entire file, risking loss of the rest." },
+      { "label": "B", "body": "Write, which is the general-purpose way to persist a file's contents and can simply be pointed back at the same path in order to update whatever it is that needs changing inside that file.", "is_correct": false, "rationale": "Write overwrites the whole file; using it for a one-line change risks clobbering everything else." },
+      { "label": "C", "body": "Bash running a stream editor, shelling out to sed so that the substitution happens entirely outside the model's own file tools and returns nothing more than a bare exit code back to the agent.", "is_correct": false, "rationale": "Shelling out to sed is fragile and bypasses the safer, purpose-built Edit tool." },
+      { "label": "D", "body": "Grep, searching through the file for the target line on the assumption that the match it locates will somehow update the content in place as a natural side effect of finding it there.", "is_correct": false, "rationale": "Grep only searches and reports matches; it never modifies files." }
+    ]
+  }
+]

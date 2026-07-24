@@ -136,6 +136,14 @@ export function ProgressDashboard({
         Your <span className="sheen italic">progress</span>
       </h1>
 
+      <Link
+        href="/heatmap"
+        className="rise mt-3 inline-flex items-center gap-1.5 font-mono text-xs text-accent transition-colors hover:text-ink"
+        style={{ animationDelay: "0.07s" }}
+      >
+        ▦ Open the mastery heatmap →
+      </Link>
+
       {!hasData ? (
         <div
           className="rise codex-panel mt-8 p-8 text-center"

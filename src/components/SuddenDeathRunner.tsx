@@ -7,6 +7,7 @@ import type { QuizQuestion } from "@/lib/queries";
 import { domainByNumber } from "@/lib/blueprint";
 import { markActivity } from "@/lib/progress";
 import { awardXp } from "@/lib/gamification";
+import { recordItemResults } from "@/lib/itemStats";
 
 const SECONDS = 60;
 const REVEAL_MS = 1900;
@@ -84,10 +85,23 @@ export function SuddenDeathRunner({
     setRevealed(false);
   }
 
+  function recordItem(correct: boolean) {
+    recordItemResults([
+      {
+        id: q.id,
+        domain: q.domain,
+        task: q.task_code,
+        scenario: q.scenario,
+        correct,
+      },
+    ]);
+  }
+
   function answer(label: string) {
     if (revealed || status !== "playing") return;
     setSelected(label);
     setRevealed(true);
+    recordItem(label === correctLabel);
     if (label === correctLabel) {
       const c = combo + 1;
       setCombo(c);
@@ -103,6 +117,7 @@ export function SuddenDeathRunner({
   function handleTimeout() {
     if (revealed) return;
     setRevealed(true);
+    recordItem(false);
     loseLife();
     setTimeout(advance, REVEAL_MS);
   }

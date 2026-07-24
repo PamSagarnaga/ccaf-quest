@@ -14,6 +14,7 @@ import {
   type Confidence,
 } from "@/lib/calibration";
 import { loadFlags, toggleFlag } from "@/lib/flags";
+import { recordItemResults } from "@/lib/itemStats";
 
 const EXAM_SECONDS = 120 * 60;
 const PASS_SCALED = 720;
@@ -389,6 +390,22 @@ function ExamResults({
         perDomain,
         scaled,
       });
+      // Per-question mastery: record every answered item (skip skipped ones).
+      recordItemResults(
+        questions.flatMap((q, i) =>
+          answers[i] === null
+            ? []
+            : [
+                {
+                  id: q.id,
+                  domain: q.domain,
+                  task: q.task_code,
+                  scenario: q.scenario,
+                  correct: answers[i] === correctLabels[i],
+                },
+              ]
+        )
+      );
       markActivity();
       const calibBonus = questions.reduce(
         (s, q, i) =>

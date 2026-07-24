@@ -1,5 +1,7 @@
 import Link from "next/link";
 import { examMeta } from "@/lib/blueprint";
+import { getDomainQuestionCounts } from "@/lib/queries";
+import { CoverageBadge } from "@/components/CoverageBadge";
 
 export const metadata = { title: "Exam Simulation — The Architect's Codex" };
 
@@ -10,7 +12,9 @@ const conditions = [
   { k: "720", v: "scaled-score cut line (out of 1,000) to pass" },
 ];
 
-export default function ExamLandingPage() {
+export default async function ExamLandingPage() {
+  const counts = await getDomainQuestionCounts();
+  const bankTotal = Object.values(counts).reduce((a, b) => a + b, 0);
   return (
     <main className="mx-auto w-full max-w-2xl px-5 pb-24 pt-12 sm:px-8 sm:pt-16">
       <p className="rise mb-3 font-mono text-xs uppercase tracking-[0.3em] text-cta">
@@ -27,6 +31,7 @@ export default function ExamLandingPage() {
         confidence as you go, and get a scaled score with a per-domain
         breakdown — graded the way the real report is.
       </p>
+      <CoverageBadge bankTotal={bankTotal} />
 
       <div
         className="rise codex-panel mt-8 flex flex-col divide-y divide-[color:var(--border)]"

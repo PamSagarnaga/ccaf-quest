@@ -1,0 +1,138 @@
+[
+  {
+    "id": "f5000000-0000-4000-8000-000000000501",
+    "task_code": "5.1",
+    "domain": 5,
+    "scenario": "customer-support",
+    "stem": "In a long support conversation, the agent starts forgetting a constraint the customer stated near the beginning. Which technique addresses this?",
+    "type": "single",
+    "source": "generated",
+    "difficulty": 2,
+    "explanation": null,
+    "options": [
+      { "label": "A", "body": "Maintain a persistent \"case facts\" block that restates the key constraints and keep it near the end of the context, countering the lost-in-the-middle effect on long histories.", "is_correct": true, "rationale": "Correct. A pinned case-facts block placed where the model attends well keeps critical constraints salient across a long conversation." },
+      { "label": "B", "body": "Raise the sampling temperature so that the model ranges more widely over the whole conversation history, on the hope that this increases the odds it happens to re-encounter the forgotten constraint on its own.", "is_correct": false, "rationale": "Temperature affects sampling, not what the model attends to in a long context; it won't recover a buried fact." },
+      { "label": "C", "body": "Deliberately let the history just grow completely unbounded so that nothing is ever removed, on the assumption that keeping every single token around guarantees the constraint remains available to the model.", "is_correct": false, "rationale": "Unbounded growth worsens lost-in-the-middle; important facts get buried. Curating a facts block is the fix." },
+      { "label": "D", "body": "Switch over to a model with a much larger context window and then change absolutely nothing else about the setup, simply trusting sheer raw capacity to keep the early constraint in effect throughout the chat.", "is_correct": false, "rationale": "A bigger window still suffers lost-in-the-middle; placement and restatement of key facts matter more than raw size." }
+    ]
+  },
+  {
+    "id": "f5000000-0000-4000-8000-000000000502",
+    "task_code": "5.1",
+    "domain": 5,
+    "scenario": "developer-productivity",
+    "stem": "A tool returns 8,000 lines of log output that the agent only needs a small part of. How should this be handled in context?",
+    "type": "single",
+    "source": "generated",
+    "difficulty": 2,
+    "explanation": null,
+    "options": [
+      { "label": "A", "body": "Trim the tool output before it ever enters context — filter or summarize down to the relevant portion — so the window isn't flooded with noise that crowds out the useful signal.", "is_correct": true, "rationale": "Correct. Tool-output trimming keeps context lean; dumping 8,000 lines dilutes attention and wastes the window." },
+      { "label": "B", "body": "Insert the entire 8,000 lines straight into context so that the model has the complete information in front of it and can then decide entirely for itself which particular part is relevant to the current step.", "is_correct": false, "rationale": "Dumping everything floods the context and buries the signal; trimming to the relevant slice is the practice." },
+      { "label": "C", "body": "Raise the sampling temperature so that the model skims across the long output much more loosely and, as a result, becomes somewhat less likely to fixate on any of the irrelevant lines buried within the logs.", "is_correct": false, "rationale": "Temperature doesn't manage context volume; the fix is trimming the output before it's added." },
+      { "label": "D", "body": "Split the very same logs across several separate messages so that no individual message looks huge, keeping the grand total completely identical while merely making each chunk appear smaller to the model.", "is_correct": false, "rationale": "Chunking the same volume still consumes the same context; the total noise is unchanged." }
+    ]
+  },
+  {
+    "id": "f5000000-0000-4000-8000-000000000503",
+    "task_code": "5.2",
+    "domain": 5,
+    "scenario": "customer-support",
+    "stem": "A support agent faces a request it isn't confident it can resolve correctly and that carries real financial risk. What's the right pattern?",
+    "type": "single",
+    "source": "generated",
+    "difficulty": 2,
+    "explanation": null,
+    "options": [
+      { "label": "A", "body": "Escalate to a human when confidence is low or the stakes are high, handing off with the gathered context rather than pressing ahead and guessing at a risky resolution.", "is_correct": true, "rationale": "Correct. Escalation on low confidence / high stakes is the reliability pattern — hand off with context instead of guessing." },
+      { "label": "B", "body": "Always attempt a full resolution no matter how low its confidence happens to be, on the reasoning that escalating anything at all would only undermine the agent's whole purpose of hitting high first-contact resolution.", "is_correct": false, "rationale": "Chasing resolution rate on risky, low-confidence cases causes costly errors; escalation exists for exactly these." },
+      { "label": "C", "body": "Just ask the customer to rephrase their request over and over again repeatedly, continuing until it finally becomes something the agent already knows how to handle entirely on its own with full confidence.", "is_correct": false, "rationale": "Endless rephrasing frustrates the customer and doesn't address a genuinely high-risk case that needs a human." },
+      { "label": "D", "body": "Quietly pick whichever resolution seems the most likely and then just proceed with it silently, only bothering to escalate afterward in the event that the customer later comes back to complain about the outcome.", "is_correct": false, "rationale": "Acting first and escalating only on complaint accepts avoidable financial risk; escalate before acting when unsure." }
+    ]
+  },
+  {
+    "id": "f5000000-0000-4000-8000-000000000504",
+    "task_code": "5.2",
+    "domain": 5,
+    "scenario": "structured-extraction",
+    "stem": "An agent encounters genuinely ambiguous input where two interpretations lead to very different actions. Best handling?",
+    "type": "single",
+    "source": "generated",
+    "difficulty": 2,
+    "explanation": null,
+    "options": [
+      { "label": "A", "body": "Surface the ambiguity and ask a targeted clarifying question (or flag it) instead of silently committing to one reading, since the wrong branch here would be costly to undo.", "is_correct": true, "rationale": "Correct. Ambiguity resolution means detecting it and clarifying rather than guessing when interpretations diverge materially." },
+      { "label": "B", "body": "Always just choose whichever interpretation is statistically the more common of the two and then proceed with it, effectively treating that majority reading as being correct enough to avoid interrupting the flow.", "is_correct": false, "rationale": "Defaulting to the common reading ignores that the rarer one may be right and the branch is expensive to reverse." },
+      { "label": "C", "body": "Go ahead and pursue both of the interpretations fully in parallel all the way through, then present both of the completed results and simply let the user sort out afterward which one they had actually wanted.", "is_correct": false, "rationale": "Doing all the work twice is wasteful when a single clarifying question resolves the fork up front." },
+      { "label": "D", "body": "Lower the sampling temperature so that the model commits much more firmly to just one of the interpretations, thereby removing the visible hesitation that the ambiguity would otherwise introduce into its output.", "is_correct": false, "rationale": "Forcing confident commitment doesn't make the guess correct; the ambiguity needs to be resolved, not hidden." }
+    ]
+  },
+  {
+    "id": "f5000000-0000-4000-8000-000000000505",
+    "task_code": "5.3",
+    "domain": 5,
+    "scenario": "multi-agent-research",
+    "stem": "In a coordinator-subagent system, a subagent fails partway through its task. How should error propagation be designed?",
+    "type": "single",
+    "source": "generated",
+    "difficulty": 3,
+    "explanation": null,
+    "options": [
+      { "label": "A", "body": "The subagent should return a structured failure the coordinator can detect and act on — retry, reroute, or escalate — rather than emitting a partial result that merely looks like success.", "is_correct": true, "rationale": "Correct. Errors must propagate explicitly so the coordinator can decide how to handle them, not be masked as complete output." },
+      { "label": "B", "body": "The subagent should simply return whatever best partial answer it managed to produce, with no failure signal attached at all, and then just let the coordinator use that and keep the overall workflow moving forward.", "is_correct": false, "rationale": "A silent partial result the coordinator can't distinguish from success corrupts downstream steps." },
+      { "label": "C", "body": "The whole multi-agent run ought to crash immediately the instant any subagent hits an error, on the reasoning that even a single failure anywhere means the entire final result can no longer really be trusted at all.", "is_correct": false, "rationale": "Hard-crashing on every failure removes the chance to retry or reroute; structured propagation enables graceful handling." },
+      { "label": "D", "body": "The subagent should just keep retrying silently over and over forever until it eventually succeeds, deliberately never surfacing the failure up to the coordinator so that the higher level of the system stays simple.", "is_correct": false, "rationale": "Infinite silent retries hide problems and can hang the system; the coordinator needs visibility to decide." }
+    ]
+  },
+  {
+    "id": "f5000000-0000-4000-8000-000000000506",
+    "task_code": "5.4",
+    "domain": 5,
+    "scenario": "developer-productivity",
+    "stem": "An agent must explore a large unfamiliar codebase that far exceeds its context window. Which approach manages context best?",
+    "type": "single",
+    "source": "generated",
+    "difficulty": 2,
+    "explanation": null,
+    "options": [
+      { "label": "A", "body": "Explore incrementally, writing findings to a scratchpad/manifest and using /compact to shed raw detail, so the working context holds distilled knowledge rather than every file read.", "is_correct": true, "rationale": "Correct. Scratchpads, manifests, and compaction let the agent carry distilled understanding of a codebase too big to hold at once." },
+      { "label": "B", "body": "Just read every single file in the whole repository into context right up front, so that the agent already has the complete codebase fully available to it before it begins reasoning about any one specific part.", "is_correct": false, "rationale": "A large codebase won't fit; loading everything overflows the window. Incremental, distilled exploration is required." },
+      { "label": "C", "body": "Rely purely on Grep for every question that comes up and never retain any of the findings at all, instead simply re-searching the entire codebase again from scratch each and every time some new detail is needed.", "is_correct": false, "rationale": "Never retaining findings means constant rework; a manifest/scratchpad preserves what's been learned." },
+      { "label": "D", "body": "Switch to the largest-context model available and then load the full repository straight into it, effectively treating raw context-window size as a complete substitute for having any context-management strategy at all.", "is_correct": false, "rationale": "Even large windows are exceeded by big repos and suffer lost-in-the-middle; strategy still matters." }
+    ]
+  },
+  {
+    "id": "f5000000-0000-4000-8000-000000000507",
+    "task_code": "5.5",
+    "domain": 5,
+    "scenario": "structured-extraction",
+    "stem": "You can only afford to human-review a fraction of a large extraction run. How should you choose which records to review?",
+    "type": "single",
+    "source": "generated",
+    "difficulty": 3,
+    "explanation": null,
+    "options": [
+      { "label": "A", "body": "Use field-level confidence and stratified sampling — prioritize low-confidence records and sample across strata — so limited review effort lands where errors are most likely.", "is_correct": true, "rationale": "Correct. Confidence-driven, stratified review targets the risky records instead of spending the review budget at random." },
+      { "label": "B", "body": "Just review a purely random sample of the records instead, on the reasoning that random selection is by definition unbiased and is therefore always going to be the single fairest way to allocate a limited review budget.", "is_correct": false, "rationale": "Random sampling ignores confidence signals; it wastes review on likely-correct records and misses risky ones." },
+      { "label": "C", "body": "Simply review the first N records that happened to be processed, working from the idea that if those earliest ones all turn out correct then the model must clearly have been configured properly for the entire run.", "is_correct": false, "rationale": "Early-record quality doesn't generalize; hard cases can appear anywhere and are missed by this heuristic." },
+      { "label": "D", "body": "Review only the particular records that the model itself was the most confident about, on the theory that a high confidence score is really the clearest signal that those outputs are the ones most worth verifying first.", "is_correct": false, "rationale": "Reviewing the confident ones inverts the strategy; low-confidence records are where errors concentrate." }
+    ]
+  },
+  {
+    "id": "f5000000-0000-4000-8000-000000000508",
+    "task_code": "5.6",
+    "domain": 5,
+    "scenario": "multi-agent-research",
+    "stem": "A synthesis agent merges claims from several sources into one report. What must it preserve to keep the output trustworthy?",
+    "type": "single",
+    "source": "generated",
+    "difficulty": 2,
+    "explanation": null,
+    "options": [
+      { "label": "A", "body": "Provenance — which source each claim came from — plus explicit flags wherever sources conflict or a claim is uncertain, so readers can trace and weigh every individual statement.", "is_correct": true, "rationale": "Correct. Preserving provenance and surfacing uncertainty/conflict is what makes multi-source synthesis auditable and trustworthy." },
+      { "label": "B", "body": "A single smooth and confident narrative that blends all of the sources together into one unified voice, deliberately dropping the per-claim attribution so that the final report reads cleanly and authoritatively throughout.", "is_correct": false, "rationale": "Erasing attribution makes claims untraceable and hides conflicts — the opposite of trustworthy synthesis." },
+      { "label": "C", "body": "Only those particular claims that every one of the sources happens to fully agree on, quietly discarding anything at all that is contested so that the finished report contains no statements that anyone could challenge.", "is_correct": false, "rationale": "Dropping all contested claims loses important information; the fix is to flag conflicts, not delete them." },
+      { "label": "D", "body": "The exact original wording of every source, quoted in full and reproduced completely verbatim, so that literally nothing whatsoever from any of the underlying documents ends up being lost in the summarization step.", "is_correct": false, "rationale": "Verbatim reproduction isn't synthesis and isn't required; tracked provenance and flagged uncertainty are what matter." }
+    ]
+  }
+]
