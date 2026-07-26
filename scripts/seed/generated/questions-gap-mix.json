@@ -1,0 +1,1149 @@
+[
+  {
+    "id": "d9000000-0000-4000-8000-000000000901",
+    "task_code": "1.5",
+    "domain": 1,
+    "scenario": "code-generation",
+    "stem": "Every Java file Claude Code writes must end up formatted to the project's Checkstyle rules, and developers keep forgetting to run the formatter by hand. Which hook configuration achieves this?",
+    "type": "single",
+    "source": "generated",
+    "difficulty": 3,
+    "explanation": null,
+    "options": [
+      {
+        "label": "A",
+        "body": "A PostToolUse hook on the write tools that runs the formatter against the file just written, since the file exists on disk by that point.",
+        "is_correct": true,
+        "rationale": "Correct. PostToolUse fires after the write lands, which is when there is an actual file available to format."
+      },
+      {
+        "label": "B",
+        "body": "A PreToolUse hook on the write tools that runs the formatter over the target file before the tool executes and the content is committed.",
+        "is_correct": false,
+        "rationale": "PreToolUse runs before the write, so the content is not on disk yet and there is nothing for the formatter to act on."
+      },
+      {
+        "label": "C",
+        "body": "A firm instruction in the project memory file requiring that all generated Java conform to Checkstyle rules before it is ever written out.",
+        "is_correct": false,
+        "rationale": "Prompt instructions are probabilistic and share the same failure mode as developers forgetting; hooks are deterministic."
+      },
+      {
+        "label": "D",
+        "body": "A hook on the read tool that formats each Java file as it is opened, so everything passing through the session ends up Checkstyle-compliant.",
+        "is_correct": false,
+        "rationale": "The requirement concerns files being written, and reformatting legacy files on read would block ordinary reading."
+      }
+    ]
+  },
+  {
+    "id": "d9000000-0000-4000-8000-000000000902",
+    "task_code": "1.5",
+    "domain": 1,
+    "scenario": "developer-productivity",
+    "stem": "A team must guarantee that Claude Code can never write to files under the infrastructure secrets directory, and they want the attempt stopped rather than reported afterwards. Which hook fits?",
+    "type": "single",
+    "source": "generated",
+    "difficulty": 3,
+    "explanation": null,
+    "options": [
+      {
+        "label": "A",
+        "body": "A PreToolUse hook that inspects the target path of each write and blocks the call outright when it resolves inside the protected directory.",
+        "is_correct": true,
+        "rationale": "Correct. PreToolUse runs before execution, which is the only point at which a call can still be prevented."
+      },
+      {
+        "label": "B",
+        "body": "A PostToolUse hook that inspects each completed write and reverts the change whenever the file turns out to sit inside the protected directory.",
+        "is_correct": false,
+        "rationale": "The secret was already overwritten; reverting after the fact is remediation rather than the prevention required."
+      },
+      {
+        "label": "C",
+        "body": "An entry in the project memory file listing the protected directory and stating plainly that files inside it must never be modified at all.",
+        "is_correct": false,
+        "rationale": "A guarantee cannot rest on a probabilistic instruction the model may fail to honour on any given turn."
+      },
+      {
+        "label": "D",
+        "body": "Filesystem permissions on the protected directory that deny write access to the account under which the Claude Code process happens to run.",
+        "is_correct": false,
+        "rationale": "This can help in depth, but the question asks which hook enforces it inside the agent's tool-call path."
+      }
+    ]
+  },
+  {
+    "id": "d9000000-0000-4000-8000-000000000903",
+    "task_code": "1.5",
+    "domain": 1,
+    "scenario": "customer-support",
+    "stem": "An agent's order-lookup tool returns dates in three different formats depending on which backend answered, and downstream reasoning keeps mishandling them. What is the most reliable normalization point?",
+    "type": "single",
+    "source": "generated",
+    "difficulty": 3,
+    "explanation": null,
+    "options": [
+      {
+        "label": "A",
+        "body": "A PostToolUse hook that rewrites each result into one canonical date format before the tool output is appended to the conversation.",
+        "is_correct": true,
+        "rationale": "Correct. PostToolUse intercepts results for deterministic normalization, so the model only ever sees one consistent shape."
+      },
+      {
+        "label": "B",
+        "body": "A line in the system prompt telling the model that dates may arrive in several formats and that it should normalize them as it reasons.",
+        "is_correct": false,
+        "rationale": "This pushes a mechanical transformation into probabilistic reasoning, which is where the errors are coming from."
+      },
+      {
+        "label": "C",
+        "body": "A PreToolUse hook that sets a preferred date format parameter on the outgoing call so each backend returns the canonical representation.",
+        "is_correct": false,
+        "rationale": "It presumes every backend honours such a parameter; normalizing the response covers all three regardless."
+      },
+      {
+        "label": "D",
+        "body": "A validation loop that detects malformed dates in the model's final answer and retries the whole request whenever it finds any of them.",
+        "is_correct": false,
+        "rationale": "Retrying the full request is expensive and reactive when a deterministic transform fixes the input directly."
+      }
+    ]
+  },
+  {
+    "id": "d9000000-0000-4000-8000-000000000904",
+    "task_code": "1.5",
+    "domain": 1,
+    "scenario": "cicd",
+    "stem": "A lead argues that anything a hook does could equally be written as an instruction in the system prompt. What is the strongest architectural counter-argument?",
+    "type": "single",
+    "source": "generated",
+    "difficulty": 2,
+    "explanation": null,
+    "options": [
+      {
+        "label": "A",
+        "body": "Hooks execute deterministically as code on every matching call, while prompt instructions are followed probabilistically and fail unpredictably.",
+        "is_correct": true,
+        "rationale": "Correct. Determinism is the defining property: hooks are guarantees, prompt instructions are strong suggestions."
+      },
+      {
+        "label": "B",
+        "body": "Hooks run considerably faster than prompt instructions, so moving enforcement into them measurably reduces the latency of each tool call.",
+        "is_correct": false,
+        "rationale": "Latency is incidental; reliability rather than speed is the reason to prefer a hook for enforcement."
+      },
+      {
+        "label": "C",
+        "body": "Hooks consume no tokens, so shifting enforcement rules out of the prompt and into hooks is primarily a cost-reduction technique for teams.",
+        "is_correct": false,
+        "rationale": "Token savings are a real side benefit but they are not the architectural argument for enforcement."
+      },
+      {
+        "label": "D",
+        "body": "Hooks can call external services whereas prompt instructions cannot, which is what makes them the correct home for enforcement logic.",
+        "is_correct": false,
+        "rationale": "Tools also reach external services; the distinguishing property of a hook is guaranteed interception."
+      }
+    ]
+  },
+  {
+    "id": "d9000000-0000-4000-8000-000000000905",
+    "task_code": "1.3",
+    "domain": 1,
+    "scenario": "multi-agent-research",
+    "stem": "A coordinator needs three research subagents investigating different facets of a question to run at the same time rather than one after another. How is parallel execution actually triggered?",
+    "type": "single",
+    "source": "generated",
+    "difficulty": 3,
+    "explanation": null,
+    "options": [
+      {
+        "label": "A",
+        "body": "The coordinator emits three Task tool calls within a single response, and multiple tool-use blocks in one response can be executed concurrently.",
+        "is_correct": true,
+        "rationale": "Correct. Parallelism comes from several tool_use blocks in one assistant response, not from any dedicated setting."
+      },
+      {
+        "label": "B",
+        "body": "The coordinator makes three Task calls in sequence, each carrying a parallel flag that marks it as safe to run alongside the other two.",
+        "is_correct": false,
+        "rationale": "No such flag exists, and sequential calls across turns are sequential by construction."
+      },
+      {
+        "label": "C",
+        "body": "A concurrency parameter in the system prompt declares how many subagents may run at once, and the runtime spawns them up to that limit.",
+        "is_correct": false,
+        "rationale": "There is no parallelism parameter of this kind; the system prompt does not configure execution concurrency."
+      },
+      {
+        "label": "D",
+        "body": "The three subagent requests are submitted together through the Batches API, which processes independent requests simultaneously for the caller.",
+        "is_correct": false,
+        "rationale": "Batches serve large volumes of independent requests offline, not subagents coordinated inside a live conversation."
+      }
+    ]
+  },
+  {
+    "id": "d9000000-0000-4000-8000-000000000906",
+    "task_code": "1.3",
+    "domain": 1,
+    "scenario": "multi-agent-research",
+    "stem": "A coordinator is configured with a set of research tools but every attempt to spawn a subagent silently fails to happen. What configuration detail is the most likely culprit?",
+    "type": "single",
+    "source": "generated",
+    "difficulty": 2,
+    "explanation": null,
+    "options": [
+      {
+        "label": "A",
+        "body": "The allowedTools list omits the Task entry, so the coordinator has no permission to invoke the tool that actually spawns subagents.",
+        "is_correct": true,
+        "rationale": "Correct. Subagent spawning goes through the Task tool, which must appear in the coordinator's allowed tools."
+      },
+      {
+        "label": "B",
+        "body": "The subagent definitions omit a description field, so the coordinator cannot determine which of the available subagents it ought to invoke.",
+        "is_correct": false,
+        "rationale": "A weak description causes poor selection among subagents, not a complete absence of any spawn attempt."
+      },
+      {
+        "label": "C",
+        "body": "The coordinator's system prompt never states that subagents exist, so it has no reason to reach for them while it works through requests.",
+        "is_correct": false,
+        "rationale": "Plausible as a prompting issue, but the permission list is the configuration detail that blocks spawning outright."
+      },
+      {
+        "label": "D",
+        "body": "The tool_choice setting is left on auto rather than being forced, which lets the coordinator answer directly instead of delegating work.",
+        "is_correct": false,
+        "rationale": "Auto is the normal setting for a coordinator that must decide when delegation is warranted."
+      }
+    ]
+  },
+  {
+    "id": "d9000000-0000-4000-8000-000000000907",
+    "task_code": "1.3",
+    "domain": 1,
+    "scenario": "multi-agent-research",
+    "stem": "A synthesis subagent produces reports that contradict what the research subagents actually found, and the coordinator holds all the correct findings in its own context. What explains this?",
+    "type": "single",
+    "source": "generated",
+    "difficulty": 3,
+    "explanation": null,
+    "options": [
+      {
+        "label": "A",
+        "body": "Subagents run with isolated context, so anything the synthesis agent needs must be passed explicitly in its invocation rather than assumed shared.",
+        "is_correct": true,
+        "rationale": "Correct. Isolation is the point of subagents, which makes explicit context passing the coordinator's responsibility."
+      },
+      {
+        "label": "B",
+        "body": "The synthesis subagent is being spawned before the research subagents have finished their work, so it operates from findings still incomplete.",
+        "is_correct": false,
+        "rationale": "Possible in a badly ordered pipeline, but the stated symptom is missing context rather than premature timing."
+      },
+      {
+        "label": "C",
+        "body": "The coordinator's own context has grown long enough that the research findings have been pushed out before synthesis is ever invoked.",
+        "is_correct": false,
+        "rationale": "The question states the coordinator still holds the correct findings, so its context is not the failure point."
+      },
+      {
+        "label": "D",
+        "body": "The synthesis subagent has been given a temperature setting high enough that it invents details rather than reporting what it was given.",
+        "is_correct": false,
+        "rationale": "Sampling settings do not explain a systematic absence of the findings the subagent was never handed."
+      }
+    ]
+  },
+  {
+    "id": "d9000000-0000-4000-8000-000000000908",
+    "task_code": "1.4",
+    "domain": 1,
+    "scenario": "customer-support",
+    "stem": "A refund workflow requires that eligibility is verified before any refund is issued, and audits show refunds occasionally going out with no verification recorded. What enforces the ordering?",
+    "type": "single",
+    "source": "generated",
+    "difficulty": 3,
+    "explanation": null,
+    "options": [
+      {
+        "label": "A",
+        "body": "Make the refund tool itself reject any call lacking a valid verification result, so the prerequisite is enforced programmatically rather than by prompt.",
+        "is_correct": true,
+        "rationale": "Correct. Encoding the prerequisite in the tool contract makes the ordering impossible to skip, not merely discouraged."
+      },
+      {
+        "label": "B",
+        "body": "State the required ordering emphatically in the system prompt, spelling out that verification must always precede issuing any refund to a customer.",
+        "is_correct": false,
+        "rationale": "Emphasis does not convert a probabilistic instruction into a guarantee, and audits already show it failing."
+      },
+      {
+        "label": "C",
+        "body": "Add a few-shot example to the prompt demonstrating a correct verify-then-refund sequence so the model learns the expected order of operations.",
+        "is_correct": false,
+        "rationale": "Examples improve the typical case but still leave the ordering unenforced on the occasions that matter."
+      },
+      {
+        "label": "D",
+        "body": "Log every refund alongside whether verification occurred, then review the logs regularly so unverified refunds are caught and corrected later.",
+        "is_correct": false,
+        "rationale": "Detection after the money has moved is not the same as preventing the out-of-order call."
+      }
+    ]
+  },
+  {
+    "id": "d9000000-0000-4000-8000-000000000909",
+    "task_code": "1.4",
+    "domain": 1,
+    "scenario": "structured-extraction",
+    "stem": "An extraction stage hands its results to a downstream validation stage as a prose paragraph, and the validation stage keeps misreading which values were low confidence. What improves the handoff?",
+    "type": "single",
+    "source": "generated",
+    "difficulty": 2,
+    "explanation": null,
+    "options": [
+      {
+        "label": "A",
+        "body": "Define a structured handoff payload with named fields for values and their confidence, so the next stage reads data rather than interpreting prose.",
+        "is_correct": true,
+        "rationale": "Correct. Structured handoff protocols remove the re-interpretation step where information reliably gets lost between stages."
+      },
+      {
+        "label": "B",
+        "body": "Instruct the extraction stage to write clearer paragraphs that always mention confidence explicitly next to each value it happens to report.",
+        "is_correct": false,
+        "rationale": "Clearer prose is still prose, and the downstream stage must still parse meaning out of free text."
+      },
+      {
+        "label": "C",
+        "body": "Merge the two stages into one so that extraction and validation share a context and no handoff between them is required at all.",
+        "is_correct": false,
+        "rationale": "Merging removes the independence that makes validation a meaningful check on extraction."
+      },
+      {
+        "label": "D",
+        "body": "Have the validation stage ask the extraction stage follow-up questions whenever the confidence of a particular value is unclear to it.",
+        "is_correct": false,
+        "rationale": "Round trips to recover information that should have been in the payload add latency and failure modes."
+      }
+    ]
+  },
+  {
+    "id": "d9000000-0000-4000-8000-000000000910",
+    "task_code": "2.1",
+    "domain": 2,
+    "scenario": "multi-agent-research",
+    "stem": "Requests to analyze an uploaded report are routed to the web-search agent almost half the time. Its tool is analyze_content, described as analyzes content and extracts key information; the document agent's is analyze_document, described almost identically. What fixes this?",
+    "type": "single",
+    "source": "generated",
+    "difficulty": 3,
+    "explanation": null,
+    "options": [
+      {
+        "label": "A",
+        "body": "Rename the web-search tool to extract_web_results and rewrite its description to name web search and URLs, removing the semantic overlap at its source.",
+        "is_correct": true,
+        "rationale": "Correct. The names and descriptions are near-identical, so disambiguating them removes the actual cause of misrouting."
+      },
+      {
+        "label": "B",
+        "body": "Insert a pre-routing classifier that determines whether the request concerns an uploaded file or web content before delegation is decided.",
+        "is_correct": false,
+        "rationale": "This adds a component to compensate for ambiguous tool definitions rather than fixing the definitions."
+      },
+      {
+        "label": "C",
+        "body": "Add several few-shot examples to the coordinator prompt showing uploaded reports routed to the document agent and web questions to the search agent.",
+        "is_correct": false,
+        "rationale": "Examples paper over the overlap; the two descriptions still read as interchangeable on unseen requests."
+      },
+      {
+        "label": "D",
+        "body": "Expand the document tool's description with examples such as use for uploaded PDFs and spreadsheets, leaving the web-search tool untouched.",
+        "is_correct": false,
+        "rationale": "Improving one side leaves the other still claiming to analyze content generally, so the collision persists."
+      }
+    ]
+  },
+  {
+    "id": "d9000000-0000-4000-8000-000000000911",
+    "task_code": "2.1",
+    "domain": 2,
+    "scenario": "customer-support",
+    "stem": "A scheduling agent must check work, personal, and team calendars, intersect them, and propose free slots. Which tool architecture minimizes round trips between the model and the tools?",
+    "type": "single",
+    "source": "generated",
+    "difficulty": 3,
+    "explanation": null,
+    "options": [
+      {
+        "label": "A",
+        "body": "One find_available_slots tool accepting an array of calendar identifiers and a date range, intersecting them server-side and returning merged slots.",
+        "is_correct": true,
+        "rationale": "Correct. Doing the aggregation server-side matches the tool to the agent's actual workflow and costs a single call."
+      },
+      {
+        "label": "B",
+        "body": "Three separate tools, one per calendar, which the model calls in turn before intersecting the three sets of busy periods in its own reasoning.",
+        "is_correct": false,
+        "rationale": "Three calls plus model-side intersection is exactly the round-trip cost the design is meant to eliminate."
+      },
+      {
+        "label": "C",
+        "body": "A single calendar_query tool the model calls once per calendar, with results cached so that any repeated lookups resolve without another call.",
+        "is_correct": false,
+        "rationale": "Caching helps on repeats, but the first pass still requires one call per calendar."
+      },
+      {
+        "label": "D",
+        "body": "A get_all_calendars tool returning every event across all three calendars so the model can work out the common free windows for itself.",
+        "is_correct": false,
+        "rationale": "Dumping full calendar data floods context and pushes computation the server should do into the model."
+      }
+    ]
+  },
+  {
+    "id": "d9000000-0000-4000-8000-000000000912",
+    "task_code": "2.1",
+    "domain": 2,
+    "scenario": "structured-extraction",
+    "stem": "A tool expects dates as YYYY-MM-DD but keeps receiving values like next Tuesday. Its schema declares the parameter as a plain string with no further detail. What schema change fixes this at the source?",
+    "type": "single",
+    "source": "generated",
+    "difficulty": 3,
+    "explanation": null,
+    "options": [
+      {
+        "label": "A",
+        "body": "Keep the string type but add a date format annotation and a description stating the exact YYYY-MM-DD shape the parameter requires.",
+        "is_correct": true,
+        "rationale": "Correct. Descriptions are the primary channel for communicating expected formats, and the annotation reinforces it."
+      },
+      {
+        "label": "B",
+        "body": "Change the declared parameter type from string to date, relying on the type itself to coerce whatever arrives into the ISO representation.",
+        "is_correct": false,
+        "rationale": "JSON Schema has no date type, so this declares something the schema cannot actually express or enforce."
+      },
+      {
+        "label": "C",
+        "body": "Leave the schema alone and validate server-side, returning an error whenever a value fails to parse as a properly formatted ISO date.",
+        "is_correct": false,
+        "rationale": "This catches the problem after a wasted call instead of guiding the model to the right format up front."
+      },
+      {
+        "label": "D",
+        "body": "Attach a regular expression pattern to the parameter that matches ISO dates, so non-conforming values are rejected before the tool executes.",
+        "is_correct": false,
+        "rationale": "A pattern rejects bad values but never tells the model what shape to produce, so retries continue."
+      }
+    ]
+  },
+  {
+    "id": "d9000000-0000-4000-8000-000000000913",
+    "task_code": "2.1",
+    "domain": 2,
+    "scenario": "developer-productivity",
+    "stem": "An engineer plans to expose an internal REST service to an agent by generating one tool per endpoint, producing forty narrow tools. What is the main risk?",
+    "type": "single",
+    "source": "generated",
+    "difficulty": 3,
+    "explanation": null,
+    "options": [
+      {
+        "label": "A",
+        "body": "Endpoint-shaped tools mirror the API rather than the agent's tasks, so selection gets harder and simple goals need long chains of calls.",
+        "is_correct": true,
+        "rationale": "Correct. Tools should be designed around what the agent needs to accomplish, not around the backend's route table."
+      },
+      {
+        "label": "B",
+        "body": "Forty tools will exceed the maximum number of tool definitions a single request is permitted to carry, so some of them cannot be registered.",
+        "is_correct": false,
+        "rationale": "Forty definitions is well within workable limits; the difficulty is selection quality rather than a hard cap."
+      },
+      {
+        "label": "C",
+        "body": "Each tool definition must be written by hand, so generating forty of them represents a substantial and error-prone authoring burden.",
+        "is_correct": false,
+        "rationale": "Authoring effort is a one-time cost; the durable problem is how the agent behaves with the resulting surface."
+      },
+      {
+        "label": "D",
+        "body": "Narrow tools cannot return structured errors, so failures from any of the forty endpoints reach the agent as unhelpful plain strings.",
+        "is_correct": false,
+        "rationale": "Structured error responses are available regardless of how finely the tool surface is divided."
+      }
+    ]
+  },
+  {
+    "id": "d9000000-0000-4000-8000-000000000914",
+    "task_code": "2.4",
+    "domain": 2,
+    "scenario": "developer-productivity",
+    "stem": "A developer configuring the MCP connector at the API level needs to supply an authorization token for their remote MCP server. Where does the token belong?",
+    "type": "single",
+    "source": "generated",
+    "difficulty": 2,
+    "explanation": null,
+    "options": [
+      {
+        "label": "A",
+        "body": "In the server's own entry in the mcp_servers array, alongside its type, url, and name, as an authorization token field passed on connection.",
+        "is_correct": true,
+        "rationale": "Correct. The connector's server entry carries the authorization token, which is presented when the connection is established."
+      },
+      {
+        "label": "B",
+        "body": "In the system prompt as a credential the model can read and then supply to the MCP server whenever a tool call requires authentication.",
+        "is_correct": false,
+        "rationale": "Putting a secret in the prompt exposes it to the model and to anything that logs conversation content."
+      },
+      {
+        "label": "C",
+        "body": "In an environment file that the MCP server reads independently at startup, keeping the token out of the API request configuration entirely.",
+        "is_correct": false,
+        "rationale": "That is server-side configuration; the connector still needs the token to authenticate the connection it opens."
+      },
+      {
+        "label": "D",
+        "body": "In the API request's authentication header, since the same credential that authenticates the API call also authenticates the MCP server.",
+        "is_correct": false,
+        "rationale": "This conflates authenticating to the API with authenticating to the MCP server, which are separate concerns."
+      }
+    ]
+  },
+  {
+    "id": "d9000000-0000-4000-8000-000000000915",
+    "task_code": "2.4",
+    "domain": 2,
+    "scenario": "developer-productivity",
+    "stem": "A team wants an MCP server available to everyone who clones a particular repository, while each engineer keeps a personal server that follows them across all their projects. How should the two be scoped?",
+    "type": "single",
+    "source": "generated",
+    "difficulty": 2,
+    "explanation": null,
+    "options": [
+      {
+        "label": "A",
+        "body": "Declare the shared server in the project's committed MCP configuration file, and the personal one in the user-level configuration on each machine.",
+        "is_correct": true,
+        "rationale": "Correct. Project scope travels with the repository; user scope travels with the engineer across every project."
+      },
+      {
+        "label": "B",
+        "body": "Declare both servers in the user-level configuration, then document the shared one in the repository README so new clones know to add it.",
+        "is_correct": false,
+        "rationale": "This turns a shared dependency into manual setup every contributor has to remember to perform."
+      },
+      {
+        "label": "C",
+        "body": "Declare both servers in the project configuration file, since committing the pair keeps every engineer's environment identical and reproducible.",
+        "is_correct": false,
+        "rationale": "Committing a personal server forces one engineer's tooling onto everyone who clones the repository."
+      },
+      {
+        "label": "D",
+        "body": "Declare the shared server in the project file and pass the personal one as a command-line argument whenever a session is started up.",
+        "is_correct": false,
+        "rationale": "Re-specifying a persistent personal server on every launch is exactly what user scope exists to avoid."
+      }
+    ]
+  },
+  {
+    "id": "d9000000-0000-4000-8000-000000000916",
+    "task_code": "2.4",
+    "domain": 2,
+    "scenario": "developer-productivity",
+    "stem": "An MCP server needs a database password, and the configuration file declaring that server is committed to a shared repository. How should the credential be handled?",
+    "type": "single",
+    "source": "generated",
+    "difficulty": 2,
+    "explanation": null,
+    "options": [
+      {
+        "label": "A",
+        "body": "Reference an environment variable in the configuration and let it expand at load time, so the committed file names the variable and not the secret.",
+        "is_correct": true,
+        "rationale": "Correct. Environment variable expansion keeps the configuration shareable while the actual value stays out of version control."
+      },
+      {
+        "label": "B",
+        "body": "Write the password directly into the committed configuration file but restrict repository access to the engineers who need that server.",
+        "is_correct": false,
+        "rationale": "A secret in version control persists in history and spreads with every clone regardless of who has access today."
+      },
+      {
+        "label": "C",
+        "body": "Move the server declaration out of the project file and into each engineer's own user configuration, so the password never enters the repository.",
+        "is_correct": false,
+        "rationale": "This solves the secret problem by discarding the shared configuration the team wanted in the first place."
+      },
+      {
+        "label": "D",
+        "body": "Have the MCP server prompt for the password interactively the first time a session connects to it during any given working day.",
+        "is_correct": false,
+        "rationale": "Interactive prompting breaks non-interactive and automated use of the server entirely."
+      }
+    ]
+  },
+  {
+    "id": "d9000000-0000-4000-8000-000000000917",
+    "task_code": "2.4",
+    "domain": 2,
+    "scenario": "developer-productivity",
+    "stem": "A developer wants their GitHub MCP server to pass query results straight to their Postgres MCP server without the model sitting in between. What is the correct guidance?",
+    "type": "single",
+    "source": "generated",
+    "difficulty": 2,
+    "explanation": null,
+    "options": [
+      {
+        "label": "A",
+        "body": "Servers do not connect to one another; all traffic flows through the client and host, and the agent carries data between the two tool calls.",
+        "is_correct": true,
+        "rationale": "Correct. MCP's layering puts the client between host and servers, so servers never exchange data directly."
+      },
+      {
+        "label": "B",
+        "body": "Configure a webhook from the GitHub server to the Postgres server so query results are pushed across without involving the host layer at all.",
+        "is_correct": false,
+        "rationale": "This invents a server-to-server channel that the protocol's three-layer model does not provide."
+      },
+      {
+        "label": "C",
+        "body": "Point both servers at one shared backing datastore and let them exchange state through it, bypassing the coordinating host entirely.",
+        "is_correct": false,
+        "rationale": "A shared datastore is an out-of-band side channel that defeats the coordination the client is there to perform."
+      },
+      {
+        "label": "D",
+        "body": "Combine the two servers into a single implementation so they share process memory and can hand tool outputs to each other internally.",
+        "is_correct": false,
+        "rationale": "Merging unrelated servers to avoid the client layer sacrifices the modularity that makes MCP servers composable."
+      }
+    ]
+  },
+  {
+    "id": "d9000000-0000-4000-8000-000000000918",
+    "task_code": "2.2",
+    "domain": 2,
+    "scenario": "customer-support",
+    "stem": "An agent calls a third-party API through an MCP tool in rapid bursts and keeps breaching the API's limit of one hundred requests per minute. Where should the rate limiting live?",
+    "type": "single",
+    "source": "generated",
+    "difficulty": 3,
+    "explanation": null,
+    "options": [
+      {
+        "label": "A",
+        "body": "Inside the MCP server, which queues calls that exceed the allowance so throttling stays transparent to the agent and absorbs short bursts.",
+        "is_correct": true,
+        "rationale": "Correct. The server owns the integration, so it can shape traffic precisely without the agent needing to know."
+      },
+      {
+        "label": "B",
+        "body": "In a PreToolUse hook that inserts a fixed delay ahead of each tool invocation, spacing calls out enough to stay under the stated limit.",
+        "is_correct": false,
+        "rationale": "A blanket delay slows every tool call, including the many that have nothing to do with the limited API."
+      },
+      {
+        "label": "C",
+        "body": "In the system prompt, by instructing the model to leave at least six hundred milliseconds between successive calls to that particular API.",
+        "is_correct": false,
+        "rationale": "Timing enforcement by prompt compliance is imprecise and cannot be relied upon under bursty load."
+      },
+      {
+        "label": "D",
+        "body": "In the API request parameters, by setting the request delay field that governs how quickly the model is permitted to issue tool calls.",
+        "is_correct": false,
+        "rationale": "No such request delay parameter exists to configure."
+      }
+    ]
+  },
+  {
+    "id": "d9000000-0000-4000-8000-000000000919",
+    "task_code": "2.2",
+    "domain": 2,
+    "scenario": "customer-support",
+    "stem": "A refund tool is asked for an amount exceeding the policy ceiling. How should this business-rule violation be communicated back so the agent responds sensibly?",
+    "type": "single",
+    "source": "generated",
+    "difficulty": 3,
+    "explanation": null,
+    "options": [
+      {
+        "label": "A",
+        "body": "Return a structured error marking it as an error, naming the category as a policy violation, and stating that retrying will not succeed.",
+        "is_correct": true,
+        "rationale": "Correct. Category plus retryability lets the agent distinguish a permanent policy stop from a transient failure."
+      },
+      {
+        "label": "B",
+        "body": "Raise an exception in the server so the call fails outright and the agent observes that the refund did not go through as requested.",
+        "is_correct": false,
+        "rationale": "An unstructured failure gives the agent no basis for deciding whether to retry, escalate, or explain."
+      },
+      {
+        "label": "C",
+        "body": "Return a successful result whose message body explains in prose that the amount exceeded the policy ceiling and was therefore not issued.",
+        "is_correct": false,
+        "rationale": "Reporting a failure as a success invites the agent to tell the customer their refund was processed."
+      },
+      {
+        "label": "D",
+        "body": "Silently reduce the refund to the maximum the policy permits and return that adjusted amount as the result of the operation performed.",
+        "is_correct": false,
+        "rationale": "Quietly altering a financial action hides a policy decision from both the agent and the customer."
+      }
+    ]
+  },
+  {
+    "id": "d9000000-0000-4000-8000-000000000920",
+    "task_code": "4.5",
+    "domain": 4,
+    "scenario": "cicd",
+    "stem": "A code-review system sends a fixed four-thousand-token instruction block with every request, followed by five hundred to two thousand tokens of code. Reviews are interactive and block the developer. What optimization fits?",
+    "type": "single",
+    "source": "generated",
+    "difficulty": 3,
+    "explanation": null,
+    "options": [
+      {
+        "label": "A",
+        "body": "Cache the static instruction prefix so it is reused across requests, keeping the full instructions while cutting the cost of repeating them.",
+        "is_correct": true,
+        "rationale": "Correct. A large unchanging prefix reused on every call is the textbook case for prompt caching."
+      },
+      {
+        "label": "B",
+        "body": "Submit the reviews through the Batches API, which processes queued requests at a substantially reduced cost per token than standard calls.",
+        "is_correct": false,
+        "rationale": "Batch processing has a long completion window, which is unusable for a review that blocks a waiting developer."
+      },
+      {
+        "label": "C",
+        "body": "Trim the instruction block by removing the few-shot demonstrations, cutting the recurring token cost of every single review request made.",
+        "is_correct": false,
+        "rationale": "Dropping examples degrades review quality; the static block is a caching candidate rather than a trimming target."
+      },
+      {
+        "label": "D",
+        "body": "Lower the sampling temperature so responses are shorter and more deterministic, reducing the output tokens billed on each review request.",
+        "is_correct": false,
+        "rationale": "Temperature does not address the four thousand input tokens resent on every request."
+      }
+    ]
+  },
+  {
+    "id": "d9000000-0000-4000-8000-000000000921",
+    "task_code": "4.5",
+    "domain": 4,
+    "scenario": "structured-extraction",
+    "stem": "A team must extract fields from forty thousand archived documents. Nothing downstream needs the results until the following morning, and the per-document prompt is identical. What is the most cost-effective approach?",
+    "type": "single",
+    "source": "generated",
+    "difficulty": 2,
+    "explanation": null,
+    "options": [
+      {
+        "label": "A",
+        "body": "Submit the documents through the Batches API, which is built for large volumes of independent requests where results are not needed immediately.",
+        "is_correct": true,
+        "rationale": "Correct. High volume, mutual independence, and tolerance for delay is exactly the profile batch processing targets."
+      },
+      {
+        "label": "B",
+        "body": "Issue forty thousand standard requests concurrently from a worker pool sized to whatever rate limit the account currently has available.",
+        "is_correct": false,
+        "rationale": "This forgoes the batch discount and spends engineering effort managing throughput the batch path handles."
+      },
+      {
+        "label": "C",
+        "body": "Concatenate the documents into large multi-document prompts so that far fewer total requests are needed to process the whole archive.",
+        "is_correct": false,
+        "rationale": "Packing many documents into one prompt dilutes attention and degrades per-document extraction quality."
+      },
+      {
+        "label": "D",
+        "body": "Process the archive with a streaming request per document so partial results arrive early and can be written to storage as they emerge.",
+        "is_correct": false,
+        "rationale": "Streaming improves perceived latency, which is irrelevant when nothing is needed until morning."
+      }
+    ]
+  },
+  {
+    "id": "d9000000-0000-4000-8000-000000000922",
+    "task_code": "4.5",
+    "domain": 4,
+    "scenario": "cicd",
+    "stem": "A team enables prompt caching but sees almost no cache hits. Their prompt opens with the current timestamp and the file under review, then presents the long static review rubric. What is wrong?",
+    "type": "single",
+    "source": "generated",
+    "difficulty": 3,
+    "explanation": null,
+    "options": [
+      {
+        "label": "A",
+        "body": "The variable content sits ahead of the rubric, so the prefix differs on every request; the static rubric must come first to be cacheable.",
+        "is_correct": true,
+        "rationale": "Correct. Caching keys on a shared leading prefix, so anything that changes per request has to go after the static block."
+      },
+      {
+        "label": "B",
+        "body": "The rubric is not large enough to be worth caching, so the system silently declines to store a prefix of that particular size.",
+        "is_correct": false,
+        "rationale": "The stated rubric is substantial; ordering rather than size is what is defeating the cache here."
+      },
+      {
+        "label": "C",
+        "body": "Caching applies only to system prompts, so a rubric supplied as part of the user message can never produce a cache hit at all.",
+        "is_correct": false,
+        "rationale": "This invents a restriction; the binding constraint is that the cached portion must be a stable prefix."
+      },
+      {
+        "label": "D",
+        "body": "The cache expires between requests because reviews are triggered too infrequently for any stored prefix to still be alive on the next call.",
+        "is_correct": false,
+        "rationale": "Expiry could reduce hits in a quiet period, but a per-request timestamp guarantees a miss every single time."
+      }
+    ]
+  },
+  {
+    "id": "d9000000-0000-4000-8000-000000000923",
+    "task_code": "4.5",
+    "domain": 4,
+    "scenario": "structured-extraction",
+    "stem": "An architect must decide between batch processing and standard requests for a workload. Which characteristic most strongly indicates that batch processing is inappropriate?",
+    "type": "single",
+    "source": "generated",
+    "difficulty": 2,
+    "explanation": null,
+    "options": [
+      {
+        "label": "A",
+        "body": "A person or blocking process is waiting on each individual result, so a long asynchronous completion window is unacceptable for the workload.",
+        "is_correct": true,
+        "rationale": "Correct. Batch trades latency for cost, so any interactive or blocking consumer rules it out immediately."
+      },
+      {
+        "label": "B",
+        "body": "The workload consists of a very large number of requests, which makes coordinating and tracking a batch submission operationally awkward.",
+        "is_correct": false,
+        "rationale": "High volume is precisely the condition batch processing is designed to serve well."
+      },
+      {
+        "label": "C",
+        "body": "Every request in the workload shares an identical system prompt, meaning there is little variation between the individual items submitted.",
+        "is_correct": false,
+        "rationale": "Uniformity is compatible with batching and additionally makes the shared prefix a good caching candidate."
+      },
+      {
+        "label": "D",
+        "body": "The requests are entirely independent of each other, so no request depends on the output produced by any of the others in the set.",
+        "is_correct": false,
+        "rationale": "Independence is a prerequisite for batching, not a reason to avoid it."
+      }
+    ]
+  },
+  {
+    "id": "d9000000-0000-4000-8000-000000000924",
+    "task_code": "4.5",
+    "domain": 4,
+    "scenario": "cicd",
+    "stem": "A pipeline reviews pull requests with a large shared rubric, and the team wants both the recurring cost of that rubric reduced and the reviews to stay fast enough to block merges. What combination works?",
+    "type": "single",
+    "source": "generated",
+    "difficulty": 3,
+    "explanation": null,
+    "options": [
+      {
+        "label": "A",
+        "body": "Keep standard interactive requests and cache the rubric prefix, since caching cuts recurring cost without adding any latency to a review.",
+        "is_correct": true,
+        "rationale": "Correct. Caching is the cost lever that preserves latency, which is what a merge-blocking review requires."
+      },
+      {
+        "label": "B",
+        "body": "Move the reviews to batch submission and accept the delay, since the cost reduction per request outweighs a slower merge experience.",
+        "is_correct": false,
+        "rationale": "The requirement explicitly includes staying fast enough to block merges, which batch latency cannot satisfy."
+      },
+      {
+        "label": "C",
+        "body": "Shorten the rubric substantially so that both the cost and the processing time of every review request come down together at once.",
+        "is_correct": false,
+        "rationale": "Cutting the rubric degrades review quality when caching removes the recurring cost without that tradeoff."
+      },
+      {
+        "label": "D",
+        "body": "Review only a sampled subset of pull requests, reducing total spend while keeping each individual review fast enough to block a merge.",
+        "is_correct": false,
+        "rationale": "Sampling reduces coverage rather than optimizing the cost of the reviews the team wants to run."
+      }
+    ]
+  },
+  {
+    "id": "d9000000-0000-4000-8000-000000000925",
+    "task_code": "5.2",
+    "domain": 5,
+    "scenario": "customer-support",
+    "stem": "A frustrated customer writes that they have waited twenty minutes and asks to be connected to a real person. The agent can see the underlying issue is a password reset it could resolve in seconds. What should it do?",
+    "type": "single",
+    "source": "generated",
+    "difficulty": 3,
+    "explanation": null,
+    "options": [
+      {
+        "label": "A",
+        "body": "Escalate immediately, because an explicit request for a human is a valid trigger and the simplicity of the issue does not override it.",
+        "is_correct": true,
+        "rationale": "Correct. An explicit request for a human is one of the valid triggers and takes priority over the agent's own assessment."
+      },
+      {
+        "label": "B",
+        "body": "Resolve the password reset first, then offer to connect the customer to a person if they remain dissatisfied once the issue is fixed.",
+        "is_correct": false,
+        "rationale": "Resolving first overrides a clearly stated preference, however efficient the outcome may look to the agent."
+      },
+      {
+        "label": "C",
+        "body": "Ask the customer to confirm whether they would prefer a human or a fix that would only take about thirty seconds to carry out now.",
+        "is_correct": false,
+        "rationale": "The customer already stated their preference; asking again adds friction to an already frustrating experience."
+      },
+      {
+        "label": "D",
+        "body": "Score the message for frustration and escalate only if the sentiment reading crosses the threshold configured for handing off to a person.",
+        "is_correct": false,
+        "rationale": "Sentiment scoring is an unreliable trigger, and the explicit request has already settled the question."
+      }
+    ]
+  },
+  {
+    "id": "d9000000-0000-4000-8000-000000000926",
+    "task_code": "5.2",
+    "domain": 5,
+    "scenario": "customer-support",
+    "stem": "Which of the following is a genuine escalation trigger rather than one of the unreliable signals that commonly appear as distractors?",
+    "type": "single",
+    "source": "generated",
+    "difficulty": 2,
+    "explanation": null,
+    "options": [
+      {
+        "label": "A",
+        "body": "The governing policy is silent or ambiguous on what the customer is asking for, leaving the agent without a rule it can apply to the case.",
+        "is_correct": true,
+        "rationale": "Correct. A policy gap or exception is one of the three valid triggers, alongside an explicit request and stalled progress."
+      },
+      {
+        "label": "B",
+        "body": "A running sentiment score for the conversation crosses a preset frustration threshold configured by the team operating the agent.",
+        "is_correct": false,
+        "rationale": "Sentiment is a noisy proxy that escalates calm policy gaps late and heated but resolvable issues early."
+      },
+      {
+        "label": "C",
+        "body": "The model's self-reported confidence in its proposed course of action drops below the numeric cutoff the team has decided to enforce.",
+        "is_correct": false,
+        "rationale": "Self-reported confidence is poorly calibrated and is a classic distractor in escalation questions."
+      },
+      {
+        "label": "D",
+        "body": "The conversation passes a set number of turns without a resolution being reached, indicating the exchange has gone on for long enough.",
+        "is_correct": false,
+        "rationale": "Turn count is a crude proxy; the real trigger is an inability to make meaningful progress, not elapsed turns."
+      }
+    ]
+  },
+  {
+    "id": "d9000000-0000-4000-8000-000000000927",
+    "task_code": "5.2",
+    "domain": 5,
+    "scenario": "customer-support",
+    "stem": "A customer writes only cancel my subscription, and the account holds both a streaming plan and a magazine plan. What is the correct handling?",
+    "type": "single",
+    "source": "generated",
+    "difficulty": 2,
+    "explanation": null,
+    "options": [
+      {
+        "label": "A",
+        "body": "Ask which of the two subscriptions they mean, since the request is genuinely ambiguous and cancelling the wrong one is hard to undo.",
+        "is_correct": true,
+        "rationale": "Correct. A single clarifying question is the right move when the action is irreversible and the reference is ambiguous."
+      },
+      {
+        "label": "B",
+        "body": "Cancel the plan that was most recently used, as recent activity is the strongest available signal for which one the customer means.",
+        "is_correct": false,
+        "rationale": "Inferring from activity guesses at intent when one short question would settle it definitively."
+      },
+      {
+        "label": "C",
+        "body": "Cancel both subscriptions, since the customer used the plural-free phrasing and clearly intends to end their relationship entirely.",
+        "is_correct": false,
+        "rationale": "Taking the broadest destructive reading of an ambiguous request is the worst available option."
+      },
+      {
+        "label": "D",
+        "body": "Escalate the request to a human agent immediately, because any ambiguity about which account item is meant warrants a person's judgement.",
+        "is_correct": false,
+        "rationale": "Ordinary ambiguity is resolved by asking; escalating every unclear reference defeats the purpose of the agent."
+      }
+    ]
+  },
+  {
+    "id": "d9000000-0000-4000-8000-000000000928",
+    "task_code": "5.3",
+    "domain": 5,
+    "scenario": "multi-agent-research",
+    "stem": "A research subagent's search tool fails, and rather than reporting the failure the subagent returns a plausible summary assembled from its own prior knowledge. What design change prevents this?",
+    "type": "single",
+    "source": "generated",
+    "difficulty": 3,
+    "explanation": null,
+    "options": [
+      {
+        "label": "A",
+        "body": "Require subagents to surface tool failures explicitly to the coordinator, so a failed retrieval propagates as an error instead of quiet content.",
+        "is_correct": true,
+        "rationale": "Correct. Errors must travel up the chain; a subagent that absorbs failures produces confident, unverifiable output."
+      },
+      {
+        "label": "B",
+        "body": "Give the subagent a fallback search tool it can reach for automatically whenever the primary search tool returns a failure of any kind.",
+        "is_correct": false,
+        "rationale": "A fallback helps availability but still lets a total failure be papered over silently when both paths fail."
+      },
+      {
+        "label": "C",
+        "body": "Instruct the subagent in its prompt never to answer research questions from memory when the search tool has not returned any results.",
+        "is_correct": false,
+        "rationale": "A useful instruction, but the structural fix is making failures visible to the coordinator rather than relying on compliance."
+      },
+      {
+        "label": "D",
+        "body": "Have the coordinator cross-check every subagent summary against a second independent search before it is admitted into the final report.",
+        "is_correct": false,
+        "rationale": "Re-verifying all output doubles the work to compensate for errors that should simply have been reported."
+      }
+    ]
+  },
+  {
+    "id": "d9000000-0000-4000-8000-000000000929",
+    "task_code": "5.3",
+    "domain": 5,
+    "scenario": "multi-agent-research",
+    "stem": "Four subagents are dispatched and one fails outright while three return solid findings. What should the coordinator hand to the synthesis stage?",
+    "type": "single",
+    "source": "generated",
+    "difficulty": 3,
+    "explanation": null,
+    "options": [
+      {
+        "label": "A",
+        "body": "The three sets of findings together with an explicit marker naming what the fourth was meant to cover and recording that it failed.",
+        "is_correct": true,
+        "rationale": "Correct. Partial results plus an explicit gap marker let synthesis qualify its conclusions instead of overstating coverage."
+      },
+      {
+        "label": "B",
+        "body": "Only the three successful sets of findings, so that the synthesis stage works exclusively from material that was actually verified.",
+        "is_correct": false,
+        "rationale": "Dropping the failure silently makes an incomplete report look complete to everyone downstream."
+      },
+      {
+        "label": "C",
+        "body": "Nothing at all, failing the whole request, because a report built on three quarters of the intended research would be misleading.",
+        "is_correct": false,
+        "rationale": "Discarding good work over one failure is brittle when a clearly-qualified partial answer has real value."
+      },
+      {
+        "label": "D",
+        "body": "The three sets of findings plus the coordinator's own best estimate of what the failed subagent would most likely have discovered.",
+        "is_correct": false,
+        "rationale": "Filling a research gap with speculation is precisely the failure that provenance discipline exists to prevent."
+      }
+    ]
+  },
+  {
+    "id": "d9000000-0000-4000-8000-000000000930",
+    "task_code": "5.3",
+    "domain": 5,
+    "scenario": "structured-extraction",
+    "stem": "A pipeline stage retries a failed extraction three times and then propagates the error upward, where the parent retries the whole stage three times as well. What is the flaw?",
+    "type": "single",
+    "source": "generated",
+    "difficulty": 3,
+    "explanation": null,
+    "options": [
+      {
+        "label": "A",
+        "body": "Retries compound across layers into far more attempts than intended, so retry responsibility belongs at one clearly designated level.",
+        "is_correct": true,
+        "rationale": "Correct. Nested retry logic multiplies rather than adds, turning a small failure into a long and expensive storm."
+      },
+      {
+        "label": "B",
+        "body": "The parent lacks the detailed context the inner stage had, so its retries are less likely to succeed than the inner attempts were.",
+        "is_correct": false,
+        "rationale": "True but secondary; the structural problem is the multiplication of attempts across the two layers."
+      },
+      {
+        "label": "C",
+        "body": "Errors should never be propagated upward once a stage has already retried them, since the parent has no remaining action to take.",
+        "is_correct": false,
+        "rationale": "Propagation is correct and necessary; it is the duplicated retry responsibility that is the defect."
+      },
+      {
+        "label": "D",
+        "body": "Three attempts is too few for a flaky extraction step, and the real fix is raising the retry budget at the inner stage instead.",
+        "is_correct": false,
+        "rationale": "Raising the inner budget makes the compounding worse rather than addressing where retries belong."
+      }
+    ]
+  },
+  {
+    "id": "d9000000-0000-4000-8000-000000000931",
+    "task_code": "5.6",
+    "domain": 5,
+    "scenario": "multi-agent-research",
+    "stem": "A synthesis agent merges findings from three sources that disagree on a key figure, and its report states a single confident number. What should it do instead?",
+    "type": "single",
+    "source": "generated",
+    "difficulty": 3,
+    "explanation": null,
+    "options": [
+      {
+        "label": "A",
+        "body": "Report the disagreement, attribute each figure to the source that supplied it, and make the remaining uncertainty visible to the reader.",
+        "is_correct": true,
+        "rationale": "Correct. Provenance and surfaced uncertainty let the reader judge; collapsing a conflict hides it from everyone downstream."
+      },
+      {
+        "label": "B",
+        "body": "Average the three figures and present the result, since a central value is the most defensible single estimate available from the set.",
+        "is_correct": false,
+        "rationale": "Averaging manufactures a number no source reported and disguises a genuine conflict as a settled fact."
+      },
+      {
+        "label": "C",
+        "body": "Present the figure from whichever source is generally the most reliable, and omit the other two so the report stays clear and readable.",
+        "is_correct": false,
+        "rationale": "Silently discarding conflicting evidence deprives the reader of the fact that sources disagreed at all."
+      },
+      {
+        "label": "D",
+        "body": "Omit the contested figure from the report entirely and note that the available sources were unable to establish it with confidence.",
+        "is_correct": false,
+        "rationale": "Dropping the data loses information the reader needs when attribution would have preserved all of it."
+      }
+    ]
+  }
+]

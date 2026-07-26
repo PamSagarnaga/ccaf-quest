@@ -3,17 +3,37 @@
     "id": "b1000000-0000-4000-8000-000000000301",
     "task_code": "1.1",
     "domain": 1,
-    "scenario": null,
+    "scenario": "customer-support",
     "stem": "Which two stop_reason values are the relevant signals for controlling an agentic loop?",
     "type": "single",
     "source": "generated",
     "difficulty": 1,
     "explanation": null,
     "options": [
-      { "label": "A", "body": "\"tool_use\" (continue the loop) and \"end_turn\" (exit the loop).", "is_correct": true, "rationale": "Correct. stop_reason is the authoritative, deterministic loop signal: \"tool_use\" means Claude wants to call tools; \"end_turn\" means it's finished." },
-      { "label": "B", "body": "\"continue\" and \"stop\" (generic loop-control keywords).", "is_correct": false, "rationale": "Those aren't stop_reason values in the Messages API." },
-      { "label": "C", "body": "\"running\" and \"complete\" (job-lifecycle status values).", "is_correct": false, "rationale": "Not real stop_reason values — the loop is driven by tool_use / end_turn." },
-      { "label": "D", "body": "\"text\" and \"tool_use\" (two content-block type names).", "is_correct": false, "rationale": "\"text\" is a content block type, not a stop_reason. Text can appear alongside tool_use, so it can't signal completion." }
+      {
+        "label": "A",
+        "body": "\"tool_use\" (continue the loop) and \"end_turn\" (exit the loop).",
+        "is_correct": true,
+        "rationale": "Correct. stop_reason is the authoritative, deterministic loop signal: \"tool_use\" means Claude wants to call tools; \"end_turn\" means it's finished."
+      },
+      {
+        "label": "B",
+        "body": "\"continue\" and \"stop\" (generic loop-control keywords).",
+        "is_correct": false,
+        "rationale": "Those aren't stop_reason values in the Messages API."
+      },
+      {
+        "label": "C",
+        "body": "\"running\" and \"complete\" (job-lifecycle status values).",
+        "is_correct": false,
+        "rationale": "Not real stop_reason values — the loop is driven by tool_use / end_turn."
+      },
+      {
+        "label": "D",
+        "body": "\"text\" and \"tool_use\" (two content-block type names).",
+        "is_correct": false,
+        "rationale": "\"text\" is a content block type, not a stop_reason. Text can appear alongside tool_use, so it can't signal completion."
+      }
     ]
   },
   {
@@ -27,10 +47,30 @@
     "difficulty": 3,
     "explanation": null,
     "options": [
-      { "label": "A", "body": "Check stop_reason — continue while it's \"tool_use\", exit on \"end_turn\".", "is_correct": true, "rationale": "Correct. Claude can return text alongside tool_use blocks in the same response, so text presence doesn't indicate completion. stop_reason is the deterministic signal built for this." },
-      { "label": "B", "body": "Check whether the last content block (not the first) is text.", "is_correct": false, "rationale": "Block ordering isn't a completion signal — a response can mix text and tool_use in any order. Use stop_reason." },
-      { "label": "C", "body": "Parse the assistant text for phrases like \"I'm done\" or \"task complete\".", "is_correct": false, "rationale": "Natural-language parsing is ambiguous and unreliable — exactly what stop_reason exists to replace." },
-      { "label": "D", "body": "Set tool_choice to \"any\" so Claude never returns text.", "is_correct": false, "rationale": "Forcing a tool every turn creates an infinite loop — Claude can never signal it's finished." }
+      {
+        "label": "A",
+        "body": "Check stop_reason — continue while it's \"tool_use\", exit on \"end_turn\".",
+        "is_correct": true,
+        "rationale": "Correct. Claude can return text alongside tool_use blocks in the same response, so text presence doesn't indicate completion. stop_reason is the deterministic signal built for this."
+      },
+      {
+        "label": "B",
+        "body": "Check whether the last content block (not the first) is text.",
+        "is_correct": false,
+        "rationale": "Block ordering isn't a completion signal — a response can mix text and tool_use in any order. Use stop_reason."
+      },
+      {
+        "label": "C",
+        "body": "Parse the assistant text for phrases like \"I'm done\" or \"task complete\".",
+        "is_correct": false,
+        "rationale": "Natural-language parsing is ambiguous and unreliable — exactly what stop_reason exists to replace."
+      },
+      {
+        "label": "D",
+        "body": "Set tool_choice to \"any\" so Claude never returns text.",
+        "is_correct": false,
+        "rationale": "Forcing a tool every turn creates an infinite loop — Claude can never signal it's finished."
+      }
     ]
   },
   {
@@ -44,10 +84,30 @@
     "difficulty": 3,
     "explanation": null,
     "options": [
-      { "label": "A", "body": "The coordinator decomposed the topic too narrowly, so entire categories were never assigned to any subagent.", "is_correct": true, "rationale": "Correct. Each subagent did its job well — the failure is upstream in the coordinator's decomposition. The exam expects you to trace failures to their origin, and the fix is better decomposition, not more subagents." },
-      { "label": "B", "body": "The visual-arts subagent overran its assigned scope and crowded out the music, writing, and film subagents from the report.", "is_correct": false, "rationale": "Subagents are isolated and don't crowd each other out; the missing topics were simply never delegated." },
-      { "label": "C", "body": "Add more subagents specifically to cover the missing music, writing, and film categories that never made it into the report.", "is_correct": false, "rationale": "This treats the symptom. The root cause is the decomposition; fix that and the coordinator assigns the missing categories itself." },
-      { "label": "D", "body": "The subagents failed to communicate their individual coverage gaps to one another over the course of the research run.", "is_correct": false, "rationale": "In hub-and-spoke, subagents never communicate directly — coverage is the coordinator's responsibility." }
+      {
+        "label": "A",
+        "body": "The coordinator decomposed the topic too narrowly, so entire categories were never assigned to any subagent.",
+        "is_correct": true,
+        "rationale": "Correct. Each subagent did its job well — the failure is upstream in the coordinator's decomposition. The exam expects you to trace failures to their origin, and the fix is better decomposition, not more subagents."
+      },
+      {
+        "label": "B",
+        "body": "The visual-arts subagent overran its assigned scope and crowded out the music, writing, and film subagents from the report.",
+        "is_correct": false,
+        "rationale": "Subagents are isolated and don't crowd each other out; the missing topics were simply never delegated."
+      },
+      {
+        "label": "C",
+        "body": "Add more subagents specifically to cover the missing music, writing, and film categories that never made it into the report.",
+        "is_correct": false,
+        "rationale": "This treats the symptom. The root cause is the decomposition; fix that and the coordinator assigns the missing categories itself."
+      },
+      {
+        "label": "D",
+        "body": "The subagents failed to communicate their individual coverage gaps to one another over the course of the research run.",
+        "is_correct": false,
+        "rationale": "In hub-and-spoke, subagents never communicate directly — coverage is the coordinator's responsibility."
+      }
     ]
   },
   {
@@ -61,10 +121,30 @@
     "difficulty": 2,
     "explanation": null,
     "options": [
-      { "label": "A", "body": "The coordinator's allowedTools does not include \"Task\".", "is_correct": true, "rationale": "Correct. The Task tool is the mechanism for spawning subagents; \"Task\" must be in allowedTools. It's a hard requirement — without it, the coordinator can't spawn at all." },
-      { "label": "B", "body": "The subagents are missing a description field.", "is_correct": false, "rationale": "A missing description would hurt selection quality, not make spawning physically impossible." },
-      { "label": "C", "body": "The coordinator and subagents are on different model versions.", "is_correct": false, "rationale": "Model version doesn't gate the ability to spawn — the Task tool permission does." },
-      { "label": "D", "body": "The coordinator's fork_session capability wasn't enabled for the run.", "is_correct": false, "rationale": "fork_session branches a session for divergent exploration; it isn't what enables subagent spawning." }
+      {
+        "label": "A",
+        "body": "The coordinator's allowedTools does not include \"Task\".",
+        "is_correct": true,
+        "rationale": "Correct. The Task tool is the mechanism for spawning subagents; \"Task\" must be in allowedTools. It's a hard requirement — without it, the coordinator can't spawn at all."
+      },
+      {
+        "label": "B",
+        "body": "The subagents are missing a description field.",
+        "is_correct": false,
+        "rationale": "A missing description would hurt selection quality, not make spawning physically impossible."
+      },
+      {
+        "label": "C",
+        "body": "The coordinator and subagents are on different model versions.",
+        "is_correct": false,
+        "rationale": "Model version doesn't gate the ability to spawn — the Task tool permission does."
+      },
+      {
+        "label": "D",
+        "body": "The coordinator's fork_session capability wasn't enabled for the run.",
+        "is_correct": false,
+        "rationale": "fork_session branches a session for divergent exploration; it isn't what enables subagent spawning."
+      }
     ]
   },
   {
@@ -78,10 +158,30 @@
     "difficulty": 3,
     "explanation": null,
     "options": [
-      { "label": "A", "body": "Add a programmatic prerequisite gate that blocks process_refund until verification has completed.", "is_correct": true, "rationale": "Correct. Verification is a security/financial rule that must hold 100% of the time — that requires deterministic, code-level enforcement (a hook/gate the model can't bypass), not probabilistic prompt guidance." },
-      { "label": "B", "body": "Rewrite the system prompt to be far more emphatic and explicit about always verifying the customer's identity before any refund.", "is_correct": false, "rationale": "Prompt-based guidance is probabilistic — it has a non-zero failure rate, which is exactly the 8%." },
-      { "label": "C", "body": "Add few-shot examples to the prompt that demonstrate verifying the customer's identity before the agent processes a refund.", "is_correct": false, "rationale": "Few-shot examples still rely on the model complying every time; they can't guarantee 100% enforcement." },
-      { "label": "D", "body": "Add a routing classifier that flags incoming refund requests for extra scrutiny before the agent is allowed to process them.", "is_correct": false, "rationale": "A classifier adds another probabilistic component; it doesn't deterministically block an unverified refund." }
+      {
+        "label": "A",
+        "body": "Add a programmatic prerequisite gate that blocks process_refund until verification has completed.",
+        "is_correct": true,
+        "rationale": "Correct. Verification is a security/financial rule that must hold 100% of the time — that requires deterministic, code-level enforcement (a hook/gate the model can't bypass), not probabilistic prompt guidance."
+      },
+      {
+        "label": "B",
+        "body": "Rewrite the system prompt to be far more emphatic and explicit about always verifying the customer's identity before any refund.",
+        "is_correct": false,
+        "rationale": "Prompt-based guidance is probabilistic — it has a non-zero failure rate, which is exactly the 8%."
+      },
+      {
+        "label": "C",
+        "body": "Add few-shot examples to the prompt that demonstrate verifying the customer's identity before the agent processes a refund.",
+        "is_correct": false,
+        "rationale": "Few-shot examples still rely on the model complying every time; they can't guarantee 100% enforcement."
+      },
+      {
+        "label": "D",
+        "body": "Add a routing classifier that flags incoming refund requests for extra scrutiny before the agent is allowed to process them.",
+        "is_correct": false,
+        "rationale": "A classifier adds another probabilistic component; it doesn't deterministically block an unverified refund."
+      }
     ]
   },
   {
@@ -95,10 +195,30 @@
     "difficulty": 3,
     "explanation": null,
     "options": [
-      { "label": "A", "body": "A PreToolUse hook that blocks the transfer until the AML check passes.", "is_correct": true, "rationale": "Correct. PreToolUse runs before the tool executes, so it can block a non-compliant action. Compliance rules that must hold 100% of the time need deterministic pre-execution enforcement." },
-      { "label": "B", "body": "A PostToolUse hook that verifies AML after the transfer.", "is_correct": false, "rationale": "PostToolUse runs after execution — too late to prevent a non-compliant transfer that already happened." },
-      { "label": "C", "body": "An enhanced prompt instructing the agent to always run AML checks first.", "is_correct": false, "rationale": "Prompts are probabilistic guidance; they can't guarantee 100% compliance." },
-      { "label": "D", "body": "A PostToolUse hook that normalizes the transfer response format.", "is_correct": false, "rationale": "Normalization is the right use of PostToolUse, but it does nothing to enforce the AML prerequisite." }
+      {
+        "label": "A",
+        "body": "A PreToolUse hook that blocks the transfer until the AML check passes.",
+        "is_correct": true,
+        "rationale": "Correct. PreToolUse runs before the tool executes, so it can block a non-compliant action. Compliance rules that must hold 100% of the time need deterministic pre-execution enforcement."
+      },
+      {
+        "label": "B",
+        "body": "A PostToolUse hook that verifies AML after the transfer.",
+        "is_correct": false,
+        "rationale": "PostToolUse runs after execution — too late to prevent a non-compliant transfer that already happened."
+      },
+      {
+        "label": "C",
+        "body": "An enhanced prompt instructing the agent to always run AML checks first.",
+        "is_correct": false,
+        "rationale": "Prompts are probabilistic guidance; they can't guarantee 100% compliance."
+      },
+      {
+        "label": "D",
+        "body": "A PostToolUse hook that normalizes the transfer response format.",
+        "is_correct": false,
+        "rationale": "Normalization is the right use of PostToolUse, but it does nothing to enforce the AML prerequisite."
+      }
     ]
   },
   {
@@ -112,10 +232,30 @@
     "difficulty": 2,
     "explanation": null,
     "options": [
-      { "label": "A", "body": "A PostToolUse hook that normalizes all tool outputs to consistent formats before the model processes them.", "is_correct": true, "rationale": "Correct. PostToolUse runs after a tool executes but before the model sees the result — ideal for converting heterogeneous formats to one consistent representation so the model gets clean data every time." },
-      { "label": "B", "body": "A PreToolUse hook that rewrites the outgoing tool calls before they are sent out to each of the MCP servers.", "is_correct": false, "rationale": "PreToolUse acts on outgoing calls, not on returned results — it can't normalize tool output." },
-      { "label": "C", "body": "Instructions in the system prompt telling the model how to parse each of the different timestamp and status formats it encounters.", "is_correct": false, "rationale": "Probabilistic and brittle across many formats; a deterministic normalization hook is more reliable." },
-      { "label": "D", "body": "Ask each MCP server owner to standardize the timestamp and status formats their own tools return to a common representation.", "is_correct": false, "rationale": "Often out of your control and slow; a PostToolUse hook fixes it in one place on your side." }
+      {
+        "label": "A",
+        "body": "A PostToolUse hook that normalizes all tool outputs to consistent formats before the model processes them.",
+        "is_correct": true,
+        "rationale": "Correct. PostToolUse runs after a tool executes but before the model sees the result — ideal for converting heterogeneous formats to one consistent representation so the model gets clean data every time."
+      },
+      {
+        "label": "B",
+        "body": "A PreToolUse hook that rewrites the outgoing tool calls before they are sent out to each of the MCP servers.",
+        "is_correct": false,
+        "rationale": "PreToolUse acts on outgoing calls, not on returned results — it can't normalize tool output."
+      },
+      {
+        "label": "C",
+        "body": "Instructions in the system prompt telling the model how to parse each of the different timestamp and status formats it encounters.",
+        "is_correct": false,
+        "rationale": "Probabilistic and brittle across many formats; a deterministic normalization hook is more reliable."
+      },
+      {
+        "label": "D",
+        "body": "Ask each MCP server owner to standardize the timestamp and status formats their own tools return to a common representation.",
+        "is_correct": false,
+        "rationale": "Often out of your control and slow; a PostToolUse hook fixes it in one place on your side."
+      }
     ]
   },
   {
@@ -129,10 +269,30 @@
     "difficulty": 2,
     "explanation": null,
     "options": [
-      { "label": "A", "body": "Emit multiple Task tool calls in a single coordinator response to spawn them in parallel.", "is_correct": true, "rationale": "Correct. Independent subagents should be spawned with parallel Task calls in one turn — sequential spawning across separate turns adds unnecessary latency." },
-      { "label": "B", "body": "Spawn them one per turn, feeding each one's output into the next.", "is_correct": false, "rationale": "They're independent, so chaining them serially wastes time for no benefit." },
-      { "label": "C", "body": "Have the first subagent spawn the other two subagents itself once it has started running its own work.", "is_correct": false, "rationale": "Subagents don't spawn siblings; nested spawning hides execution from the coordinator and hurts observability." },
-      { "label": "D", "body": "Use fork_session to run the three subagents as three separate branches of the same underlying session.", "is_correct": false, "rationale": "Forking is for exploring divergent approaches from a shared baseline, not for fanning out independent parallel tasks." }
+      {
+        "label": "A",
+        "body": "Emit multiple Task tool calls in a single coordinator response to spawn them in parallel.",
+        "is_correct": true,
+        "rationale": "Correct. Independent subagents should be spawned with parallel Task calls in one turn — sequential spawning across separate turns adds unnecessary latency."
+      },
+      {
+        "label": "B",
+        "body": "Spawn them one per turn, feeding each one's output into the next.",
+        "is_correct": false,
+        "rationale": "They're independent, so chaining them serially wastes time for no benefit."
+      },
+      {
+        "label": "C",
+        "body": "Have the first subagent spawn the other two subagents itself once it has started running its own work.",
+        "is_correct": false,
+        "rationale": "Subagents don't spawn siblings; nested spawning hides execution from the coordinator and hurts observability."
+      },
+      {
+        "label": "D",
+        "body": "Use fork_session to run the three subagents as three separate branches of the same underlying session.",
+        "is_correct": false,
+        "rationale": "Forking is for exploring divergent approaches from a shared baseline, not for fanning out independent parallel tasks."
+      }
     ]
   }
 ]

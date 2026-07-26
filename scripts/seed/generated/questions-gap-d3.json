@@ -1,0 +1,890 @@
+[
+  {
+    "id": "d3000000-0000-4000-8000-000000000301",
+    "task_code": "3.1",
+    "domain": 3,
+    "scenario": "code-generation",
+    "stem": "The root CLAUDE.md says to indent with tabs. A CLAUDE.md inside packages/frontend/ says to indent with two spaces. Claude Code is editing a file inside packages/frontend/. Which rule governs that edit?",
+    "type": "single",
+    "source": "generated",
+    "difficulty": 2,
+    "explanation": null,
+    "options": [
+      {
+        "label": "A",
+        "body": "Two spaces, because the CLAUDE.md nearest the file being edited supplies the more specific instruction and scopes it to that directory subtree.",
+        "is_correct": true,
+        "rationale": "Correct. The hierarchy layers root conventions with nested ones, and the file closest to the work provides the governing, more specific rule."
+      },
+      {
+        "label": "B",
+        "body": "Tabs, because the root file sits highest in the project hierarchy and its conventions always win over anything declared deeper in the tree.",
+        "is_correct": false,
+        "rationale": "Backwards. Root supplies the shared baseline; nested files scope and refine it for their own subtree rather than deferring to it."
+      },
+      {
+        "label": "C",
+        "body": "Neither applies, because two loaded memory files stating conflicting conventions cause the session to raise a configuration error at startup.",
+        "is_correct": false,
+        "rationale": "No error is raised. Layering conflicting-looking conventions across levels is the intended design, not a failure condition."
+      },
+      {
+        "label": "D",
+        "body": "Both load with equal weight, so the model picks one of the two indentation styles arbitrarily on each individual edit it performs.",
+        "is_correct": false,
+        "rationale": "The hierarchy is deterministic about specificity; it does not leave the choice to chance on a per-edit basis."
+      }
+    ]
+  },
+  {
+    "id": "d3000000-0000-4000-8000-000000000302",
+    "task_code": "3.1",
+    "domain": 3,
+    "scenario": "cicd",
+    "stem": "A team wants to trial a new review instruction for one afternoon without editing any committed configuration and without the change reaching teammates. What is the cleanest way to inject it?",
+    "type": "single",
+    "source": "generated",
+    "difficulty": 3,
+    "explanation": null,
+    "options": [
+      {
+        "label": "A",
+        "body": "Pass the trial instruction with --append-system-prompt at invocation, so it augments the system prompt for those runs only and leaves every file untouched.",
+        "is_correct": true,
+        "rationale": "Correct. The flag adds instructions per-invocation, which is exactly the throwaway, nothing-committed shape the trial needs."
+      },
+      {
+        "label": "B",
+        "body": "Edit the user-level CLAUDE.md in the home directory, relying on user scope to quietly take precedence over whatever the project file happens to say.",
+        "is_correct": false,
+        "rationale": "This bleeds the trial into every project on the machine, and it misstates precedence between user and project scope."
+      },
+      {
+        "label": "C",
+        "body": "Add a rules file carrying the instruction behind a feature flag, then remember to flip that flag off again once the afternoon's testing has concluded.",
+        "is_correct": false,
+        "rationale": "It still writes committed configuration and depends on cleanup discipline, which the requirement was trying to avoid entirely."
+      },
+      {
+        "label": "D",
+        "body": "Cut a scratch branch, rewrite the project CLAUDE.md on it, and throw the branch away after the experiment finishes running to completion.",
+        "is_correct": false,
+        "rationale": "Version-control overhead for a one-afternoon trial, and it still modifies configuration the flag could have left alone."
+      }
+    ]
+  },
+  {
+    "id": "d3000000-0000-4000-8000-000000000303",
+    "task_code": "3.1",
+    "domain": 3,
+    "scenario": "code-generation",
+    "stem": "A root CLAUDE.md has grown to hundreds of lines covering testing, style, deployment, and security, and contributors report it is unreadable. What restructuring keeps the guidance intact?",
+    "type": "single",
+    "source": "generated",
+    "difficulty": 2,
+    "explanation": null,
+    "options": [
+      {
+        "label": "A",
+        "body": "Split the content into focused files and pull them into the root file with @import, keeping one topic per file while the model still loads everything.",
+        "is_correct": true,
+        "rationale": "Correct. @import composes several small, reviewable files into the loaded memory without dropping any of the guidance."
+      },
+      {
+        "label": "B",
+        "body": "Cut the file down to a short summary and count on the model to infer the omitted testing, deployment, and security specifics from the code itself.",
+        "is_correct": false,
+        "rationale": "Deleting guidance to shorten a file trades a readability problem for a correctness problem the model cannot reliably recover from."
+      },
+      {
+        "label": "C",
+        "body": "Move every convention into separate files but reference them only by filename in prose, letting the model open whichever ones it judges relevant.",
+        "is_correct": false,
+        "rationale": "Naming files in prose makes loading probabilistic; @import composes them deterministically at session start instead."
+      },
+      {
+        "label": "D",
+        "body": "Leave the single large file exactly as it stands and add a table of contents at the very top so that human contributors can navigate it faster.",
+        "is_correct": false,
+        "rationale": "A table of contents helps readers, but modular files with @import solve the maintenance problem the team actually reported."
+      }
+    ]
+  },
+  {
+    "id": "d3000000-0000-4000-8000-000000000304",
+    "task_code": "3.1",
+    "domain": 3,
+    "scenario": "developer-productivity",
+    "stem": "An engineer keeps a personal set of shell and commit-message preferences that should follow them across every repository they touch, without ever landing in a shared project repository. Where do these belong?",
+    "type": "single",
+    "source": "generated",
+    "difficulty": 2,
+    "explanation": null,
+    "options": [
+      {
+        "label": "A",
+        "body": "In the user-scoped CLAUDE.md under the home directory, which loads for every project on that machine and is never committed to any repository.",
+        "is_correct": true,
+        "rationale": "Correct. User scope carries machine-wide personal preferences; project scope carries conventions the whole team shares."
+      },
+      {
+        "label": "B",
+        "body": "In each repository's committed project CLAUDE.md, added under a clearly marked heading that names the individual engineer the rules belong to.",
+        "is_correct": false,
+        "rationale": "Personal preferences committed to a shared repo push one engineer's habits onto every teammate who works there."
+      },
+      {
+        "label": "C",
+        "body": "In a path-specific rules file with a glob broad enough to match every file, so that the personal conventions end up loading on all work.",
+        "is_correct": false,
+        "rationale": "Path rules exist to scope conventions by file pattern; a match-everything glob abuses them to emulate user scope."
+      },
+      {
+        "label": "D",
+        "body": "Pasted into the opening prompt of each new session, so the preferences are stated fresh and explicitly every single time work begins.",
+        "is_correct": false,
+        "rationale": "Repeating preferences by hand each session is exactly the toil that persistent user-scoped memory removes."
+      }
+    ]
+  },
+  {
+    "id": "d3000000-0000-4000-8000-000000000305",
+    "task_code": "3.1",
+    "domain": 3,
+    "scenario": "code-generation",
+    "stem": "An architect wants to confirm which memory files a running session actually loaded, because a convention written in CLAUDE.md appears to be getting ignored during edits. What is the direct way to check?",
+    "type": "single",
+    "source": "generated",
+    "difficulty": 2,
+    "explanation": null,
+    "options": [
+      {
+        "label": "A",
+        "body": "Run /memory, which reports the memory files currently loaded for the session so the architect can confirm the file was picked up at all.",
+        "is_correct": true,
+        "rationale": "Correct. /memory surfaces loaded memory files, separating a not-loaded problem from an instruction-quality problem."
+      },
+      {
+        "label": "B",
+        "body": "Run /cost, which reports the full ordered sequence of tool calls and file reads that the session performed during the previous interaction.",
+        "is_correct": false,
+        "rationale": "/cost reports token and cost usage for the session; it is not a tool-call or memory-loading trace."
+      },
+      {
+        "label": "C",
+        "body": "Open the logs directory inside the project's configuration folder and read the interaction traces that the session writes there after each turn.",
+        "is_correct": false,
+        "rationale": "There is no such per-interaction trace directory to consult; the memory command answers the question directly."
+      },
+      {
+        "label": "D",
+        "body": "Ask the model in conversation to list every convention it is aware of, then compare that answer against the contents of the CLAUDE.md file.",
+        "is_correct": false,
+        "rationale": "Self-report is probabilistic and can hallucinate agreement; the command gives a deterministic answer about what loaded."
+      }
+    ]
+  },
+  {
+    "id": "d3000000-0000-4000-8000-000000000306",
+    "task_code": "3.2",
+    "domain": 3,
+    "scenario": "developer-productivity",
+    "stem": "A skill performs a sprawling dependency audit that floods the transcript with output, and the team wants that noise kept out of the main conversation's context. Which frontmatter setting addresses this?",
+    "type": "single",
+    "source": "generated",
+    "difficulty": 3,
+    "explanation": null,
+    "options": [
+      {
+        "label": "A",
+        "body": "Declare context: fork in the SKILL.md frontmatter so the skill runs in a forked context and returns only its result to the main conversation.",
+        "is_correct": true,
+        "rationale": "Correct. Forking isolates the skill's working context, so intermediate noise never accumulates in the parent transcript."
+      },
+      {
+        "label": "B",
+        "body": "List an allowed-tools entry in the frontmatter restricting the skill to read-only tools, which keeps the volume of generated output much lower.",
+        "is_correct": false,
+        "rationale": "allowed-tools constrains which tools a skill may call; it governs permissions, not where the resulting context accumulates."
+      },
+      {
+        "label": "C",
+        "body": "Provide an argument-hint in the frontmatter so that invocations are narrower and the audit consequently examines far fewer dependencies each run.",
+        "is_correct": false,
+        "rationale": "argument-hint documents expected arguments for the invoker; it has no bearing on context isolation."
+      },
+      {
+        "label": "D",
+        "body": "Instruct the skill in its body text to summarize aggressively and to avoid printing intermediate findings into the conversation as it works.",
+        "is_correct": false,
+        "rationale": "A prose instruction is probabilistic, whereas forking the context enforces the isolation structurally."
+      }
+    ]
+  },
+  {
+    "id": "d3000000-0000-4000-8000-000000000307",
+    "task_code": "3.2",
+    "domain": 3,
+    "scenario": "code-generation",
+    "stem": "A skill is meant purely for inspecting and summarizing code, and the team wants a structural guarantee that invoking it can never modify files or run shell commands. What enforces that?",
+    "type": "single",
+    "source": "generated",
+    "difficulty": 3,
+    "explanation": null,
+    "options": [
+      {
+        "label": "A",
+        "body": "Declare an allowed-tools list in the SKILL.md frontmatter naming only the read and search tools, so the skill cannot invoke anything beyond them.",
+        "is_correct": true,
+        "rationale": "Correct. allowed-tools is the frontmatter allowlist that structurally bounds which tools a skill is permitted to call."
+      },
+      {
+        "label": "B",
+        "body": "Open the skill body with a firm instruction never to write files or execute shell commands under any circumstance while carrying out its work.",
+        "is_correct": false,
+        "rationale": "Prompt instructions are probabilistic; the frontmatter allowlist is the deterministic control the requirement calls for."
+      },
+      {
+        "label": "C",
+        "body": "Set context: fork in the frontmatter so the skill runs in an isolated context where any writes it performs are discarded on return.",
+        "is_correct": false,
+        "rationale": "Forking isolates context, not filesystem effects; a forked skill with write access still writes real files."
+      },
+      {
+        "label": "D",
+        "body": "Supply an argument-hint in the frontmatter that documents the read-only nature of the skill for whoever happens to be invoking it later.",
+        "is_correct": false,
+        "rationale": "argument-hint is documentation for invocation; it constrains nothing about tool access at runtime."
+      }
+    ]
+  },
+  {
+    "id": "d3000000-0000-4000-8000-000000000308",
+    "task_code": "3.2",
+    "domain": 3,
+    "scenario": "developer-productivity",
+    "stem": "Teammates keep invoking a custom command with the wrong argument, passing a branch name where it expects a ticket identifier. Which frontmatter field is designed to prevent that confusion?",
+    "type": "single",
+    "source": "generated",
+    "difficulty": 2,
+    "explanation": null,
+    "options": [
+      {
+        "label": "A",
+        "body": "argument-hint, which documents the expected argument shape at the invocation site so callers can see what the command wants before running it.",
+        "is_correct": true,
+        "rationale": "Correct. argument-hint exists precisely to communicate expected arguments to whoever is invoking the command."
+      },
+      {
+        "label": "B",
+        "body": "allowed-tools, which narrows the set of tools the command may reach for and therefore constrains the arguments it is able to accept.",
+        "is_correct": false,
+        "rationale": "allowed-tools governs tool permissions and says nothing about the arguments a caller supplies."
+      },
+      {
+        "label": "C",
+        "body": "context: fork, which runs the command in an isolated context where a wrong argument does no damage to the parent conversation state.",
+        "is_correct": false,
+        "rationale": "Forking limits context contamination, but the caller still passes the wrong argument and still gets a wrong result."
+      },
+      {
+        "label": "D",
+        "body": "A validation block written into the command body that rejects any argument failing to match the expected ticket identifier pattern at runtime.",
+        "is_correct": false,
+        "rationale": "Runtime rejection catches the mistake after the fact; the hint prevents it by showing the shape up front."
+      }
+    ]
+  },
+  {
+    "id": "d3000000-0000-4000-8000-000000000309",
+    "task_code": "3.2",
+    "domain": 3,
+    "scenario": "code-generation",
+    "stem": "A team has one short, fixed sequence of steps they trigger constantly, and one large body of specialized domain knowledge that Claude should draw on only when a relevant task appears. How should these be packaged?",
+    "type": "single",
+    "source": "generated",
+    "difficulty": 3,
+    "explanation": null,
+    "options": [
+      {
+        "label": "A",
+        "body": "Make the fixed sequence a slash command that the user triggers explicitly, and package the domain knowledge as a skill that loads when relevant.",
+        "is_correct": true,
+        "rationale": "Correct. Commands are explicitly invoked shortcuts; skills package capability the model draws on when the situation warrants."
+      },
+      {
+        "label": "B",
+        "body": "Make the fixed sequence a skill and the domain knowledge a slash command, so the larger body of material stays behind an explicit trigger.",
+        "is_correct": false,
+        "rationale": "This inverts both roles, forcing users to remember when to summon knowledge and hiding a routine shortcut behind a skill."
+      },
+      {
+        "label": "C",
+        "body": "Package both of them as slash commands, so that every piece of the team's tooling is triggered the same explicit way and stays predictable.",
+        "is_correct": false,
+        "rationale": "Explicitly triggering a large knowledge base means it is only used when someone remembers it exists."
+      },
+      {
+        "label": "D",
+        "body": "Package both of them as skills, letting the model decide in every case when the fixed sequence and the domain knowledge should be applied.",
+        "is_correct": false,
+        "rationale": "A short deterministic sequence the team runs constantly is better as an explicit command than a model judgement call."
+      }
+    ]
+  },
+  {
+    "id": "d3000000-0000-4000-8000-000000000310",
+    "task_code": "3.3",
+    "domain": 3,
+    "scenario": "code-generation",
+    "stem": "A team maintains conventions that should apply to every Python file in a monorepo, no matter which package or directory the file happens to live in. What is the most targeted mechanism?",
+    "type": "single",
+    "source": "generated",
+    "difficulty": 3,
+    "explanation": null,
+    "options": [
+      {
+        "label": "A",
+        "body": "A path-specific rules file whose YAML paths glob matches Python files anywhere in the tree, so the conventions load only for that file type.",
+        "is_correct": true,
+        "rationale": "Correct. Path-specific rules key on glob patterns, so file-type conventions load conditionally regardless of directory."
+      },
+      {
+        "label": "B",
+        "body": "A nested CLAUDE.md dropped into each directory that currently contains Python files, so every such directory carries the conventions locally.",
+        "is_correct": false,
+        "rationale": "Directory scoping cannot express a file-type rule, and every new Python directory would need another copy."
+      },
+      {
+        "label": "C",
+        "body": "A section in the monolithic root CLAUDE.md telling the model to apply these particular conventions whenever it happens to touch Python files.",
+        "is_correct": false,
+        "rationale": "That loads the conventions for all work and asks the model to gate them by prose rather than by pattern."
+      },
+      {
+        "label": "D",
+        "body": "A slash command carrying the Python conventions, which engineers are expected to invoke before beginning any work on Python source files.",
+        "is_correct": false,
+        "rationale": "Requiring manual invocation means the conventions apply only when someone remembers to trigger them first."
+      }
+    ]
+  },
+  {
+    "id": "d3000000-0000-4000-8000-000000000311",
+    "task_code": "3.3",
+    "domain": 3,
+    "scenario": "cicd",
+    "stem": "Conventions for test files differ sharply from those for production source, and loading both sets at once has been producing muddled edits. What is the appropriate configuration?",
+    "type": "single",
+    "source": "generated",
+    "difficulty": 2,
+    "explanation": null,
+    "options": [
+      {
+        "label": "A",
+        "body": "Separate path-specific rule files, one globbing the test paths and one globbing the source paths, so only the relevant set loads for a given file.",
+        "is_correct": true,
+        "rationale": "Correct. Conditional loading by glob is what keeps two conflicting convention sets from colliding in one context."
+      },
+      {
+        "label": "B",
+        "body": "A single rules file containing both sets, prefaced with a note explaining which of the two applies to test files and which to source files.",
+        "is_correct": false,
+        "rationale": "Both sets still enter context together, which is the exact condition producing the muddled edits."
+      },
+      {
+        "label": "C",
+        "body": "A hook that inspects the path of each file before editing and injects the correct convention set into the prompt for that particular edit.",
+        "is_correct": false,
+        "rationale": "This rebuilds conditional loading by hand when path-specific rules already provide it declaratively."
+      },
+      {
+        "label": "D",
+        "body": "Two separate repositories, one holding the test suite and one holding production source, each carrying its own independent configuration file.",
+        "is_correct": false,
+        "rationale": "Splitting a codebase to solve a configuration-scoping problem is a drastic and unnecessary restructuring."
+      }
+    ]
+  },
+  {
+    "id": "d3000000-0000-4000-8000-000000000312",
+    "task_code": "3.3",
+    "domain": 3,
+    "scenario": "developer-productivity",
+    "stem": "A repository has one rules file globbing all TypeScript files and another globbing only the generated client directory. Claude Code edits a TypeScript file inside that generated directory. What loads?",
+    "type": "single",
+    "source": "generated",
+    "difficulty": 3,
+    "explanation": null,
+    "options": [
+      {
+        "label": "A",
+        "body": "Both rule sets load, since path-specific rules are additive and every file whose path matches a declared glob contributes its conventions.",
+        "is_correct": true,
+        "rationale": "Correct. Matching rule files compose additively; a file sitting under two globs picks up both sets of conventions."
+      },
+      {
+        "label": "B",
+        "body": "Only the narrower generated-client rules load, because the more specific glob pattern shadows and fully replaces the broader one for that file.",
+        "is_correct": false,
+        "rationale": "Specificity does not cause one matching rule file to suppress another; the mechanism is composition, not override."
+      },
+      {
+        "label": "C",
+        "body": "Only the broader TypeScript rules load, because the first glob to match a given file wins and no later file is considered afterwards.",
+        "is_correct": false,
+        "rationale": "There is no first-match-wins short circuit; every glob that matches the path is evaluated."
+      },
+      {
+        "label": "D",
+        "body": "Neither set loads, because two rule files matching the same path is treated as an ambiguous configuration and is skipped for safety reasons.",
+        "is_correct": false,
+        "rationale": "Overlapping globs are ordinary and expected; they are not treated as an ambiguity to be discarded."
+      }
+    ]
+  },
+  {
+    "id": "d3000000-0000-4000-8000-000000000313",
+    "task_code": "3.4",
+    "domain": 3,
+    "scenario": "code-generation",
+    "stem": "Asked to explain an order pipeline spanning fifteen classes across four packages, Claude Code reads three files and returns a shallow summary that misses the callback chain entirely. What produces a thorough analysis?",
+    "type": "single",
+    "source": "generated",
+    "difficulty": 3,
+    "explanation": null,
+    "options": [
+      {
+        "label": "A",
+        "body": "Hand the work to the Explore subagent, which is built for verbose discovery: it follows references, traces inheritance, and maps control flow.",
+        "is_correct": true,
+        "rationale": "Correct. Explore prioritizes comprehensive discovery over minimal reads, and it summarizes back without flooding the main context."
+      },
+      {
+        "label": "B",
+        "body": "Enter plan mode and let it survey the pipeline safely before any code is touched, since planning explores the codebase without making changes.",
+        "is_correct": false,
+        "rationale": "Plan mode explores in the main conversation while driving toward a change plan; the need here is exhaustive discovery."
+      },
+      {
+        "label": "C",
+        "body": "Name all fifteen classes explicitly in the prompt so the model knows the precise scope it must read through before writing its summary.",
+        "is_correct": false,
+        "rationale": "This assumes the developer already knows the scope, which is the very thing they asked Claude Code to work out."
+      },
+      {
+        "label": "D",
+        "body": "Split the analysis across four sessions, one per package, then stitch the four resulting summaries together into a single overall description.",
+        "is_correct": false,
+        "rationale": "The complexity lives in cross-package interaction, which per-package sessions cannot see or trace."
+      }
+    ]
+  },
+  {
+    "id": "d3000000-0000-4000-8000-000000000314",
+    "task_code": "3.4",
+    "domain": 3,
+    "scenario": "code-generation",
+    "stem": "A developer needs an authentication middleware change whose blast radius is unclear, touching code they have never read, and they want to approve the approach before any file is modified. What fits?",
+    "type": "single",
+    "source": "generated",
+    "difficulty": 2,
+    "explanation": null,
+    "options": [
+      {
+        "label": "A",
+        "body": "Use plan mode, which investigates and proposes an approach for approval before it is permitted to make any modification to the codebase.",
+        "is_correct": true,
+        "rationale": "Correct. Plan mode is for ambiguous, high-blast-radius changes where the approach warrants review before execution."
+      },
+      {
+        "label": "B",
+        "body": "Use direct execution and rely on version control, reviewing the resulting diff afterwards and reverting the commit if the approach proves wrong.",
+        "is_correct": false,
+        "rationale": "Reviewing after the fact wastes a full implementation pass when the approach itself was the uncertain part."
+      },
+      {
+        "label": "C",
+        "body": "Dispatch the Explore subagent to map the authentication code thoroughly and then apply the middleware change once its report comes back.",
+        "is_correct": false,
+        "rationale": "Explore answers what the code does; the developer specifically wants to approve a proposed change first."
+      },
+      {
+        "label": "D",
+        "body": "Break the middleware change into several tiny prompts and execute each of them in turn, keeping every individual step small and low risk.",
+        "is_correct": false,
+        "rationale": "Small steps in an unknown blast radius still commit to an unreviewed approach, one increment at a time."
+      }
+    ]
+  },
+  {
+    "id": "d3000000-0000-4000-8000-000000000315",
+    "task_code": "3.4",
+    "domain": 3,
+    "scenario": "developer-productivity",
+    "stem": "A developer needs a one-line typo fixed in an error message whose exact file and line they already know. Which mode is appropriate?",
+    "type": "single",
+    "source": "generated",
+    "difficulty": 1,
+    "explanation": null,
+    "options": [
+      {
+        "label": "A",
+        "body": "Direct execution, because the change is small, the location is known, and there is no approach ambiguity that a planning step would resolve.",
+        "is_correct": true,
+        "rationale": "Correct. Plan mode earns its overhead on ambiguous or risky work; a known one-line fix has neither property."
+      },
+      {
+        "label": "B",
+        "body": "Plan mode, because reviewing a proposed approach before any edit is applied is the safer default for every change made to a codebase.",
+        "is_correct": false,
+        "rationale": "Treating plan mode as a universal default adds a review cycle to work that carries no real uncertainty."
+      },
+      {
+        "label": "C",
+        "body": "The Explore subagent, so the surrounding error-handling code is mapped thoroughly before the single-line typo correction gets applied to it.",
+        "is_correct": false,
+        "rationale": "Exhaustive discovery is wasted effort when the developer has already identified the exact line to change."
+      },
+      {
+        "label": "D",
+        "body": "A fresh session dedicated to the fix, so that no unrelated prior context can possibly influence how the small correction is carried out.",
+        "is_correct": false,
+        "rationale": "Session hygiene is unrelated to the mode question, and a trivial known edit needs no isolation."
+      }
+    ]
+  },
+  {
+    "id": "d3000000-0000-4000-8000-000000000316",
+    "task_code": "3.4",
+    "domain": 3,
+    "scenario": "code-generation",
+    "stem": "A lead worries that a full architectural survey of a legacy service will consume so much of the main conversation's context that no room remains for the refactor itself. What property of the Explore subagent addresses this?",
+    "type": "single",
+    "source": "generated",
+    "difficulty": 3,
+    "explanation": null,
+    "options": [
+      {
+        "label": "A",
+        "body": "It performs its verbose reading inside its own context and returns a condensed summary, so the survey's bulk never enters the parent conversation.",
+        "is_correct": true,
+        "rationale": "Correct. Isolating discovery is the point: the parent receives findings rather than every file the subagent had to read."
+      },
+      {
+        "label": "B",
+        "body": "It compresses the main conversation automatically once the survey concludes, freeing the space that the exploration had consumed along the way.",
+        "is_correct": false,
+        "rationale": "The saving comes from never spending parent context in the first place, not from compacting it afterwards."
+      },
+      {
+        "label": "C",
+        "body": "It reads noticeably fewer files than the main agent would, which is what keeps the total context cost of the survey acceptably low overall.",
+        "is_correct": false,
+        "rationale": "Explore reads more thoroughly, not less; isolation rather than frugality is what protects the parent context."
+      },
+      {
+        "label": "D",
+        "body": "It writes its findings to a file on disk instead of returning them, so the lead reads the survey outside the conversation altogether.",
+        "is_correct": false,
+        "rationale": "The subagent reports its summary back into the conversation; a disk handoff is not the mechanism at work."
+      }
+    ]
+  },
+  {
+    "id": "d3000000-0000-4000-8000-000000000317",
+    "task_code": "3.4",
+    "domain": 3,
+    "scenario": "developer-productivity",
+    "stem": "Which statement best captures the difference in purpose between plan mode and the Explore subagent?",
+    "type": "single",
+    "source": "generated",
+    "difficulty": 3,
+    "explanation": null,
+    "options": [
+      {
+        "label": "A",
+        "body": "Plan mode runs in the main conversation and drives toward an approved change plan; Explore isolates thorough discovery and reports findings back.",
+        "is_correct": true,
+        "rationale": "Correct. One produces a reviewable plan for a change, the other produces understanding of existing behaviour."
+      },
+      {
+        "label": "B",
+        "body": "Plan mode is the read-only option and Explore is the writing option, so anything that will modify files has to be routed through Explore.",
+        "is_correct": false,
+        "rationale": "Explore is a discovery tool, not the mechanism by which modifications get applied to a codebase."
+      },
+      {
+        "label": "C",
+        "body": "Plan mode suits small codebases while Explore suits large ones, making the total file count the deciding factor between the two options.",
+        "is_correct": false,
+        "rationale": "Size correlates loosely at best; the real distinction is whether the goal is a change plan or discovery."
+      },
+      {
+        "label": "D",
+        "body": "They are two names for the same underlying capability, with plan mode being the interactive form and Explore the non-interactive form of it.",
+        "is_correct": false,
+        "rationale": "They are genuinely different mechanisms with different context behaviour and different outputs."
+      }
+    ]
+  },
+  {
+    "id": "d3000000-0000-4000-8000-000000000318",
+    "task_code": "3.5",
+    "domain": 3,
+    "scenario": "structured-extraction",
+    "stem": "A first attempt at an extraction prompt returns output the team calls inconsistent. Their follow-up instruction reads make the output more consistent and better structured. Why does this refinement usually fail?",
+    "type": "single",
+    "source": "generated",
+    "difficulty": 3,
+    "explanation": null,
+    "options": [
+      {
+        "label": "A",
+        "body": "Consistent and better structured are evaluative adjectives, so the model must guess the target; a concrete input and output example removes the guess.",
+        "is_correct": true,
+        "rationale": "Correct. Iterative refinement works when feedback names the exact desired shape rather than a quality judgement."
+      },
+      {
+        "label": "B",
+        "body": "The follow-up arrives too late in the conversation, and refinement instructions have to be present in the very first prompt to have any effect.",
+        "is_correct": false,
+        "rationale": "Refinement is inherently iterative; position in the conversation is not what makes the instruction ineffective."
+      },
+      {
+        "label": "C",
+        "body": "The instruction is too short overall, and refinement feedback needs enough length to carry sufficient weight against the original prompt text.",
+        "is_correct": false,
+        "rationale": "Specificity rather than length is what makes feedback actionable; a brief concrete example works well."
+      },
+      {
+        "label": "D",
+        "body": "Consistency cannot be improved by prompting at all and has to be enforced downstream with a schema validator applied to the model's output.",
+        "is_correct": false,
+        "rationale": "Validation is a useful backstop, but concrete examples measurably improve consistency at the prompting layer."
+      }
+    ]
+  },
+  {
+    "id": "d3000000-0000-4000-8000-000000000319",
+    "task_code": "3.5",
+    "domain": 3,
+    "scenario": "cicd",
+    "stem": "A generated parser fails on three unusual inputs the team keeps hitting in production. What refinement loop most reliably converges on a correct implementation?",
+    "type": "single",
+    "source": "generated",
+    "difficulty": 2,
+    "explanation": null,
+    "options": [
+      {
+        "label": "A",
+        "body": "Write failing tests capturing the three inputs, hand them to Claude, and iterate until the suite passes, so each pass has an objective target.",
+        "is_correct": true,
+        "rationale": "Correct. Test-driven iteration replaces subjective judgement with a pass or fail signal the model can work against."
+      },
+      {
+        "label": "B",
+        "body": "Describe all three failures carefully in prose and ask for a single revision that handles every one of the unusual inputs correctly at once.",
+        "is_correct": false,
+        "rationale": "Prose descriptions leave the success condition unverified, and there is nothing to confirm the revision actually worked."
+      },
+      {
+        "label": "C",
+        "body": "Regenerate the parser from scratch with a longer and more detailed specification that mentions the three problematic input shapes explicitly.",
+        "is_correct": false,
+        "rationale": "Regeneration discards working code and still lacks an executable check that the edge cases are handled."
+      },
+      {
+        "label": "D",
+        "body": "Ask Claude to review its own parser implementation and identify whatever edge cases it believes the current version is failing to handle well.",
+        "is_correct": false,
+        "rationale": "Self-review in the generating context is biased, and the team already knows exactly which inputs fail."
+      }
+    ]
+  },
+  {
+    "id": "d3000000-0000-4000-8000-000000000320",
+    "task_code": "3.5",
+    "domain": 3,
+    "scenario": "code-generation",
+    "stem": "A generated module has a pagination bug and a caching bug, and the caching layer reads its page size from the paginator. How should the fixes be sequenced?",
+    "type": "single",
+    "source": "generated",
+    "difficulty": 3,
+    "explanation": null,
+    "options": [
+      {
+        "label": "A",
+        "body": "Fix the pagination bug first and re-observe, because the issues interact and the caching symptom may change once pagination behaves correctly.",
+        "is_correct": true,
+        "rationale": "Correct. Interacting issues are fixed one at a time so each change's real effect stays observable."
+      },
+      {
+        "label": "B",
+        "body": "Report both bugs in a single prompt and ask for one revision addressing them together, since they live in the same module either way.",
+        "is_correct": false,
+        "rationale": "Batching works for independent issues; when one feeds the other, a combined fix obscures what actually changed."
+      },
+      {
+        "label": "C",
+        "body": "Fix the caching bug first, because caching sits closer to the user-visible symptom and resolving it delivers the faster observable improvement.",
+        "is_correct": false,
+        "rationale": "Fixing the dependent layer first means re-doing it once the upstream pagination behaviour is corrected."
+      },
+      {
+        "label": "D",
+        "body": "Open two separate sessions and fix one bug in each of them, then merge the two resulting changes back together into the shared module.",
+        "is_correct": false,
+        "rationale": "Parallel isolated fixes to interacting code produce exactly the conflicting changes sequencing is meant to avoid."
+      }
+    ]
+  },
+  {
+    "id": "d3000000-0000-4000-8000-000000000321",
+    "task_code": "3.6",
+    "domain": 3,
+    "scenario": "cicd",
+    "stem": "Two Claude Code instances run in separate git worktrees on different branches, and both must modify the same shared OrderService file to remove their respective concerns. How should the team coordinate?",
+    "type": "single",
+    "source": "generated",
+    "difficulty": 3,
+    "explanation": null,
+    "options": [
+      {
+        "label": "A",
+        "body": "Sequence the work: let the first instance finish and merge, then rebase the second onto the updated branch so it edits with full awareness.",
+        "is_correct": true,
+        "rationale": "Correct. Sequential merge-then-rebase is the standard coordination pattern for parallel instances touching one shared file."
+      },
+      {
+        "label": "B",
+        "body": "Take a lock on the shared file through git so that only one worktree at a time is permitted to hold write access to that path.",
+        "is_correct": false,
+        "rationale": "Standard git workflows have no source-file locking; the large-file locking extension is not built for this."
+      },
+      {
+        "label": "C",
+        "body": "Stand up a third instance owning the shared file exclusively, taking modification requests from both of the other two extraction instances.",
+        "is_correct": false,
+        "rationale": "A broker instance must understand both extraction contexts, adding coordination complexity for no real gain."
+      },
+      {
+        "label": "D",
+        "body": "Let both instances edit the file independently in their own worktrees and resolve whatever conflicts surface when the two branches are merged.",
+        "is_correct": false,
+        "rationale": "Independent contradictory edits to one file produce exactly the tangled conflicts sequencing is designed to prevent."
+      }
+    ]
+  },
+  {
+    "id": "d3000000-0000-4000-8000-000000000322",
+    "task_code": "3.6",
+    "domain": 3,
+    "scenario": "cicd",
+    "stem": "A pipeline runs three steps in sequence: generate a changelog, review it for accuracy, then check for breaking changes. The review step never flags anything and the check misses obvious omissions. What is the root cause?",
+    "type": "single",
+    "source": "generated",
+    "difficulty": 3,
+    "explanation": null,
+    "options": [
+      {
+        "label": "A",
+        "body": "The review steps share context with the generation step, so they inherit its reasoning and are unlikely to spot its gaps or mistakes.",
+        "is_correct": true,
+        "rationale": "Correct. Session context isolation matters in review pipelines: a step that saw the generation reasoning inherits its blind spots."
+      },
+      {
+        "label": "B",
+        "body": "The steps lack a structured output format, so the review results are not being parsed correctly by the stage that consumes them downstream.",
+        "is_correct": false,
+        "rationale": "Output format affects parsing, not whether the review reasoning was thorough enough to catch problems."
+      },
+      {
+        "label": "C",
+        "body": "The invocations are missing the print flag, which is why the review and breaking-change steps fail to produce meaningful findings at all.",
+        "is_correct": false,
+        "rationale": "Without that flag the job would hang waiting for input rather than completing with weak findings."
+      },
+      {
+        "label": "D",
+        "body": "The prompts never define formatting standards for the changelog, so the review step has no stated criteria to evaluate the document against.",
+        "is_correct": false,
+        "rationale": "Missing standards would degrade the generated changelog; consistently toothless reviews point at shared context."
+      }
+    ]
+  },
+  {
+    "id": "d3000000-0000-4000-8000-000000000323",
+    "task_code": "3.6",
+    "domain": 3,
+    "scenario": "cicd",
+    "stem": "A CI job invokes Claude Code to analyze a pull request, but the job hangs indefinitely and the logs show it waiting for interactive input. What is the fix?",
+    "type": "single",
+    "source": "generated",
+    "difficulty": 1,
+    "explanation": null,
+    "options": [
+      {
+        "label": "A",
+        "body": "Invoke it with the print flag so the run executes non-interactively, emits its result, and exits rather than waiting for a human at a prompt.",
+        "is_correct": true,
+        "rationale": "Correct. Print mode is the non-interactive invocation intended for CI, where no terminal is attached to answer prompts."
+      },
+      {
+        "label": "B",
+        "body": "Add a generous timeout to the CI step so the job is terminated automatically instead of blocking the pipeline for an unbounded period.",
+        "is_correct": false,
+        "rationale": "A timeout stops the hang but produces no analysis; the invocation still never runs non-interactively."
+      },
+      {
+        "label": "C",
+        "body": "Pipe an empty string into the command's standard input so the interactive prompt receives a response and the session proceeds past it.",
+        "is_correct": false,
+        "rationale": "Feeding empty input is a fragile workaround for a mode that already exists as a first-class flag."
+      },
+      {
+        "label": "D",
+        "body": "Move the analysis into a hook that fires on the pull request event instead, so no direct command invocation is needed anywhere in the job.",
+        "is_correct": false,
+        "rationale": "Restructuring the pipeline sidesteps rather than fixes a one-flag invocation problem."
+      }
+    ]
+  },
+  {
+    "id": "d3000000-0000-4000-8000-000000000324",
+    "task_code": "3.6",
+    "domain": 3,
+    "scenario": "cicd",
+    "stem": "A CI step must feed Claude Code's review findings into a downstream tool that posts inline pull-request comments, and brittle regex parsing of prose keeps breaking. What is the right approach?",
+    "type": "single",
+    "source": "generated",
+    "difficulty": 2,
+    "explanation": null,
+    "options": [
+      {
+        "label": "A",
+        "body": "Request JSON output and constrain it with a schema, so the downstream tool consumes predictable fields instead of parsing free-form prose.",
+        "is_correct": true,
+        "rationale": "Correct. Machine-readable output with a declared schema is the intended integration path for CI consumers."
+      },
+      {
+        "label": "B",
+        "body": "Instruct the model in the prompt to always format its findings as a markdown table with fixed columns that the parser can then read reliably.",
+        "is_correct": false,
+        "rationale": "A prompted format is probabilistic and drifts; the output-format flag makes the structure a contract."
+      },
+      {
+        "label": "C",
+        "body": "Harden the regular expressions in the downstream tool so they tolerate the variations that the model's prose output tends to introduce.",
+        "is_correct": false,
+        "rationale": "Hardening a parser against unbounded prose variation is endless work when structured output is available."
+      },
+      {
+        "label": "D",
+        "body": "Add a second Claude Code step whose only job is to convert the first step's prose findings into the JSON shape the downstream tool expects.",
+        "is_correct": false,
+        "rationale": "A whole extra model call to reformat output the first call could have emitted structurally is wasteful."
+      }
+    ]
+  }
+]
