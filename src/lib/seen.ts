@@ -15,6 +15,14 @@ type SeenMap = Record<string, string[]>;
 const RECENT_BUCKET = "__recent";
 const RECENT_CAP = 40;
 
+// Reserved bucket holding one entry per past exam sitting, most recent first,
+// each a "|"-joined list of the ids served in that sitting. Unlike __recent
+// (a soft nudge), these ids are hard-excluded from the next exam draw: a repeat
+// question is answered from memory, which inflates the score without reflecting
+// any gain in knowledge.
+const EXAM_HISTORY_BUCKET = "__exam_history";
+const EXAM_LOCKOUT_SITTINGS = 2;
+
 function loadSeen(): SeenMap {
   try {
     const raw = localStorage.getItem(SEEN_STORAGE_KEY);
@@ -34,18 +42,53 @@ function saveSeen(map: SeenMap) {
 }
 
 /**
+ * Ids served in the last `EXAM_LOCKOUT_SITTINGS` exams. Pass to `pickUnseen` as
+ * `exclude` so a repeat sitting can't recycle items the user still remembers.
+ */
+export function examLockoutIds(): Set<string> {
+  const sittings = loadSeen()[EXAM_HISTORY_BUCKET] ?? [];
+  return new Set(
+    sittings.slice(0, EXAM_LOCKOUT_SITTINGS).flatMap((s) => s.split("|"))
+  );
+}
+
+/** Record one completed exam draw as a sitting, trimming older history. */
+export function recordExamSitting(ids: string[]) {
+  if (ids.length === 0) return;
+  const seenMap = loadSeen();
+  const key = ids.join("|");
+  // StrictMode runs the exam's useState initializer twice in dev; an identical
+  // consecutive sitting would otherwise evict real history and halve the lockout.
+  if ((seenMap[EXAM_HISTORY_BUCKET] ?? [])[0] === key) return;
+  seenMap[EXAM_HISTORY_BUCKET] = [
+    key,
+    ...(seenMap[EXAM_HISTORY_BUCKET] ?? []),
+  ].slice(0, EXAM_LOCKOUT_SITTINGS);
+  saveSeen(seenMap);
+}
+
+/**
  * Pick up to `count` questions from an already-shuffled `pool`, preferring ones
  * the user hasn't seen in this `bucket`. When the unseen supply runs out we
  * start a fresh cycle (so quizzes never come up short) and reset the bucket to
  * only the newly served items. The selection is recorded before returning, so
  * back-to-back draws don't repeat.
+ *
+ * `exclude` ids are dropped from the pool outright — but only while enough
+ * questions remain to fill `count`. A short pool falls back to the full pool
+ * rather than returning an under-length exam.
  */
 export function pickUnseen(
   pool: QuizQuestion[],
   count: number,
-  bucket: string
+  bucket: string,
+  exclude?: Set<string>
 ): QuizQuestion[] {
   if (pool.length === 0) return [];
+  if (exclude?.size) {
+    const eligible = pool.filter((q) => !exclude.has(q.id));
+    if (eligible.length >= count) pool = eligible;
+  }
   const seenMap = loadSeen();
   const seenIds = new Set(seenMap[bucket] ?? []);
   const recent = new Set(seenMap[RECENT_BUCKET] ?? []);
