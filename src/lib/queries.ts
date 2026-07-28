@@ -20,6 +20,21 @@ export async function getDomainQuestionCounts(): Promise<Record<number, number>>
   return counts;
 }
 
+/**
+ * Count of questions per task code. Feeds the trace page's coverage column:
+ * accuracy on 3 of 12 questions means something very different from 12 of 12,
+ * and without the denominator a thin task looks the same as a mastered one.
+ */
+export async function getTaskQuestionCounts(): Promise<Record<string, number>> {
+  const supabase = await createClient();
+  const { data, error } = await supabase.from("questions").select("task_code");
+  if (error) throw error;
+  const counts: Record<string, number> = {};
+  for (const row of (data ?? []) as { task_code: string | null }[])
+    if (row.task_code) counts[row.task_code] = (counts[row.task_code] ?? 0) + 1;
+  return counts;
+}
+
 export interface Flashcard {
   id: string;
   domain: number;

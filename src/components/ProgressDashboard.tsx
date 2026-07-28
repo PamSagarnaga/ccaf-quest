@@ -141,7 +141,7 @@ export function ProgressDashboard({
         className="rise mt-3 inline-flex items-center gap-1.5 font-mono text-xs text-accent transition-colors hover:text-ink"
         style={{ animationDelay: "0.07s" }}
       >
-        ▦ Open the mastery heatmap →
+        ▦ Open the performance trace →
       </Link>
 
       {!hasData ? (

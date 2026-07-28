@@ -1,7 +1,7 @@
 "use client";
 // Per-question mastery tracking. Every graded answer (quiz, exam sim, sudden
 // death) tallies correct/wrong for that question id, tagged with its domain,
-// task, and scenario so the /heatmap page can be audited at any grain.
+// task, and scenario so the /heatmap trace can be audited at any grain.
 // Single-user MVP: localStorage, mirrored to the cloud like the other progress
 // keys (see PROGRESS_STORAGE_KEYS in sync.ts).
 import type { QuizQuestion } from "@/lib/quiz-types";

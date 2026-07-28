@@ -1,10 +1,11 @@
-import { HeatmapView } from "@/components/HeatmapView";
-import { getDomainQuestionCounts } from "@/lib/queries";
+import { TraceView } from "@/components/TraceView";
+import { getTaskQuestionCounts } from "@/lib/queries";
 
-export const metadata = { title: "Heatmap — The Architect's Codex" };
+export const metadata = { title: "Trace — The Architect's Codex" };
 
-export default async function HeatmapPage() {
-  const counts = await getDomainQuestionCounts();
-  const bankTotal = Object.values(counts).reduce((a, b) => a + b, 0);
-  return <HeatmapView bankTotal={bankTotal} />;
+export default async function TracePage() {
+  // Bank counts are the coverage denominator; the rest of the trace is built
+  // client-side from local progress state.
+  const taskBankCounts = await getTaskQuestionCounts();
+  return <TraceView taskBankCounts={taskBankCounts} />;
 }
