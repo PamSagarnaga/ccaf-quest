@@ -4,12 +4,14 @@ import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/client";
 import { scenarios } from "@/lib/blueprint";
-import { aggregate, loadItemStats, type ItemStats } from "@/lib/itemStats";
+import { loadAnswers, type AnswerEvent } from "@/lib/answers";
 import {
   buildTrace,
-  verdictFor,
+  quadrantOfAnswer,
+  verdictForQuestion,
   VERDICT_META,
   type DomainTrace,
+  type Quadrants,
   type TaskTrace,
   type Trace,
   type QuestionVerdict,
@@ -22,6 +24,7 @@ const SELECT =
 type SortKey = "blueprint" | "mastery" | "accuracy";
 
 const pct = (v: number | null) => (v === null ? "—" : `${Math.round(v * 100)}%`);
+const day = (iso: string) => iso.slice(0, 10);
 
 /** Red→green blend keyed on a 0..1 score; neutral when there's no data. */
 function scoreColor(v: number | null): string {
@@ -30,7 +33,7 @@ function scoreColor(v: number | null): string {
 }
 
 /** Solid / lucky / gap / blind spot as a single proportional bar. */
-function QuadrantBar({ q }: { q: TaskTrace["quadrants"] }) {
+function QuadrantBar({ q }: { q: Quadrants }) {
   if (q.total === 0)
     return (
       <div className="h-1.5 w-full rounded-full border border-dashed border-border" />
@@ -62,22 +65,29 @@ export function TraceView({
 }) {
   // localStorage is client-only; build after mount so SSR stays stable.
   const [trace, setTrace] = useState<Trace | null>(null);
-  const [stats, setStats] = useState<ItemStats>({});
+  const [events, setEvents] = useState<AnswerEvent[]>([]);
   const [sort, setSort] = useState<SortKey>("blueprint");
 
   useEffect(() => {
-    const s = loadItemStats();
-    setStats(s);
-    setTrace(buildTrace(taskBankCounts, s));
+    const evs = loadAnswers();
+    setEvents(evs);
+    setTrace(buildTrace(taskBankCounts, evs));
   }, [taskBankCounts]);
+
+  /** Answers grouped by question, so drill-downs don't rescan the log. */
+  const byItem = useMemo(() => {
+    const m = new Map<string, AnswerEvent[]>();
+    for (const e of events) m.set(e.itemId, [...(m.get(e.itemId) ?? []), e]);
+    return m;
+  }, [events]);
 
   if (!trace) return null;
 
-  const { totals } = trace;
+  const { totals, legacy } = trace;
   const coveragePct = totals.bankTotal
     ? Math.round((totals.distinctSeen / totals.bankTotal) * 100)
     : 0;
-  const nothingYet = totals.answers === 0 && totals.quadrants.total === 0;
+  const noLog = totals.answers === 0;
 
   return (
     <main className="mx-auto w-full max-w-4xl px-5 pb-24 pt-10 sm:px-8 sm:pt-14">
@@ -91,18 +101,20 @@ export function TraceView({
         Performance <span className="sheen italic">trace</span>
       </h1>
       <p className="rise mt-4 max-w-xl text-dim" style={{ animationDelay: "0.1s" }}>
-        Every domain and task, scored two ways: what you got <em>right</em>, and
-        what you knew <em>cold</em>. A task can look strong on the first and be
-        held up entirely by luck on the second.
+        Every domain and task, scored two ways from the same answers: what you
+        got <em>right</em>, and what you knew <em>cold</em>. A task can look
+        strong on the first and be held up entirely by luck on the second.
       </p>
 
-      {nothingYet ? (
-        <p className="mt-16 text-center font-mono text-sm text-muted">
-          No answers logged yet. Run a{" "}
-          <Link href="/practice" className="text-accent hover:underline">
-            practice quiz
-          </Link>{" "}
-          to start the trace.
+      <BlindSpots trace={trace} />
+
+      {noLog ? (
+        <p className="mt-10 rounded-xl border border-border p-5 text-center font-mono text-sm leading-relaxed text-muted">
+          No answers in the log yet. Take a quiz and the numbers below start
+          filling in.
+          <br />
+          Your earlier sessions are kept in{" "}
+          <span className="text-dim">History</span> at the bottom.
         </p>
       ) : (
         <>
@@ -125,8 +137,7 @@ export function TraceView({
                     onClick={() => setSort(key)}
                     className="rounded-md border px-2.5 py-1 transition-colors"
                     style={{
-                      borderColor:
-                        sort === key ? "var(--accent)" : "var(--border)",
+                      borderColor: sort === key ? "var(--accent)" : "var(--border)",
                       color: sort === key ? "var(--accent)" : "var(--text-muted)",
                     }}
                   >
@@ -137,15 +148,22 @@ export function TraceView({
             </div>
             <div className="flex flex-col gap-5">
               {trace.domains.map((d) => (
-                <DomainPanel key={d.number} domain={d} sort={sort} stats={stats} />
+                <DomainPanel
+                  key={d.number}
+                  domain={d}
+                  sort={sort}
+                  byItem={byItem}
+                />
               ))}
             </div>
           </section>
 
           <Legend />
-          <Scenarios stats={stats} />
+          <Scenarios events={events} />
         </>
       )}
+
+      <History legacy={legacy} />
 
       <div className="mt-10 flex justify-center gap-3">
         <Link
@@ -163,6 +181,116 @@ export function TraceView({
         </Link>
       </div>
     </main>
+  );
+}
+
+/** The headline answer to "which questions am I confidently wrong about". */
+function BlindSpots({ trace }: { trace: Trace }) {
+  const events = trace.blindSpots;
+  const legacyBlind = trace.legacy.totals.blindspot;
+  const [questions, setQuestions] = useState<Map<string, QuizQuestion>>(
+    new Map()
+  );
+
+  useEffect(() => {
+    const ids = [...new Set(events.map((e) => e.itemId))];
+    if (ids.length === 0) return;
+    let cancelled = false;
+    (async () => {
+      const supabase = createClient();
+      const { data } = await supabase.from("questions").select(SELECT).in("id", ids);
+      if (cancelled) return;
+      const m = new Map<string, QuizQuestion>();
+      for (const q of (data ?? []) as unknown as QuizQuestion[])
+        m.set(q.id, { ...q, options: [...q.options].sort((a, b) => a.sort - b.sort) });
+      setQuestions(m);
+    })();
+    return () => {
+      cancelled = true;
+    };
+  }, [events]);
+
+  return (
+    <section className="mt-10">
+      <h2 className="mb-1 font-display text-lg text-ink">Blind spots</h2>
+      <p className="mb-4 max-w-xl font-mono text-[0.7rem] leading-relaxed text-muted">
+        Answers you were <span className="text-ink">certain</span> about and got
+        wrong. The dangerous ones — you&apos;d never think to study them.
+      </p>
+
+      {events.length === 0 ? (
+        <p className="rounded-xl border border-border p-4 font-mono text-xs leading-relaxed text-muted">
+          None logged yet.
+          {legacyBlind > 0 && (
+            <>
+              {" "}
+              You have <span className="text-ink">{legacyBlind}</span> from before
+              per-question tracking — see History below. Those recorded the task
+              but not the question, so they can&apos;t be opened.
+            </>
+          )}
+        </p>
+      ) : (
+        <div className="flex flex-col gap-2">
+          {events.map((e) => (
+            <BlindSpotRow
+              key={`${e.itemId}-${e.ts}`}
+              event={e}
+              question={questions.get(e.itemId)}
+            />
+          ))}
+        </div>
+      )}
+    </section>
+  );
+}
+
+function BlindSpotRow({
+  event,
+  question,
+}: {
+  event: AnswerEvent;
+  question?: QuizQuestion;
+}) {
+  const [open, setOpen] = useState(false);
+  const answer = question?.options.find((o) => o.is_correct);
+  return (
+    <div
+      className="rounded-xl border"
+      style={{ borderColor: "color-mix(in oklab, var(--wrong) 40%, transparent)" }}
+    >
+      <button
+        onClick={() => setOpen((v) => !v)}
+        className="flex w-full items-start gap-3 px-4 py-3 text-left"
+        aria-expanded={open}
+      >
+        <span className="shrink-0 font-mono text-xs font-semibold text-ink">
+          {event.task ?? "—"}
+        </span>
+        <span className="min-w-0 flex-1 text-xs leading-relaxed text-dim">
+          {question ? question.stem : "Loading question…"}
+        </span>
+        <span className="shrink-0 font-mono text-[0.6rem] text-muted">
+          {day(event.ts)} · {event.mode}
+        </span>
+        <span className="shrink-0 font-mono text-xs text-muted">
+          {open ? "−" : "+"}
+        </span>
+      </button>
+      {open && answer && (
+        <div className="border-t border-border px-4 py-3">
+          <div className="font-mono text-[0.65rem] uppercase tracking-wider text-muted">
+            Correct answer — {answer.label}
+          </div>
+          <div className="mt-1 text-xs text-ink">{answer.body}</div>
+          {answer.rationale && (
+            <p className="mt-2 text-xs leading-relaxed text-dim">
+              {answer.rationale}
+            </p>
+          )}
+        </div>
+      )}
+    </div>
   );
 }
 
@@ -213,9 +341,10 @@ function Summary({ trace, coveragePct }: { trace: Trace; coveragePct: number }) 
         />
       </div>
       <p className="mt-3 font-mono text-[0.65rem] leading-relaxed text-muted">
-        Accuracy and confidence have different denominators — confidence is
-        optional in the exam runner and absent from sudden death, while
-        flashcards log confidence without counting toward accuracy.
+        Accuracy counts every logged answer. &ldquo;Cold&rdquo; counts only the
+        ones you rated — the confidence tap is optional in exams and absent in
+        sudden death. Coverage also includes questions answered before the log
+        existed.
       </p>
     </div>
   );
@@ -237,9 +366,7 @@ function Priorities({ trace }: { trace: Trace }) {
         {priorities.map((t, i) => (
           <div key={t.code} className="flex items-baseline gap-3 px-5 py-3">
             <span className="font-mono text-xs text-muted">{i + 1}</span>
-            <span className="font-mono text-sm font-semibold text-ink">
-              {t.code}
-            </span>
+            <span className="font-mono text-sm font-semibold text-ink">{t.code}</span>
             <span className="min-w-0 flex-1 truncate text-sm text-dim">
               {t.statement}
             </span>
@@ -258,8 +385,8 @@ function Priorities({ trace }: { trace: Trace }) {
       {untested.length > 0 && (
         <p className="mt-3 font-mono text-[0.7rem] leading-relaxed text-muted">
           <span className="text-dim">Too little data to judge:</span>{" "}
-          {untested.map((t) => t.code).join(", ")} — fewer than 3 answers each.
-          Unknown is its own risk; these aren&apos;t ranked above because there&apos;s
+          {untested.map((t) => t.code).join(", ")} — fewer than 3 logged answers
+          each. Unknown is its own risk; they aren&apos;t ranked because there&apos;s
           nothing to rank.
         </p>
       )}
@@ -270,17 +397,16 @@ function Priorities({ trace }: { trace: Trace }) {
 function DomainPanel({
   domain,
   sort,
-  stats,
+  byItem,
 }: {
   domain: DomainTrace;
   sort: SortKey;
-  stats: ItemStats;
+  byItem: Map<string, AnswerEvent[]>;
 }) {
   const sorted = useMemo(() => {
     const t = [...domain.tasks];
     if (sort === "blueprint") return t;
-    const key = (x: TaskTrace) =>
-      sort === "mastery" ? x.mastery : x.accuracy;
+    const key = (x: TaskTrace) => (sort === "mastery" ? x.mastery : x.accuracy);
     // Nulls last: no data isn't the same as a bad score.
     return t.sort((a, b) => {
       const av = key(a);
@@ -320,16 +446,21 @@ function DomainPanel({
       </div>
       <div className="flex flex-col gap-1.5">
         {sorted.map((t) => (
-          <TaskRow key={t.code} task={t} stats={stats} />
+          <TaskRow key={t.code} task={t} byItem={byItem} />
         ))}
       </div>
     </div>
   );
 }
 
-function TaskRow({ task, stats }: { task: TaskTrace; stats: ItemStats }) {
+function TaskRow({
+  task,
+  byItem,
+}: {
+  task: TaskTrace;
+  byItem: Map<string, AnswerEvent[]>;
+}) {
   const [open, setOpen] = useState(false);
-  const q = task.quadrants;
   return (
     <div className="rounded-lg border border-border">
       <button
@@ -337,23 +468,21 @@ function TaskRow({ task, stats }: { task: TaskTrace; stats: ItemStats }) {
         className="flex w-full items-center gap-3 px-3 py-2.5 text-left transition-colors hover:border-[color:var(--accent)]"
         aria-expanded={open}
       >
-        <span className="font-mono text-xs font-semibold text-ink">
-          {task.code}
-        </span>
+        <span className="font-mono text-xs font-semibold text-ink">{task.code}</span>
         <span className="min-w-0 flex-1">
-          <span className="block truncate text-xs text-dim">
-            {task.statement}
-          </span>
+          <span className="block truncate text-xs text-dim">{task.statement}</span>
           <span className="mt-1 block">
-            <QuadrantBar q={q} />
+            <QuadrantBar q={task.quadrants} />
           </span>
         </span>
         <span className="shrink-0 text-right font-mono text-[0.7rem] tabular leading-tight">
           <span className="block" style={{ color: scoreColor(task.accuracy) }}>
             {pct(task.accuracy)} right
+            <span className="text-muted"> ({task.answers})</span>
           </span>
           <span className="block" style={{ color: scoreColor(task.solidRate) }}>
             {pct(task.solidRate)} cold
+            <span className="text-muted"> ({task.quadrants.total})</span>
           </span>
         </span>
         <span className="w-16 shrink-0 text-right font-mono text-[0.65rem] text-muted">
@@ -364,12 +493,18 @@ function TaskRow({ task, stats }: { task: TaskTrace; stats: ItemStats }) {
           {open ? "−" : "+"}
         </span>
       </button>
-      {open && <TaskQuestions task={task} stats={stats} />}
+      {open && <TaskQuestions task={task} byItem={byItem} />}
     </div>
   );
 }
 
-function TaskQuestions({ task, stats }: { task: TaskTrace; stats: ItemStats }) {
+function TaskQuestions({
+  task,
+  byItem,
+}: {
+  task: TaskTrace;
+  byItem: Map<string, AnswerEvent[]>;
+}) {
   const [questions, setQuestions] = useState<QuizQuestion[] | null>(null);
 
   useEffect(() => {
@@ -401,15 +536,16 @@ function TaskQuestions({ task, stats }: { task: TaskTrace; stats: ItemStats }) {
 
   // Worst first: missed, then shaky, then never-seen, then solid.
   const ranked = questions
-    .map((q) => ({ q, verdict: verdictFor(stats[q.id]) }))
-    .sort(
-      (a, b) => VERDICT_META[a.verdict].order - VERDICT_META[b.verdict].order
-    );
+    .map((q) => {
+      const evs = byItem.get(q.id) ?? [];
+      return { q, evs, verdict: verdictForQuestion(evs) };
+    })
+    .sort((a, b) => VERDICT_META[a.verdict].order - VERDICT_META[b.verdict].order);
 
   return (
     <div className="flex flex-col divide-y divide-[color:var(--border)] border-t border-border">
-      {ranked.map(({ q, verdict }) => (
-        <QuestionDetail key={q.id} q={q} verdict={verdict} stat={stats[q.id]} />
+      {ranked.map(({ q, evs, verdict }) => (
+        <QuestionDetail key={q.id} q={q} verdict={verdict} events={evs} />
       ))}
     </div>
   );
@@ -418,15 +554,17 @@ function TaskQuestions({ task, stats }: { task: TaskTrace; stats: ItemStats }) {
 function QuestionDetail({
   q,
   verdict,
-  stat,
+  events,
 }: {
   q: QuizQuestion;
   verdict: QuestionVerdict;
-  stat?: { correct: number; wrong: number };
+  events: AnswerEvent[];
 }) {
   const [open, setOpen] = useState(verdict === "missed");
   const meta = VERDICT_META[verdict];
   const answer = q.options.find((o) => o.is_correct);
+  const right = events.filter((e) => e.correct).length;
+  const blind = events.some((e) => quadrantOfAnswer(e) === "blindspot");
 
   return (
     <div className="px-3 py-2.5">
@@ -442,13 +580,14 @@ function QuestionDetail({
             border: `1px solid color-mix(in oklab, ${meta.color} 45%, transparent)`,
           }}
         >
-          {meta.label}
+          {blind ? "Blind spot" : meta.label}
         </span>
         <span className="min-w-0 flex-1 text-xs leading-relaxed text-dim">
           {q.stem}
         </span>
         <span className="shrink-0 font-mono text-[0.6rem] tabular text-muted">
-          {stat ? `${stat.correct}✓/${stat.wrong}✗` : "—"} · L{q.difficulty}
+          {events.length ? `${right}✓/${events.length - right}✗` : "—"} · L
+          {q.difficulty}
         </span>
       </button>
       {open && answer && (
@@ -469,27 +608,36 @@ function QuestionDetail({
 }
 
 /**
- * Scenario accuracy, carried over from the old heatmap. Scenarios cut across
- * domains, so this is the one view here that isn't domain/task shaped — a task
- * can be strong while one scenario framing of it consistently isn't.
+ * Scenario accuracy. Scenarios cut across domains, so this is the one view
+ * here that isn't domain/task shaped — a task can be strong while one scenario
+ * framing of it consistently isn't.
  */
-function Scenarios({ stats }: { stats: ItemStats }) {
-  const byScenario = useMemo(() => aggregate("scenario", stats), [stats]);
+function Scenarios({ events }: { events: AnswerEvent[] }) {
+  const byScenario = useMemo(() => {
+    const m = new Map<string, { correct: number; total: number }>();
+    for (const e of events) {
+      if (!e.scenario) continue;
+      const b = m.get(e.scenario) ?? { correct: 0, total: 0 };
+      b.total++;
+      if (e.correct) b.correct++;
+      m.set(e.scenario, b);
+    }
+    return m;
+  }, [events]);
+
   return (
     <section className="mt-12">
       <h2 className="mb-4 font-display text-lg text-ink">By scenario</h2>
       <div className="codex-panel flex flex-col gap-4 p-5">
         {scenarios.map((s) => {
-          const b = byScenario[s.slug];
+          const b = byScenario.get(s.slug);
           const acc = b && b.total ? b.correct / b.total : null;
           return (
             <div key={s.slug}>
               <div className="mb-1 flex items-baseline justify-between gap-3 text-sm">
                 <span className="text-dim">{s.name}</span>
                 <span className="font-mono text-xs tabular text-muted">
-                  {acc === null
-                    ? "— no reps"
-                    : `${pct(acc)} · ${b.correct}/${b.total}`}
+                  {acc === null ? "— no reps" : `${pct(acc)} · ${b!.correct}/${b!.total}`}
                 </span>
               </div>
               <div className="h-1.5 w-full overflow-hidden rounded-full bg-[color:color-mix(in_oklab,var(--accent)_12%,transparent)]">
@@ -505,6 +653,62 @@ function Scenarios({ stats }: { stats: ItemStats }) {
           );
         })}
       </div>
+    </section>
+  );
+}
+
+/** Ratings from before the answer log. Task-level only — kept, never blended. */
+function History({ legacy }: { legacy: Trace["legacy"] }) {
+  const [open, setOpen] = useState(false);
+  if (legacy.totals.total === 0) return null;
+  const t = legacy.totals;
+  return (
+    <section className="mt-12">
+      <button
+        onClick={() => setOpen((v) => !v)}
+        className="flex w-full items-baseline justify-between gap-3 text-left"
+        aria-expanded={open}
+      >
+        <h2 className="font-display text-lg text-ink">History (task-level)</h2>
+        <span className="font-mono text-xs text-muted">
+          {t.total} ratings · {legacy.from ? day(legacy.from) : "—"} →{" "}
+          {legacy.to ? day(legacy.to) : "—"} {open ? "−" : "+"}
+        </span>
+      </button>
+      <p className="mt-2 max-w-xl font-mono text-[0.7rem] leading-relaxed text-muted">
+        Confidence ratings logged before per-question tracking existed. They
+        record the task but not the question, so nothing here opens to a
+        question and none of it feeds the numbers above. Kept as history.
+      </p>
+      {open && (
+        <div className="codex-panel mt-4 flex flex-col gap-2 p-5">
+          <div className="mb-1 flex flex-wrap gap-x-4 gap-y-1 font-mono text-xs text-muted">
+            <span>solid {t.solid}</span>
+            <span>lucky {t.lucky}</span>
+            <span>gap {t.gap}</span>
+            <span style={{ color: "var(--wrong)" }}>blind {t.blindspot}</span>
+          </div>
+          {legacy.tasks.map((lt) => (
+            <div key={lt.code} className="flex items-center gap-3">
+              <span className="w-10 shrink-0 font-mono text-xs text-ink">
+                {lt.code}
+              </span>
+              <span className="flex-1">
+                <QuadrantBar q={lt.quadrants} />
+              </span>
+              <span className="w-28 shrink-0 text-right font-mono text-[0.65rem] tabular text-muted">
+                {lt.quadrants.solid}/{lt.quadrants.total} cold
+                {lt.quadrants.blindspot > 0 && (
+                  <span style={{ color: "var(--wrong)" }}>
+                    {" "}
+                    · {lt.quadrants.blindspot} blind
+                  </span>
+                )}
+              </span>
+            </div>
+          ))}
+        </div>
+      )}
     </section>
   );
 }

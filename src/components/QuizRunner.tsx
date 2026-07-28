@@ -7,6 +7,7 @@ import type { QuizQuestion } from "@/lib/queries";
 import { domainByNumber } from "@/lib/blueprint";
 import { markActivity, saveAttempt } from "@/lib/progress";
 import { recordItemResults } from "@/lib/itemStats";
+import { logAnswer } from "@/lib/answers";
 import { awardXp, type LevelProgress } from "@/lib/gamification";
 import {
   logCalibration,
@@ -65,8 +66,19 @@ export function QuizRunner({
         confidence,
       },
     ]);
+    const ts = new Date().toISOString();
+    logAnswer({
+      ts,
+      itemId: q.id,
+      mode: "quiz",
+      domain: q.domain,
+      task: q.task_code,
+      scenario: q.scenario,
+      correct,
+      confidence,
+    });
     logCalibration({
-      date: new Date().toISOString(),
+      date: ts,
       kind: "quiz",
       taskCode: q.task_code,
       domain: q.domain,

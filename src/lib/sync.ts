@@ -11,6 +11,7 @@ const PROGRESS_STORAGE_KEYS = [
   "ccaf_flags",
   "ccaf_seen",
   "ccaf_item_stats",
+  "ccaf_answers",
 ] as const;
 
 /** Fire-and-forget: mirror one localStorage key to the cloud for the current user. */

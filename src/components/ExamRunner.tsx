@@ -15,6 +15,7 @@ import {
 } from "@/lib/calibration";
 import { loadFlags, toggleFlag } from "@/lib/flags";
 import { recordItemResults } from "@/lib/itemStats";
+import { logAnswers } from "@/lib/answers";
 
 const EXAM_SECONDS = 120 * 60;
 const PASS_SCALED = 720;
@@ -353,6 +354,14 @@ function ExamResults({
   const scaled = Math.round((correct / total) * 1000);
   const pass = scaled >= PASS_SCALED;
 
+  // Identifies this sitting for the answer log's idempotent append. A ref
+  // survives StrictMode's double-invoked effect (same instance, so the same
+  // value), while a fresh sitting of the same questions gets a new one — the
+  // question-id list alone would silently drop an immediate retake.
+  const sittingId = useRef(
+    `${Date.now()}-${Math.random().toString(36).slice(2, 10)}`
+  );
+
   const perDomain = useMemo(() => {
     const acc: Record<number, DomainScore> = {};
     for (const d of domains) acc[d.number] = { correct: 0, total: 0 };
@@ -365,6 +374,28 @@ function ExamResults({
 
   useEffect(() => {
     try {
+      // The answer log: every answered item, confidence or not. Keyed on the
+      // sitting so StrictMode's double-invoke can't append it twice.
+      const finishedAt = new Date().toISOString();
+      logAnswers(
+        questions.flatMap((q, i) =>
+          answers[i] === null
+            ? []
+            : [
+                {
+                  ts: finishedAt,
+                  itemId: q.id,
+                  mode: "exam" as const,
+                  domain: q.domain,
+                  task: q.task_code,
+                  scenario: q.scenario,
+                  correct: answers[i] === correctLabels[i],
+                  confidence: confidences[i] ?? null,
+                },
+              ]
+        ),
+        sittingId.current
+      );
       // Calibration events for answered questions with a confidence.
       questions.forEach((q, i) => {
         if (answers[i] !== null && confidences[i]) {

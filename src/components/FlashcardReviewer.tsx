@@ -16,6 +16,7 @@ import {
   type Rating,
 } from "@/lib/srs";
 import { markActivity } from "@/lib/progress";
+import { logAnswer } from "@/lib/answers";
 import { awardXp } from "@/lib/gamification";
 import {
   logCalibration,
@@ -95,8 +96,19 @@ export function FlashcardReviewer({
     // Calibration: recalled well (good/easy) counts as "correct".
     const confidence = pendingConfidence ?? "fairly";
     const recalled = rating === "good" || rating === "easy";
+    const ts = new Date().toISOString();
+    logAnswer({
+      ts,
+      itemId: current.id,
+      mode: "card",
+      domain: current.domain,
+      task: current.task_code,
+      scenario: null,
+      correct: recalled,
+      confidence,
+    });
     logCalibration({
-      date: new Date().toISOString(),
+      date: ts,
       kind: "card",
       taskCode: current.task_code,
       domain: current.domain,

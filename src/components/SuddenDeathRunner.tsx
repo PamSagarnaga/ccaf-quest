@@ -8,6 +8,7 @@ import { domainByNumber } from "@/lib/blueprint";
 import { markActivity } from "@/lib/progress";
 import { awardXp } from "@/lib/gamification";
 import { recordItemResults } from "@/lib/itemStats";
+import { logAnswer } from "@/lib/answers";
 
 const SECONDS = 60;
 const REVEAL_MS = 1900;
@@ -86,6 +87,18 @@ export function SuddenDeathRunner({
   }
 
   function recordItem(correct: boolean) {
+    // No confidence prompt in sudden death — the clock is the point — so these
+    // rows count toward accuracy but never toward the cold rate.
+    logAnswer({
+      ts: new Date().toISOString(),
+      itemId: q.id,
+      mode: "sudden",
+      domain: q.domain,
+      task: q.task_code,
+      scenario: q.scenario,
+      correct,
+      confidence: null,
+    });
     recordItemResults([
       {
         id: q.id,
