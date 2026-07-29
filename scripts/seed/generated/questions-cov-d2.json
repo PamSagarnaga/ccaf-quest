@@ -113,9 +113,9 @@
     "explanation": null,
     "options": [
       { "label": "A", "body": "auto — the model decides whether to call a tool.", "is_correct": true, "rationale": "Correct. `auto` is the default for agentic loops; the model needs freedom to call tools or answer in text." },
-      { "label": "B", "body": "any — force a tool call every turn.", "is_correct": false, "rationale": "Forcing a tool every turn prevents the model from ever finishing with text — can cause loops." },
-      { "label": "C", "body": "Forced to a specific tool.", "is_correct": false, "rationale": "Forcing one tool removes the model's judgment about when to act." },
-      { "label": "D", "body": "None — disable tools during the loop.", "is_correct": false, "rationale": "Disabling tools defeats the point of an agentic loop." }
+      { "label": "B", "body": "any — force the model to call some tool on every turn.", "is_correct": false, "rationale": "Forcing a tool every turn prevents the model from ever finishing with text — can cause loops." },
+      { "label": "C", "body": "A forced choice naming one specific tool to call.", "is_correct": false, "rationale": "Forcing one tool removes the model's judgment about when to act." },
+      { "label": "D", "body": "none — disable tool calling for the whole loop.", "is_correct": false, "rationale": "Disabling tools defeats the point of an agentic loop." }
     ]
   },
   {

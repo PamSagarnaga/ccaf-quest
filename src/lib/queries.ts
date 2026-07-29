@@ -35,6 +35,48 @@ export async function getTaskQuestionCounts(): Promise<Record<string, number>> {
   return counts;
 }
 
+/**
+ * Question stock per scenario, broken down by domain and task:
+ * `slug → domain → task_code → count`.
+ *
+ * The scenario view needs the breakdown, not just a total. A scenario is only
+ * covered when every domain it spans is covered, and a single number can't
+ * show that one of its domains has never been drilled.
+ */
+export async function getScenarioQuestionCounts(): Promise<
+  Record<string, Record<number, Record<string, number>>>
+> {
+  const supabase = await createClient();
+  const { data, error } = await supabase
+    .from("questions")
+    .select("scenario,domain,task_code");
+  if (error) throw error;
+  const out: Record<string, Record<number, Record<string, number>>> = {};
+  for (const row of (data ?? []) as {
+    scenario: string | null;
+    domain: number;
+    task_code: string | null;
+  }[]) {
+    if (!row.scenario || !row.task_code) continue;
+    const byDomain = (out[row.scenario] ??= {});
+    const byTask = (byDomain[row.domain] ??= {});
+    byTask[row.task_code] = (byTask[row.task_code] ?? 0) + 1;
+  }
+  return out;
+}
+
+/** Full shuffled pool for one scenario, across every domain it touches. */
+export async function getScenarioPool(slug: string): Promise<QuizQuestion[]> {
+  const supabase = await createClient();
+  const { data, error } = await supabase
+    .from("questions")
+    .select(QUESTION_SELECT)
+    .eq("scenario", slug);
+  if (error) throw error;
+  const all = (data ?? []) as unknown as QuizQuestion[];
+  return shuffle(all).map(shuffleOpts);
+}
+
 export interface Flashcard {
   id: string;
   domain: number;

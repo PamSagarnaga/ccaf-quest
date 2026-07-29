@@ -113,9 +113,9 @@
     "explanation": null,
     "options": [
       { "label": "A", "body": "The hybrid plan-then-execute pattern.", "is_correct": true, "rationale": "Correct. Plan mode for investigation/design, then direct execution for implementation — the documented name for combining both modes." },
-      { "label": "B", "body": "Incremental execution.", "is_correct": false, "rationale": "Not a defined Claude Code pattern." },
-      { "label": "C", "body": "Staged deployment.", "is_correct": false, "rationale": "That's a deployment strategy, not a Claude Code execution mode." },
-      { "label": "D", "body": "Sequential plan mode.", "is_correct": false, "rationale": "Not a defined concept — plan mode and direct execution are the two phases." }
+      { "label": "B", "body": "Incremental execution without a planning phase.", "is_correct": false, "rationale": "Not a defined Claude Code pattern." },
+      { "label": "C", "body": "Staged deployment across the file set.", "is_correct": false, "rationale": "That's a deployment strategy, not a Claude Code execution mode." },
+      { "label": "D", "body": "Sequential plan mode, replanned per file.", "is_correct": false, "rationale": "Not a defined concept — plan mode and direct execution are the two phases." }
     ]
   },
   {

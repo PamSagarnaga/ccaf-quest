@@ -45,9 +45,9 @@
     "explanation": null,
     "options": [
       { "label": "A", "body": "transient, validation, business, permission.", "is_correct": true, "rationale": "Correct. Those are the four categories, carried alongside the isError flag, an isRetryable boolean, and a human-readable description." },
-      { "label": "B", "body": "fatal, warning, info, debug.", "is_correct": false, "rationale": "Those are log severity levels, not the MCP error categories." },
-      { "label": "C", "body": "network, timeout, auth, unknown.", "is_correct": false, "rationale": "Plausible-sounding but not the guide's categories (transient/validation/business/permission)." },
-      { "label": "D", "body": "client, server, gateway, retry.", "is_correct": false, "rationale": "Not the MCP error categories." }
+      { "label": "B", "body": "fatal, warning, informational, debug.", "is_correct": false, "rationale": "Those are log severity levels, not the MCP error categories." },
+      { "label": "C", "body": "network, timeout, authentication, unknown_error.", "is_correct": false, "rationale": "Plausible-sounding but not the guide's categories (transient/validation/business/permission)." },
+      { "label": "D", "body": "client, server, gateway, retryable.", "is_correct": false, "rationale": "Not the MCP error categories." }
     ]
   },
   {

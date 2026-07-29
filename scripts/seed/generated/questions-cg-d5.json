@@ -1,0 +1,224 @@
+[
+  {
+    "id": "c1000000-0000-4000-8000-000000000501",
+    "task_code": "5.4",
+    "domain": 5,
+    "scenario": "code-generation",
+    "stem": "A four-hour refactor across 60 files is approaching the context limit and Claude Code will auto-compact shortly. The migration plan and the list of already-converted files exist only in the conversation. What should happen first?",
+    "type": "single",
+    "source": "generated",
+    "difficulty": 3,
+    "explanation": null,
+    "options": [
+      {
+        "label": "A",
+        "body": "Write the plan and the converted list to a scratchpad file on disk, then re-read it afterwards.",
+        "is_correct": true,
+        "rationale": "Correct. Compaction is lossy by design — it keeps the gist and drops detail. State that must survive it belongs outside the transcript, on disk, where it can be read back verbatim into the fresh context."
+      },
+      {
+        "label": "B",
+        "body": "Ask for a summary of the session so far and trust compaction to carry the important parts of that summary forward into the new context window.",
+        "is_correct": false,
+        "rationale": "A summary is exactly what compaction already produces, and it is where per-file detail gets lost. Summarising twice does not make the file list survive."
+      },
+      {
+        "label": "C",
+        "body": "Raise the context limit so that compaction is deferred until the refactor across all 60 files is finished.",
+        "is_correct": false,
+        "rationale": "This postpones the problem rather than solving it, and the limit is not an arbitrary dial. A four-hour task will outgrow any window."
+      },
+      {
+        "label": "D",
+        "body": "Start a fresh session and re-derive the remaining work by diffing the working branch against main before continuing.",
+        "is_correct": false,
+        "rationale": "A diff shows which files changed but not why, nor the ordering the plan depended on. It also throws away reasoning that was expensive to produce."
+      }
+    ]
+  },
+  {
+    "id": "c1000000-0000-4000-8000-000000000502",
+    "task_code": "5.4",
+    "domain": 5,
+    "scenario": "code-generation",
+    "stem": "Every new Claude Code session on the same monorepo spends its first ten minutes rediscovering the identical directory layout and build entry points. What is the durable fix?",
+    "type": "single",
+    "source": "generated",
+    "difficulty": 2,
+    "explanation": null,
+    "options": [
+      {
+        "label": "A",
+        "body": "Commit a short repo manifest describing layout and entry points, and reference it from CLAUDE.md.",
+        "is_correct": true,
+        "rationale": "Correct. A committed manifest turns repeated exploration into a single cheap read, and referencing it from CLAUDE.md means every session loads it without anyone remembering to."
+      },
+      {
+        "label": "B",
+        "body": "Keep one very long-lived session open across the whole week so that the exploration only ever has to be paid for once by the team.",
+        "is_correct": false,
+        "rationale": "A week-long session hits context limits and compaction repeatedly, and it cannot be shared across engineers working in parallel."
+      },
+      {
+        "label": "C",
+        "body": "Have each engineer paste a description of the layout at the start of every session they open.",
+        "is_correct": false,
+        "rationale": "This works but relies on discipline and drifts out of date per person. Committing it once puts a single version under review."
+      },
+      {
+        "label": "D",
+        "body": "Rely on `--resume` to carry the previous session's exploration into each new task that starts.",
+        "is_correct": false,
+        "rationale": "Resume continues one specific session; it does not give a new task, or another engineer, a shared map of the repository."
+      }
+    ]
+  },
+  {
+    "id": "c1000000-0000-4000-8000-000000000503",
+    "task_code": "5.1",
+    "domain": 5,
+    "scenario": "code-generation",
+    "stem": "Ninety minutes into a refactor, Claude reintroduces a callback pattern the team banned at the top of the conversation. Restating the ban fixes the file in hand, then the drift returns. What is the durable fix?",
+    "type": "single",
+    "source": "generated",
+    "difficulty": 3,
+    "explanation": null,
+    "options": [
+      {
+        "label": "A",
+        "body": "Move the ban into CLAUDE.md so it is reloaded as a standing rule instead of living in the transcript.",
+        "is_correct": true,
+        "rationale": "Correct. An instruction given once sits far back in a long conversation and competes with everything after it. Configuration is re-supplied on every turn, so it does not decay."
+      },
+      {
+        "label": "B",
+        "body": "Restate the constraint in every single prompt from here on, since the most recent instruction always carries the most weight with the model.",
+        "is_correct": false,
+        "rationale": "It works turn by turn but puts the burden on the operator, and one forgotten restatement brings the drift straight back."
+      },
+      {
+        "label": "C",
+        "body": "Shorten sessions so the constraint never falls far enough back to be lost.",
+        "is_correct": false,
+        "rationale": "This bounds the symptom rather than removing it, and it fragments work that genuinely needs a long session."
+      },
+      {
+        "label": "D",
+        "body": "Ask the model to summarise the constraints agreed so far and then work from that summary for the rest of the session.",
+        "is_correct": false,
+        "rationale": "The summary itself ages the same way the original instruction did, and summarising is where precise wording tends to be lost."
+      }
+    ]
+  },
+  {
+    "id": "c1000000-0000-4000-8000-000000000504",
+    "task_code": "5.2",
+    "domain": 5,
+    "scenario": "code-generation",
+    "stem": "A ticket reads only \"clean up the auth module.\" It could mean deleting dead code, splitting an oversized file, or swapping the session library — three very different diffs. What is the best first move?",
+    "type": "single",
+    "source": "generated",
+    "difficulty": 3,
+    "explanation": null,
+    "options": [
+      {
+        "label": "A",
+        "body": "Use plan mode to lay out the readings and get one confirmed before any file is edited.",
+        "is_correct": true,
+        "rationale": "Correct. The ambiguity is genuine and cheap to resolve up front, and expensive to resolve after a large diff exists. Plan mode is the built-in way to surface the choice without touching the tree."
+      },
+      {
+        "label": "B",
+        "body": "Pick the reading with the smallest blast radius and begin there, on the grounds that a small diff is straightforward to revert later if it turns out to be the wrong one.",
+        "is_correct": false,
+        "rationale": "Guessing quietly is still guessing. Reverting costs the author's time and the reviewer's, and the ambiguity remains unresolved for the next ticket."
+      },
+      {
+        "label": "C",
+        "body": "Implement all three readings on one branch so the reviewer can keep whichever was actually meant.",
+        "is_correct": false,
+        "rationale": "This triples the work and hands the reviewer a diff that cannot be assessed as a whole. Cost scales with the ambiguity instead of eliminating it."
+      },
+      {
+        "label": "D",
+        "body": "Begin editing straight away and let the reviewer redirect at pull-request time, since scope is settled during review anyway.",
+        "is_correct": false,
+        "rationale": "Review is the most expensive place to discover a misread requirement, and it wastes the whole implementation."
+      }
+    ]
+  },
+  {
+    "id": "c1000000-0000-4000-8000-000000000505",
+    "task_code": "5.5",
+    "domain": 5,
+    "scenario": "code-generation",
+    "stem": "A team merges around 200 Claude-generated diffs a week and has the capacity to human-review about 30 of them. Which selection rule prevents the most damage?",
+    "type": "single",
+    "source": "generated",
+    "difficulty": 3,
+    "explanation": null,
+    "options": [
+      {
+        "label": "A",
+        "body": "Review everything touching auth, payments, or migrations first, then sample what is left.",
+        "is_correct": true,
+        "rationale": "Correct. Stratify by blast radius, not by volume. A defect in a migration or an auth path is unrecoverable in a way that a defect in a log message is not."
+      },
+      {
+        "label": "B",
+        "body": "Review the 30 largest diffs measured by line count, on the reasoning that a bigger change carries proportionally more risk of containing a defect.",
+        "is_correct": false,
+        "rationale": "Line count tracks effort, not consequence. A three-line change to a permission check outranks a 400-line rename."
+      },
+      {
+        "label": "C",
+        "body": "Review a uniform random 15% sample so every diff has an identical chance of being seen by a person.",
+        "is_correct": false,
+        "rationale": "Uniform sampling estimates an overall defect rate well but deliberately ignores severity, so it under-covers the few places that matter most."
+      },
+      {
+        "label": "D",
+        "body": "Review the 30 the model itself rated lowest-confidence and treat its own confidence as sufficient for all the rest.",
+        "is_correct": false,
+        "rationale": "Self-reported confidence is a useful input but is itself unvalidated, and it is blind to which files are dangerous to get wrong."
+      }
+    ]
+  },
+  {
+    "id": "c1000000-0000-4000-8000-000000000506",
+    "task_code": "5.6",
+    "domain": 5,
+    "scenario": "code-generation",
+    "stem": "Claude is generating API documentation from the source code plus an older design document. For one endpoint the two disagree on the default timeout. What should the generated page do?",
+    "type": "single",
+    "source": "generated",
+    "difficulty": 2,
+    "explanation": null,
+    "options": [
+      {
+        "label": "A",
+        "body": "Give both values, each attributed to where it came from, and flag the conflict for a human.",
+        "is_correct": true,
+        "rationale": "Correct. The conflict is information. Attributing each figure preserves provenance and puts the decision with whoever can actually say which is authoritative."
+      },
+      {
+        "label": "B",
+        "body": "Take the value from the source code, because running code is always more current than a design document and the older figure can simply be dropped.",
+        "is_correct": false,
+        "rationale": "Often true but not reliably so — the code may hold the bug the design document describes correctly. Silently picking one hides the disagreement."
+      },
+      {
+        "label": "C",
+        "body": "Take the design document's value, since it records the contract the code is meant to implement.",
+        "is_correct": false,
+        "rationale": "This documents an intention rather than the behaviour callers will actually observe, and still conceals the conflict."
+      },
+      {
+        "label": "D",
+        "body": "Leave the timeout out of the page until somebody reconciles the two inputs and confirms which figure is correct.",
+        "is_correct": false,
+        "rationale": "Omission loses the finding entirely — nobody learns there was a conflict, so nothing prompts the reconciliation."
+      }
+    ]
+  }
+]

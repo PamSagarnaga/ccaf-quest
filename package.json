@@ -11,7 +11,9 @@
     "db:diff": "supabase db diff",
     "db:reset": "supabase db reset --linked",
     "gen:types": "supabase gen types typescript --linked > src/lib/database.types.ts",
-    "seed": "tsx scripts/seed.ts"
+    "seed": "tsx scripts/seed.ts",
+    "qa:questions": "tsx scripts/qa-questions.ts",
+    "test:scenario": "tsx scripts/test-scenario.ts"
   },
   "dependencies": {
     "@supabase/ssr": "^0.12.3",

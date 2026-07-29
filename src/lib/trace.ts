@@ -36,7 +36,7 @@ export interface Quadrants {
   total: number;
 }
 
-const emptyQuadrants = (): Quadrants => ({
+export const emptyQuadrants = (): Quadrants => ({
   solid: 0,
   lucky: 0,
   gap: 0,
@@ -60,12 +60,12 @@ function expectedExamItems(taskCode: string): number {
   return (60 * (d.weight / 100)) / tasksForDomain(d.number).length;
 }
 
-function ratio(part: number, whole: number): number | null {
+export function ratio(part: number, whole: number): number | null {
   return whole === 0 ? null : part / whole;
 }
 
 /** Half accuracy, half solid-rate; whichever exists alone when only one does. */
-function blendMastery(
+export function blendMastery(
   accuracy: number | null,
   solidRate: number | null
 ): number | null {

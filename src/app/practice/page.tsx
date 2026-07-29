@@ -1,12 +1,18 @@
 import Link from "next/link";
-import { domains, tasksForDomain } from "@/lib/blueprint";
-import { getDomainQuestionCounts } from "@/lib/queries";
+import { domains, scenarios, tasksForDomain, domainByNumber } from "@/lib/blueprint";
+import {
+  getDomainQuestionCounts,
+  getScenarioQuestionCounts,
+} from "@/lib/queries";
 import { CoverageBadge } from "@/components/CoverageBadge";
 
 export const metadata = { title: "Practice — The Architect's Codex" };
 
 export default async function PracticePage() {
-  const counts = await getDomainQuestionCounts();
+  const [counts, scenarioCounts] = await Promise.all([
+    getDomainQuestionCounts(),
+    getScenarioQuestionCounts(),
+  ]);
   const total = Object.values(counts).reduce((a, b) => a + b, 0);
 
   return (
@@ -122,6 +128,102 @@ export default async function PracticePage() {
               }}
             >
               {card}
+            </Link>
+          );
+        })}
+      </div>
+
+      {/* By scenario — the exam presents 4 of these 6, and each one is graded
+          across several domains at once, so the drill is drawn to span them. */}
+      <div className="mb-5 mt-12 flex items-end justify-between">
+        <h2 className="font-display text-xl font-medium text-ink">
+          By scenario
+        </h2>
+        <span className="font-mono text-xs text-muted">
+          {scenarios.length} in the bank · 4 appear on the exam
+        </span>
+      </div>
+      <p className="mb-5 max-w-xl text-sm text-dim">
+        Each drill spans every domain the scenario covers, not just the one it
+        has the most questions in. Results still file under their own task and
+        domain on the trace page.
+      </p>
+
+      <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+        {scenarios.map((s, i) => {
+          const stock = scenarioCounts[s.slug] ?? {};
+          const n = Object.values(stock)
+            .flatMap((byTask) => Object.values(byTask))
+            .reduce((a, b) => a + b, 0);
+          const missing = (s.primary_domains as readonly number[]).filter(
+            (d) => !stock[d]
+          );
+          const disabled = n === 0;
+
+          const body = (
+            <>
+              <div className="font-display text-base font-medium text-ink">
+                {s.name}
+              </div>
+              <div className="mt-2 flex flex-wrap items-center gap-1.5">
+                {(s.primary_domains as readonly number[]).map((d) => {
+                  const meta = domainByNumber(d);
+                  const empty = !stock[d];
+                  return (
+                    <span
+                      key={d}
+                      title={`D${d} · ${meta.name}${empty ? " — no questions yet" : ""}`}
+                      className="rounded px-1.5 py-0.5 font-mono text-[0.65rem] font-semibold"
+                      style={
+                        empty
+                          ? {
+                              color: "var(--text-faint)",
+                              border: "1px dashed var(--border)",
+                            }
+                          : {
+                              color: `var(--${meta.accent})`,
+                              background: `color-mix(in oklab, var(--${meta.accent}) 14%, transparent)`,
+                            }
+                      }
+                    >
+                      D{d}
+                    </span>
+                  );
+                })}
+              </div>
+              <div className="mt-3 flex items-center justify-between">
+                <span className="font-mono text-xs text-muted">
+                  {n} question{n === 1 ? "" : "s"}
+                  {missing.length > 0 && ` · D${missing.join("/D")} empty`}
+                </span>
+                <span
+                  className="font-mono text-xs font-semibold"
+                  style={{
+                    color: disabled ? "var(--text-faint)" : "var(--accent)",
+                  }}
+                >
+                  {disabled ? "coming soon" : "start →"}
+                </span>
+              </div>
+            </>
+          );
+
+          return disabled ? (
+            <div
+              key={s.slug}
+              className="rise codex-panel px-5 py-4 opacity-55"
+              style={{ animationDelay: `${0.2 + i * 0.05}s` }}
+            >
+              {body}
+            </div>
+          ) : (
+            <Link
+              key={s.slug}
+              href={`/practice/run?scenario=${s.slug}&n=${Math.min(n, 12)}`}
+              className="rise codex-panel px-5 py-4 transition-shadow duration-300"
+              style={{ animationDelay: `${0.2 + i * 0.05}s` }}
+            >
+              {body}
             </Link>
           );
         })}

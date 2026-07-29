@@ -3,8 +3,12 @@
 import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/client";
-import { scenarios } from "@/lib/blueprint";
 import { loadAnswers, type AnswerEvent } from "@/lib/answers";
+import {
+  buildScenarioTrace,
+  type ScenarioBankCounts,
+  type ScenarioTrace,
+} from "@/lib/scenarioTrace";
 import {
   buildTrace,
   quadrantOfAnswer,
@@ -60,11 +64,14 @@ function QuadrantBar({ q }: { q: Quadrants }) {
 
 export function TraceView({
   taskBankCounts,
+  scenarioBankCounts,
 }: {
   taskBankCounts: Record<string, number>;
+  scenarioBankCounts: ScenarioBankCounts;
 }) {
   // localStorage is client-only; build after mount so SSR stays stable.
   const [trace, setTrace] = useState<Trace | null>(null);
+  const [scenarioTraces, setScenarioTraces] = useState<ScenarioTrace[]>([]);
   const [events, setEvents] = useState<AnswerEvent[]>([]);
   const [sort, setSort] = useState<SortKey>("blueprint");
 
@@ -72,7 +79,8 @@ export function TraceView({
     const evs = loadAnswers();
     setEvents(evs);
     setTrace(buildTrace(taskBankCounts, evs));
-  }, [taskBankCounts]);
+    setScenarioTraces(buildScenarioTrace(scenarioBankCounts, evs));
+  }, [taskBankCounts, scenarioBankCounts]);
 
   /** Answers grouped by question, so drill-downs don't rescan the log. */
   const byItem = useMemo(() => {
@@ -159,7 +167,7 @@ export function TraceView({
           </section>
 
           <Legend />
-          <Scenarios events={events} />
+          <Scenarios traces={scenarioTraces} byItem={byItem} />
         </>
       )}
 
@@ -453,12 +461,33 @@ function DomainPanel({
   );
 }
 
+/**
+ * The fields a task row renders. Both the domain view's `TaskTrace` and the
+ * scenario view's `ScenarioTaskTrace` satisfy this, so one row component serves
+ * both and the two views cannot drift apart visually.
+ */
+type TaskRowData = Pick<
+  TaskTrace,
+  | "code"
+  | "statement"
+  | "accuracy"
+  | "answers"
+  | "solidRate"
+  | "quadrants"
+  | "distinctSeen"
+  | "bankTotal"
+  | "thin"
+>;
+
 function TaskRow({
   task,
   byItem,
+  scenario,
 }: {
-  task: TaskTrace;
+  task: TaskRowData;
   byItem: Map<string, AnswerEvent[]>;
+  /** Narrows the drill-down to one scenario's framing of this task. */
+  scenario?: string;
 }) {
   const [open, setOpen] = useState(false);
   return (
@@ -493,7 +522,9 @@ function TaskRow({
           {open ? "−" : "+"}
         </span>
       </button>
-      {open && <TaskQuestions task={task} byItem={byItem} />}
+      {open && (
+        <TaskQuestions task={task} byItem={byItem} scenario={scenario} />
+      )}
     </div>
   );
 }
@@ -501,9 +532,11 @@ function TaskRow({
 function TaskQuestions({
   task,
   byItem,
+  scenario,
 }: {
-  task: TaskTrace;
+  task: TaskRowData;
   byItem: Map<string, AnswerEvent[]>;
+  scenario?: string;
 }) {
   const [questions, setQuestions] = useState<QuizQuestion[] | null>(null);
 
@@ -511,10 +544,9 @@ function TaskQuestions({
     let cancelled = false;
     (async () => {
       const supabase = createClient();
-      const { data } = await supabase
-        .from("questions")
-        .select(SELECT)
-        .eq("task_code", task.code);
+      let query = supabase.from("questions").select(SELECT).eq("task_code", task.code);
+      if (scenario) query = query.eq("scenario", scenario);
+      const { data } = await query;
       if (cancelled) return;
       const qs = ((data ?? []) as unknown as QuizQuestion[]).map((q) => ({
         ...q,
@@ -525,7 +557,7 @@ function TaskQuestions({
     return () => {
       cancelled = true;
     };
-  }, [task.code]);
+  }, [task.code, scenario]);
 
   if (questions === null)
     return (
@@ -608,52 +640,177 @@ function QuestionDetail({
 }
 
 /**
- * Scenario accuracy. Scenarios cut across domains, so this is the one view
- * here that isn't domain/task shaped — a task can be strong while one scenario
- * framing of it consistently isn't.
+ * Scenario view. Scenarios cut across domains — the exam grades the Customer
+ * Support agent on D1 orchestration, D2 tool design and D5 reliability at once
+ * — so this is the one section that isn't domain-shaped at the top level.
+ *
+ * It expands the other way round from the domain view: scenario → domain →
+ * task → question. Same rows underneath, same numbers, read along a different
+ * axis. A headline accuracy is deliberately not the whole story here: a
+ * primary domain with no reps is called out by name, because averaging over
+ * the domains that *do* have reps is exactly how an untouched one stays hidden.
  */
-function Scenarios({ events }: { events: AnswerEvent[] }) {
-  const byScenario = useMemo(() => {
-    const m = new Map<string, { correct: number; total: number }>();
-    for (const e of events) {
-      if (!e.scenario) continue;
-      const b = m.get(e.scenario) ?? { correct: 0, total: 0 };
-      b.total++;
-      if (e.correct) b.correct++;
-      m.set(e.scenario, b);
-    }
-    return m;
-  }, [events]);
-
+function Scenarios({
+  traces,
+  byItem,
+}: {
+  traces: ScenarioTrace[];
+  byItem: Map<string, AnswerEvent[]>;
+}) {
   return (
     <section className="mt-12">
-      <h2 className="mb-4 font-display text-lg text-ink">By scenario</h2>
-      <div className="codex-panel flex flex-col gap-4 p-5">
-        {scenarios.map((s) => {
-          const b = byScenario.get(s.slug);
-          const acc = b && b.total ? b.correct / b.total : null;
-          return (
-            <div key={s.slug}>
-              <div className="mb-1 flex items-baseline justify-between gap-3 text-sm">
-                <span className="text-dim">{s.name}</span>
-                <span className="font-mono text-xs tabular text-muted">
-                  {acc === null ? "— no reps" : `${pct(acc)} · ${b!.correct}/${b!.total}`}
-                </span>
-              </div>
-              <div className="h-1.5 w-full overflow-hidden rounded-full bg-[color:color-mix(in_oklab,var(--accent)_12%,transparent)]">
-                <div
-                  className="h-full rounded-full"
-                  style={{
-                    width: `${(acc ?? 0) * 100}%`,
-                    background: acc === null ? "transparent" : scoreColor(acc),
-                  }}
-                />
-              </div>
-            </div>
-          );
-        })}
+      <div className="mb-2 flex flex-wrap items-baseline justify-between gap-3">
+        <h2 className="font-display text-lg text-ink">By scenario</h2>
+        <span className="font-mono text-xs text-muted">
+          4 of these 6 appear on the exam
+        </span>
+      </div>
+      <p className="mb-4 max-w-xl font-mono text-[0.7rem] leading-relaxed text-muted">
+        A scenario is only covered when every domain it spans is. Strength in
+        one domain can hide a domain you have never been asked about.
+      </p>
+      <div className="flex flex-col gap-3">
+        {traces.map((s) => (
+          <ScenarioPanel key={s.slug} scenario={s} byItem={byItem} />
+        ))}
       </div>
     </section>
+  );
+}
+
+function ScenarioPanel({
+  scenario: s,
+  byItem,
+}: {
+  scenario: ScenarioTrace;
+  byItem: Map<string, AnswerEvent[]>;
+}) {
+  const [open, setOpen] = useState(false);
+  const blind = s.blindSpots.length;
+
+  return (
+    <div className="codex-panel p-5">
+      <button
+        onClick={() => setOpen((v) => !v)}
+        className="w-full text-left"
+        aria-expanded={open}
+      >
+        <div className="flex flex-wrap items-baseline justify-between gap-x-3 gap-y-1">
+          <span className="font-display text-base text-ink">{s.name}</span>
+          <span className="font-mono text-xs tabular text-muted">
+            {s.distinctSeen}/{s.bankTotal} seen {open ? "−" : "+"}
+          </span>
+        </div>
+        <div className="mt-2 flex flex-wrap items-baseline gap-x-4 gap-y-1 font-mono text-xs tabular">
+          <span style={{ color: scoreColor(s.accuracy) }}>
+            {pct(s.accuracy)} right
+            <span className="text-muted"> ({s.answers})</span>
+          </span>
+          <span style={{ color: scoreColor(s.solidRate) }}>
+            {pct(s.solidRate)} cold
+            <span className="text-muted"> ({s.quadrants.total})</span>
+          </span>
+          {blind > 0 && (
+            <span style={{ color: "var(--wrong)" }}>
+              {blind} blind spot{blind === 1 ? "" : "s"}
+            </span>
+          )}
+          {s.thin && <span className="text-muted">thin data</span>}
+        </div>
+        <div className="mt-2">
+          <QuadrantBar q={s.quadrants} />
+        </div>
+        <div className="mt-2.5 flex flex-wrap items-center gap-1.5">
+          {s.domains.map((d) => {
+            const untouched = d.answers === 0;
+            return (
+              <span
+                key={d.number}
+                title={`D${d.number} · ${d.name}${
+                  d.primary ? "" : " (incidental)"
+                }${untouched ? " — no answers logged" : ""}`}
+                className="rounded px-1.5 py-0.5 font-mono text-[0.65rem] font-semibold"
+                style={
+                  untouched
+                    ? {
+                        color: "var(--text-faint)",
+                        border: "1px dashed var(--border)",
+                      }
+                    : {
+                        color: `var(--${d.accent})`,
+                        background: `color-mix(in oklab, var(--${d.accent}) 14%, transparent)`,
+                        opacity: d.primary ? 1 : 0.6,
+                      }
+                }
+              >
+                D{d.number} {pct(d.accuracy)}
+              </span>
+            );
+          })}
+        </div>
+      </button>
+
+      {(s.unexercised.length > 0 || s.unstocked.length > 0) && (
+        <p className="mt-3 font-mono text-[0.7rem] leading-relaxed text-muted">
+          {s.unexercised.length > 0 && (
+            <>
+              <span style={{ color: "var(--d1)" }}>Not yet exercised:</span>{" "}
+              D{s.unexercised.join(", D")}
+              {" — questions exist, you haven’t answered any. "}
+            </>
+          )}
+          {s.unstocked.length > 0 && (
+            <>
+              <span style={{ color: "var(--wrong)" }}>No questions in the bank:</span>{" "}
+              D{s.unstocked.join(", D")} — this scenario covers{" "}
+              {s.unstocked.length === 1 ? "it" : "them"} on the real exam.
+            </>
+          )}
+        </p>
+      )}
+
+      {open && (
+        <div className="mt-4 flex flex-col gap-4 border-t border-border pt-4">
+          {s.domains.map((d) => (
+            <div key={d.number}>
+              <div className="mb-2 flex flex-wrap items-baseline justify-between gap-x-3">
+                <span
+                  className="font-mono text-xs font-semibold"
+                  style={{ color: `var(--${d.accent})` }}
+                >
+                  D{d.number} · {d.name}
+                  {!d.primary && (
+                    <span className="ml-2 text-[0.65rem] font-normal text-muted">
+                      incidental
+                    </span>
+                  )}
+                </span>
+                <span className="font-mono text-[0.7rem] tabular text-muted">
+                  {pct(d.accuracy)} right · {pct(d.solidRate)} cold ·{" "}
+                  {d.distinctSeen}/{d.bankTotal} seen
+                </span>
+              </div>
+              <div className="flex flex-col gap-1.5">
+                {d.tasks.map((t) => (
+                  <TaskRow
+                    key={t.code}
+                    task={t}
+                    byItem={byItem}
+                    scenario={s.slug}
+                  />
+                ))}
+              </div>
+            </div>
+          ))}
+          <Link
+            href={`/practice/run?scenario=${s.slug}&n=12`}
+            className="self-start rounded-lg border border-border px-4 py-2 font-mono text-xs text-ink transition-colors hover:border-[color:var(--cta)]"
+          >
+            Drill this scenario →
+          </Link>
+        </div>
+      )}
+    </div>
   );
 }
 

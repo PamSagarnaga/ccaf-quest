@@ -33,9 +33,12 @@ function accentFor(domain: number) {
 export function QuizRunner({
   questions,
   domain,
+  scenario,
 }: {
   questions: QuizQuestion[];
   domain: number | null;
+  /** Set when this is a scenario drill — labels the run and keeps "again" in it. */
+  scenario?: { slug: string; name: string } | null;
 }) {
   const [idx, setIdx] = useState(0);
   const [selected, setSelected] = useState<string | null>(null);
@@ -104,6 +107,7 @@ export function QuizRunner({
         total={questions.length}
         durationSec={Math.round((Date.now() - startedAt.current) / 1000)}
         domain={domain}
+        scenario={scenario}
       />
     );
   }
@@ -156,6 +160,11 @@ export function QuizRunner({
             {q.task_code && (
               <span className="rounded-md border border-border px-2 py-1 font-mono text-[0.7rem] text-muted">
                 Task {q.task_code}
+              </span>
+            )}
+            {scenario && (
+              <span className="rounded-md border border-dashed border-border px-2 py-1 font-mono text-[0.7rem] text-dim">
+                {scenario.name}
               </span>
             )}
             <span className="ml-auto">
@@ -310,11 +319,13 @@ function Results({
   total,
   durationSec,
   domain,
+  scenario,
 }: {
   answers: Answer[];
   total: number;
   durationSec: number;
   domain: number | null;
+  scenario?: { slug: string; name: string } | null;
 }) {
   const correct = answers.filter((a) => a.correct).length;
   const pct = Math.round((correct / total) * 100);
@@ -447,7 +458,13 @@ function Results({
       </motion.div>
 
       <div className="codex-panel mt-10 p-6 text-left">
-        <h3 className="mb-4 font-display text-lg text-ink">By domain</h3>
+        <h3 className="mb-1 font-display text-lg text-ink">By domain</h3>
+        {scenario && (
+          <p className="mb-4 font-mono text-xs leading-relaxed text-muted">
+            {scenario.name} spans these domains. Every row is also filed under
+            its task on the trace page.
+          </p>
+        )}
         <div className="flex flex-col gap-3">
           {Object.entries(perDomain).map(([d, v]) => {
             const dn = Number(d);
@@ -486,7 +503,11 @@ function Results({
         </Link>
         <Link
           href={
-            domain ? `/practice/run?domain=${domain}&n=${total}` : "/practice/run?n=12"
+            scenario
+              ? `/practice/run?scenario=${scenario.slug}&n=${total}`
+              : domain
+                ? `/practice/run?domain=${domain}&n=${total}`
+                : "/practice/run?n=12"
           }
           className="rounded-lg px-5 py-2.5 font-mono text-sm font-semibold text-[color:var(--bg)]"
           style={{ background: "var(--cta)" }}

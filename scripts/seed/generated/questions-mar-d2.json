@@ -1,0 +1,150 @@
+[
+  {
+    "id": "c2000000-0000-4000-8000-000000000201",
+    "task_code": "2.4",
+    "domain": 2,
+    "scenario": "multi-agent-research",
+    "stem": "A coordinator and four research subagents all need the same 300-document source corpus. Pasting it into each subagent's prompt exhausts the context budget. Which MCP capability addresses this?",
+    "type": "single",
+    "source": "generated",
+    "difficulty": 3,
+    "explanation": null,
+    "options": [
+      {
+        "label": "A",
+        "body": "MCP resources — the server exposes the documents and each subagent reads only what it needs.",
+        "is_correct": true,
+        "rationale": "Correct. Resources are server-exposed data an agent pulls on demand, so the corpus is addressed by reference instead of copied into five prompts."
+      },
+      {
+        "label": "B",
+        "body": "MCP server-to-server transfer, where the corpus server hands the documents straight to the agents' own server so only one of them pays the loading cost.",
+        "is_correct": false,
+        "rationale": "MCP servers do not talk to each other. Every exchange goes through the client, which is the host application."
+      },
+      {
+        "label": "C",
+        "body": "MCP prompts, configured so the corpus is injected automatically at the start of each subagent's turn.",
+        "is_correct": false,
+        "rationale": "Prompts are reusable templates the user invokes; injecting 300 documents through them recreates the same context problem."
+      },
+      {
+        "label": "D",
+        "body": "None — MCP has no mechanism for shared data, so the corpus must be chunked and threaded through prompts regardless.",
+        "is_correct": false,
+        "rationale": "Resources exist precisely for this. Chunking through prompts is the workaround the protocol removes the need for."
+      }
+    ]
+  },
+  {
+    "id": "c2000000-0000-4000-8000-000000000202",
+    "task_code": "2.5",
+    "domain": 2,
+    "scenario": "multi-agent-research",
+    "stem": "A document-analysis subagent must determine which of 400 downloaded report files mention \"Section 45X\". Which built-in tool is the right one?",
+    "type": "single",
+    "source": "generated",
+    "difficulty": 1,
+    "explanation": null,
+    "options": [
+      {
+        "label": "A",
+        "body": "Grep — it searches inside file contents for a pattern.",
+        "is_correct": true,
+        "rationale": "Correct. Grep matches on content across many files at once, which is exactly the question being asked here."
+      },
+      {
+        "label": "B",
+        "body": "Glob — it matches file paths against a naming pattern.",
+        "is_correct": false,
+        "rationale": "Glob finds files by name or path. It cannot see what is written inside them."
+      },
+      {
+        "label": "C",
+        "body": "Read — open each of the 400 files in turn and scan them for the phrase.",
+        "is_correct": false,
+        "rationale": "This reaches the right answer but burns the context window on 400 full documents to learn one fact about each."
+      },
+      {
+        "label": "D",
+        "body": "Write — build an index file of the corpus first, then consult that index instead.",
+        "is_correct": false,
+        "rationale": "Write produces files, it does not search them, and building an index still requires reading the corpus first."
+      }
+    ]
+  },
+  {
+    "id": "c2000000-0000-4000-8000-000000000203",
+    "task_code": "2.1",
+    "domain": 2,
+    "scenario": "multi-agent-research",
+    "stem": "The system exposes one `research` tool that takes a topic and internally searches, fetches, and summarises. When a run fails the coordinator cannot tell which stage broke, nor retry only the fetch. What is the design fix?",
+    "type": "single",
+    "source": "generated",
+    "difficulty": 2,
+    "explanation": null,
+    "options": [
+      {
+        "label": "A",
+        "body": "Split it into separate `search`, `fetch`, and `summarise` tools with distinct boundaries.",
+        "is_correct": true,
+        "rationale": "Correct. A tool is the unit of both failure and retry. Three tools give three places to fail visibly and three things to retry independently."
+      },
+      {
+        "label": "B",
+        "body": "Keep the single tool and expand its description so the model has a full account of each of the three stages it runs through internally.",
+        "is_correct": false,
+        "rationale": "A description explains behaviour but cannot subdivide a call. One invocation still succeeds or fails as one unit."
+      },
+      {
+        "label": "C",
+        "body": "Keep the single tool and have it return a longer, more detailed internal log on every invocation.",
+        "is_correct": false,
+        "rationale": "Better logs aid diagnosis after the fact but still leave the coordinator unable to retry one stage."
+      },
+      {
+        "label": "D",
+        "body": "Add a `research_debug` tool that replays the last run so failures can be inspected afterwards.",
+        "is_correct": false,
+        "rationale": "This adds surface area to inspect a problem the interface should not create, and replay is not recovery."
+      }
+    ]
+  },
+  {
+    "id": "c2000000-0000-4000-8000-000000000204",
+    "task_code": "2.3",
+    "domain": 2,
+    "scenario": "multi-agent-research",
+    "stem": "Every claim in the final report must carry a citation, but the synthesis agent sometimes writes a paragraph in prose and never calls `cite_source`. Which configuration makes the call certain?",
+    "type": "single",
+    "source": "generated",
+    "difficulty": 2,
+    "explanation": null,
+    "options": [
+      {
+        "label": "A",
+        "body": "Set `tool_choice` to the specific named tool `cite_source` on the synthesis step.",
+        "is_correct": true,
+        "rationale": "Correct. Naming a specific tool in tool_choice compels that call. It is the only option here that turns a requirement into a guarantee rather than an instruction."
+      },
+      {
+        "label": "B",
+        "body": "Leave `tool_choice` on `auto` and add a strongly worded instruction that every single claim has to be cited without exception.",
+        "is_correct": false,
+        "rationale": "Under auto the model may still answer in prose. Emphasis in a prompt lowers the failure rate; it does not remove the option."
+      },
+      {
+        "label": "C",
+        "body": "Set `tool_choice` to `any`, letting the model pick whichever tool best suits the paragraph.",
+        "is_correct": false,
+        "rationale": "`any` compels some tool call but not this one, so the agent can satisfy it with an unrelated tool."
+      },
+      {
+        "label": "D",
+        "body": "Strip every tool except `cite_source` from the synthesis agent and let `auto` select the only one remaining.",
+        "is_correct": false,
+        "rationale": "Under `auto` the model can still call nothing at all, and removing the other tools cripples the step's real work."
+      }
+    ]
+  }
+]
