@@ -8,7 +8,22 @@ import { CoverageBadge } from "@/components/CoverageBadge";
 
 export const metadata = { title: "Practice — The Architect's Codex" };
 
-export default async function PracticePage() {
+/**
+ * Drill lengths. `long` is capped per card by what the bank actually holds —
+ * CI/CD has 26 questions, so a long CI/CD drill is 26, not a padded 30.
+ */
+const LENGTHS = { short: 15, long: 30 } as const;
+type Length = keyof typeof LENGTHS;
+
+export default async function PracticePage({
+  searchParams,
+}: {
+  searchParams: Promise<{ len?: string }>;
+}) {
+  const { len } = await searchParams;
+  const length: Length = len === "long" ? "long" : "short";
+  const want = LENGTHS[length];
+
   const [counts, scenarioCounts] = await Promise.all([
     getDomainQuestionCounts(),
     getScenarioQuestionCounts(),
@@ -36,9 +51,36 @@ export default async function PracticePage() {
       <CoverageBadge bankTotal={total} />
 
       {/* Mixed set */}
+      {/* Length toggle. A search param rather than client state, so the choice
+          survives a reload and can be linked to directly. */}
+      <div className="rise mt-8 flex flex-wrap items-center gap-2" style={{ animationDelay: "0.13s" }}>
+        <span className="font-mono text-xs uppercase tracking-widest text-muted">
+          Length
+        </span>
+        {(Object.keys(LENGTHS) as Length[]).map((key) => {
+          const active = key === length;
+          return (
+            <Link
+              key={key}
+              href={`/practice?len=${key}`}
+              scroll={false}
+              aria-current={active ? "true" : undefined}
+              className="rounded-md border px-3 py-1 font-mono text-xs capitalize transition-colors"
+              style={{
+                borderColor: active ? "var(--accent)" : "var(--border)",
+                color: active ? "var(--accent)" : "var(--text-muted)",
+              }}
+            >
+              {key} · {LENGTHS[key]}
+            </Link>
+          );
+        })}
+      </div>
+
+      {/* Mixed set */}
       <Link
-        href="/practice/run?n=12"
-        className="rise codex-panel group mt-8 flex items-center justify-between gap-4 px-6 py-5 transition-colors duration-300 hover:border-[color:var(--accent)]"
+        href={`/practice/run?n=${Math.min(want, total)}`}
+        className="rise codex-panel group mt-4 flex items-center justify-between gap-4 px-6 py-5 transition-colors duration-300 hover:border-[color:var(--accent)]"
         style={{ animationDelay: "0.15s" }}
       >
         <div>
@@ -46,7 +88,8 @@ export default async function PracticePage() {
             Mixed exam
           </div>
           <div className="mt-1 text-sm text-muted">
-            12 questions drawn across all 5 domains · weighted like the real exam
+            {Math.min(want, total)} questions drawn across all 5 domains ·
+            weighted like the real exam
           </div>
         </div>
         <span className="font-mono text-sm text-accent">{total} total →</span>
@@ -103,7 +146,10 @@ export default async function PracticePage() {
                   className="font-mono text-xs font-semibold"
                   style={{ color: disabled ? "var(--text-faint)" : accent }}
                 >
-                  {disabled ? "coming soon" : "start →"}
+                  {/* The count is repeated here on purpose: the length toggle
+                      scrolls off, and a drill should never start at a size the
+                      card didn't show. */}
+                  {disabled ? "coming soon" : `start ${Math.min(want, n)} →`}
                 </span>
               </div>
             </>
@@ -120,7 +166,7 @@ export default async function PracticePage() {
           ) : (
             <Link
               key={d.number}
-              href={`/practice/run?domain=${d.number}&n=${Math.min(n, 10)}`}
+              href={`/practice/run?domain=${d.number}&n=${Math.min(want, n)}`}
               className="rise codex-panel px-5 py-4 transition-shadow duration-300"
               style={{
                 animationDelay: `${0.2 + i * 0.05}s`,
@@ -202,7 +248,7 @@ export default async function PracticePage() {
                     color: disabled ? "var(--text-faint)" : "var(--accent)",
                   }}
                 >
-                  {disabled ? "coming soon" : "start →"}
+                  {disabled ? "coming soon" : `start ${Math.min(want, n)} →`}
                 </span>
               </div>
             </>
@@ -219,7 +265,7 @@ export default async function PracticePage() {
           ) : (
             <Link
               key={s.slug}
-              href={`/practice/run?scenario=${s.slug}&n=${Math.min(n, 12)}`}
+              href={`/practice/run?scenario=${s.slug}&n=${Math.min(want, n)}`}
               className="rise codex-panel px-5 py-4 transition-shadow duration-300"
               style={{ animationDelay: `${0.2 + i * 0.05}s` }}
             >

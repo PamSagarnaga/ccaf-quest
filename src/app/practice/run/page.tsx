@@ -26,7 +26,9 @@ export default async function RunPage({
   searchParams: Promise<{ domain?: string; n?: string; scenario?: string }>;
 }) {
   const params = await searchParams;
-  const n = params.n ? Math.max(1, Math.min(30, Number(params.n))) : 10;
+  // Ceiling is a sanity bound on a URL the user can edit, not a product limit.
+  // It sat at 30, which the long drill hits exactly — leave headroom.
+  const n = params.n ? Math.max(1, Math.min(60, Number(params.n))) : 15;
 
   // Scenario drill: the draw has to span every domain the scenario covers, so
   // it takes its own pool and its own session shell.
